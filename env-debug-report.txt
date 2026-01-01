@@ -1,0 +1,10 @@
+DATABASE_URL defined: Yes
+Length: 40
+Starts with "postgresql://": false
+Starts with "postgres://": false
+Starts with "file:": false
+Starts with "sqlite:": false
+Contains "?pgbouncer=true": false
+First 10 chars: "https://oo..."
+DIRECT_URL defined: Yes
+Starts with "postgresql://": false
