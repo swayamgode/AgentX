@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Settings, MoreHorizontal } from "lucide-react";
+import { Home, Settings, MoreHorizontal, Smile } from "lucide-react";
 
 export function LeftSidebar() {
     const pathname = usePathname();
 
     const navItems = [
         { icon: Home, label: "Home", href: "/" },
+        { icon: Smile, label: "Meme Studio", href: "/memes" },
         { icon: Settings, label: "Settings", href: "/settings" },
     ];
 
