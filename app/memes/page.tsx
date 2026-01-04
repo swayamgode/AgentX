@@ -3,8 +3,11 @@
 import { useState, useRef, useEffect } from "react";
 import { LeftSidebar } from "@/components/LeftSidebar";
 import { RightSidebar } from "@/components/RightSidebar";
-import { Download, Image as ImageIcon, Sparkles, RefreshCw, Grid } from "lucide-react";
+import { Download, Image as ImageIcon, Sparkles, RefreshCw, Grid, Share2, Video } from "lucide-react";
 import { MEME_TEMPLATES, MemeTemplate } from "@/lib/memes";
+import { PostingModal } from "@/components/PostingModal";
+import { SocialMediaConnect } from "@/components/SocialMediaConnect";
+import { canvasToVideoBlob, downloadVideoBlob } from "@/lib/video-converter";
 
 // Sub-component to render a single meme thumbnail
 function MemeThumbnail({
@@ -157,6 +160,12 @@ export default function MemePage() {
     const [aiTopic, setAiTopic] = useState("");
     const [isAiGenerating, setIsAiGenerating] = useState(false);
     const [generatedMemes, setGeneratedMemes] = useState<{ templateId: string; texts: string[] }[]>([]);
+
+    // Posting State
+    const [isPostingModalOpen, setIsPostingModalOpen] = useState(false);
+    const [videoBlob, setVideoBlob] = useState<Blob | null>(null);
+    const [isGeneratingVideo, setIsGeneratingVideo] = useState(false);
+    const [showSocialConnect, setShowSocialConnect] = useState(false);
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -374,6 +383,35 @@ export default function MemePage() {
         }
     };
 
+    const handleGenerateVideo = async () => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+
+        setIsGeneratingVideo(true);
+        try {
+            // Generate video from canvas
+            const blob = await canvasToVideoBlob(canvas, {
+                duration: 5,
+                fps: 30,
+                format: 'webm',
+            });
+            setVideoBlob(blob);
+            setIsPostingModalOpen(true);
+        } catch (error) {
+            console.error('Failed to generate video:', error);
+            alert('Failed to generate video. Please try downloading the image instead.');
+        } finally {
+            setIsGeneratingVideo(false);
+        }
+    };
+
+    const handleDownloadVideo = () => {
+        if (videoBlob) {
+            const formatSuffix = format === 'reels' ? 'reels' : 'square';
+            downloadVideoBlob(videoBlob, `meme-${selectedTemplate.name.replace(/\s+/g, '-').toLowerCase()}-${formatSuffix}-${Date.now()}.webm`);
+        }
+    };
+
     const handleAiGenerate = async () => {
         if (!aiTopic) return;
         setIsAiGenerating(true);
@@ -473,20 +511,64 @@ export default function MemePage() {
                             </div>
 
                             {/* Actions */}
-                            <div className="flex gap-3">
-                                <button
-                                    onClick={() => setTextInputs(Array(selectedTemplate.boxCount).fill(""))}
-                                    className="flex-1 bg-[#333] hover:bg-[#444] text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
-                                >
-                                    <RefreshCw size={18} /> Reset
-                                </button>
-                                <button
-                                    onClick={handleDownload}
-                                    className="flex-[2] bg-white hover:bg-[#e5e5e5] text-black font-bold py-3 rounded-xl transition-colors shadow-lg flex items-center justify-center gap-2"
-                                >
-                                    <Download size={18} /> Download
-                                </button>
+                            <div className="space-y-3">
+                                <div className="flex gap-3">
+                                    <button
+                                        onClick={() => setTextInputs(Array(selectedTemplate.boxCount).fill(""))}
+                                        className="flex-1 bg-[#333] hover:bg-[#444] text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+                                    >
+                                        <RefreshCw size={18} /> Reset
+                                    </button>
+                                    <button
+                                        onClick={handleDownload}
+                                        className="flex-1 bg-[#333] hover:bg-[#444] text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+                                    >
+                                        <Download size={18} /> Download
+                                    </button>
+                                </div>
+
+                                {format === 'reels' && (
+                                    <button
+                                        onClick={handleGenerateVideo}
+                                        disabled={isGeneratingVideo}
+                                        className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-3 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50"
+                                    >
+                                        {isGeneratingVideo ? (
+                                            <>
+                                                <Video className="animate-pulse" size={18} />
+                                                Generating Video...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Share2 size={18} />
+                                                Share to YouTube & Instagram
+                                            </>
+                                        )}
+                                    </button>
+                                )}
                             </div>
+                        </div>
+
+                        <hr className="border-[#333]" />
+
+                        {/* Social Media Connections */}
+                        <div className="space-y-4">
+                            <button
+                                onClick={() => setShowSocialConnect(!showSocialConnect)}
+                                className="w-full flex items-center justify-between p-4 bg-[#16181c] border border-[#333] rounded-xl hover:border-[#444] transition-colors"
+                            >
+                                <div className="flex items-center gap-2">
+                                    <Share2 className="text-purple-500" size={20} />
+                                    <h2 className="text-lg font-bold text-white">Social Media Accounts</h2>
+                                </div>
+                                <span className="text-[#71767b]">{showSocialConnect ? '▼' : '▶'}</span>
+                            </button>
+
+                            {showSocialConnect && (
+                                <div className="bg-[#16181c] border border-[#333] rounded-xl p-4">
+                                    <SocialMediaConnect />
+                                </div>
+                            )}
                         </div>
 
                         <hr className="border-[#333]" />
@@ -563,6 +645,14 @@ export default function MemePage() {
 
                 <RightSidebar />
             </div>
+
+            {/* Posting Modal */}
+            <PostingModal
+                isOpen={isPostingModalOpen}
+                onClose={() => setIsPostingModalOpen(false)}
+                videoBlob={videoBlob}
+                onDownload={handleDownloadVideo}
+            />
         </div>
     );
 }
