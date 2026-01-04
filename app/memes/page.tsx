@@ -34,22 +34,46 @@ function MemeThumbnail({
             // Draw Image
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-            // Rendering Logic (Simplified for thumbnail - no scaling logic needed as much)
+            // Helper function to wrap text
+            const wrapText = (text: string, maxWidth: number): string[] => {
+                const words = text.split(' ');
+                const lines: string[] = [];
+                let currentLine = words[0];
+
+                for (let i = 1; i < words.length; i++) {
+                    const testLine = currentLine + ' ' + words[i];
+                    const metrics = ctx.measureText(testLine);
+                    if (metrics.width > maxWidth) {
+                        lines.push(currentLine);
+                        currentLine = words[i];
+                    } else {
+                        currentLine = testLine;
+                    }
+                }
+                lines.push(currentLine);
+                return lines;
+            };
+
             const scale = canvas.width / template.width;
 
             template.textData.forEach((textConfig, i) => {
                 const content = texts[i] || "";
                 if (!content) return;
 
-                const fontSize = textConfig.fontSize * scale;
+                let fontSize = textConfig.fontSize * scale;
                 const isImpact = textConfig.style === "impact";
 
-                ctx.font = isImpact
-                    ? `900 ${fontSize}px Impact, Anton, sans-serif`
-                    : `700 ${fontSize}px Arial, sans-serif`;
+                const setFont = (size: number) => {
+                    ctx.font = isImpact
+                        ? `900 ${size}px Impact, Anton, sans-serif`
+                        : `700 ${size}px Arial, sans-serif`;
+                };
+
+                setFont(fontSize);
+
                 ctx.fillStyle = textConfig.color;
                 ctx.strokeStyle = textConfig.stroke;
-                ctx.lineWidth = isImpact ? 3 : 2; // Thinner for thumbnails
+                ctx.lineWidth = isImpact ? 2 : 1; // Thinner for thumbnails
                 ctx.textAlign = "center";
                 ctx.lineJoin = "round";
 
@@ -63,10 +87,55 @@ function MemeThumbnail({
                 const textToDraw = textConfig.allCaps !== false ? content.toUpperCase() : content;
                 ctx.textBaseline = textConfig.anchor === "middle" ? "middle" : textConfig.anchor === "bottom" ? "bottom" : "top";
 
-                if (textConfig.stroke !== "transparent") {
-                    ctx.strokeText(textToDraw, 0, 0);
+                // Calculate max width for text
+                const maxWidth = textConfig.maxWidth
+                    ? (canvas.width * textConfig.maxWidth / 100)
+                    : canvas.width * 0.9;
+
+                // Wrap text into multiple lines
+                let lines = wrapText(textToDraw, maxWidth);
+
+                // Scale down font if wrapped text is still too wide
+                let scaleFactor = 1;
+                let attempts = 0;
+                while (attempts < 10) {
+                    let maxLineWidth = 0;
+                    for (const line of lines) {
+                        const metrics = ctx.measureText(line);
+                        maxLineWidth = Math.max(maxLineWidth, metrics.width);
+                    }
+
+                    if (maxLineWidth <= maxWidth) break;
+
+                    scaleFactor *= 0.9;
+                    const newFontSize = Math.floor(fontSize * scaleFactor);
+                    setFont(newFontSize);
+                    ctx.lineWidth = isImpact ? 2 : 1;
+                    lines = wrapText(textToDraw, maxWidth);
+                    attempts++;
                 }
-                ctx.fillText(textToDraw, 0, 0);
+
+                // Calculate line height
+                const lineHeight = fontSize * scaleFactor * 1.2;
+
+                // Adjust starting Y position based on number of lines and anchor
+                let startY = 0;
+                if (textConfig.anchor === "middle") {
+                    startY = -(lines.length - 1) * lineHeight / 2;
+                } else if (textConfig.anchor === "bottom") {
+                    startY = -(lines.length - 1) * lineHeight;
+                }
+
+                // Draw each line
+                lines.forEach((line, lineIndex) => {
+                    const lineY = startY + (lineIndex * lineHeight);
+
+                    if (textConfig.stroke !== "transparent") {
+                        ctx.strokeText(line, 0, lineY);
+                    }
+                    ctx.fillText(line, 0, lineY);
+                });
+
                 ctx.restore();
             });
         };
@@ -82,6 +151,7 @@ function MemeThumbnail({
 export default function MemePage() {
     const [selectedTemplate, setSelectedTemplate] = useState<MemeTemplate>(MEME_TEMPLATES[0]);
     const [textInputs, setTextInputs] = useState<string[]>(Array(MEME_TEMPLATES[0].boxCount).fill(""));
+    const [format, setFormat] = useState<'square' | 'reels'>('square');
 
     // AI State
     const [aiTopic, setAiTopic] = useState("");
@@ -100,6 +170,30 @@ export default function MemePage() {
         });
     }, [selectedTemplate]);
 
+    // Helper function to wrap text
+    const wrapText = (
+        ctx: CanvasRenderingContext2D,
+        text: string,
+        maxWidth: number
+    ): string[] => {
+        const words = text.split(' ');
+        const lines: string[] = [];
+        let currentLine = words[0];
+
+        for (let i = 1; i < words.length; i++) {
+            const testLine = currentLine + ' ' + words[i];
+            const metrics = ctx.measureText(testLine);
+            if (metrics.width > maxWidth) {
+                lines.push(currentLine);
+                currentLine = words[i];
+            } else {
+                currentLine = testLine;
+            }
+        }
+        lines.push(currentLine);
+        return lines;
+    };
+
     // Main Canvas Drawing Logic
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -112,39 +206,84 @@ export default function MemePage() {
         image.src = selectedTemplate.url;
 
         image.onload = () => {
-            canvas.width = selectedTemplate.width;
-            canvas.height = selectedTemplate.height;
+            if (format === 'reels') {
+                // Reels format: 1080x1920 (9:16)
+                canvas.width = 1080;
+                canvas.height = 1920;
 
-            ctx.drawImage(image, 0, 0);
+                // Fill background with dark gradient
+                const gradient = ctx.createLinearGradient(0, 0, 0, 1920);
+                gradient.addColorStop(0, '#0a0a0a');
+                gradient.addColorStop(0.5, '#1a1a1a');
+                gradient.addColorStop(1, '#0a0a0a');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, 1080, 1920);
+
+                // Calculate meme dimensions (centered, max 1080x1080)
+                const memeAspect = selectedTemplate.width / selectedTemplate.height;
+                let memeWidth = 1080;
+                let memeHeight = 1080;
+
+                if (memeAspect > 1) {
+                    // Landscape - fit width
+                    memeHeight = 1080 / memeAspect;
+                } else if (memeAspect < 1) {
+                    // Portrait - fit height
+                    memeWidth = 1080 * memeAspect;
+                }
+
+                // Center the meme vertically
+                const memeX = (1080 - memeWidth) / 2;
+                const memeY = (1920 - memeHeight) / 2;
+
+                ctx.drawImage(image, memeX, memeY, memeWidth, memeHeight);
+
+                // Store meme position for text rendering
+                (canvas as any).memeOffset = { x: memeX, y: memeY, width: memeWidth, height: memeHeight };
+            } else {
+                // Square format (original)
+                canvas.width = selectedTemplate.width;
+                canvas.height = selectedTemplate.height;
+                ctx.drawImage(image, 0, 0);
+            }
 
             selectedTemplate.textData.forEach((textConfig, i) => {
                 const content = textInputs[i] || "";
 
-                // Render placeholder box if empty? No, just render nothing
                 if (!content) return;
 
                 ctx.save();
 
-                // Font Settings - Different styles for impact vs label
-                const fontSize = textConfig.fontSize;
+                // Font Settings
+                let fontSize = textConfig.fontSize;
                 const isImpact = textConfig.style === "impact";
 
-                // Impact uses Anton/Impact font, labels use Arial
-                ctx.font = isImpact
-                    ? `900 ${fontSize}px Impact, Anton, sans-serif`
-                    : `700 ${fontSize}px Arial, sans-serif`;
+                // Set initial font
+                const setFont = (size: number) => {
+                    ctx.font = isImpact
+                        ? `900 ${size}px Impact, Anton, sans-serif`
+                        : `700 ${size}px Arial, sans-serif`;
+                };
+
+                setFont(fontSize);
 
                 ctx.fillStyle = textConfig.color;
                 ctx.strokeStyle = textConfig.stroke;
-
-                // Impact text has thicker stroke
                 ctx.lineWidth = isImpact ? Math.floor(fontSize * 0.1) : Math.floor(fontSize * 0.05);
                 ctx.textAlign = "center";
                 ctx.lineJoin = "round";
 
                 // Position
-                const x = canvas.width * (textConfig.x / 100);
-                const y = canvas.height * (textConfig.y / 100);
+                let x, y;
+                if (format === 'reels' && (canvas as any).memeOffset) {
+                    // Adjust text position for reels format
+                    const offset = (canvas as any).memeOffset;
+                    x = offset.x + (offset.width * (textConfig.x / 100));
+                    y = offset.y + (offset.height * (textConfig.y / 100));
+                } else {
+                    x = canvas.width * (textConfig.x / 100);
+                    y = canvas.height * (textConfig.y / 100);
+                }
 
                 ctx.translate(x, y);
 
@@ -153,17 +292,65 @@ export default function MemePage() {
                     ctx.rotate((textConfig.rotation * Math.PI) / 180);
                 }
 
-                // Text Wrap Logic would go here (complex), 
-                // For now, simple scaling if too wide
-
                 const textToDraw = textConfig.allCaps !== false ? content.toUpperCase() : content;
                 ctx.textBaseline = textConfig.anchor === "middle" ? "middle" : textConfig.anchor === "bottom" ? "bottom" : "top";
 
-                // Only stroke if stroke color is not transparent
-                if (textConfig.stroke !== "transparent") {
-                    ctx.strokeText(textToDraw, 0, 0);
+                // Calculate max width for text
+                let maxWidth;
+                if (format === 'reels' && (canvas as any).memeOffset) {
+                    const offset = (canvas as any).memeOffset;
+                    maxWidth = textConfig.maxWidth
+                        ? (offset.width * textConfig.maxWidth / 100)
+                        : offset.width * 0.9;
+                } else {
+                    maxWidth = textConfig.maxWidth
+                        ? (canvas.width * textConfig.maxWidth / 100)
+                        : canvas.width * 0.9;
                 }
-                ctx.fillText(textToDraw, 0, 0);
+
+                // Wrap text into multiple lines
+                let lines = wrapText(ctx, textToDraw, maxWidth);
+
+                // Scale down font if wrapped text is still too wide
+                let scaleFactor = 1;
+                let attempts = 0;
+                while (attempts < 10) {
+                    let maxLineWidth = 0;
+                    for (const line of lines) {
+                        const metrics = ctx.measureText(line);
+                        maxLineWidth = Math.max(maxLineWidth, metrics.width);
+                    }
+
+                    if (maxLineWidth <= maxWidth) break;
+
+                    scaleFactor *= 0.9;
+                    const newFontSize = Math.floor(fontSize * scaleFactor);
+                    setFont(newFontSize);
+                    ctx.lineWidth = isImpact ? Math.floor(newFontSize * 0.1) : Math.floor(newFontSize * 0.05);
+                    lines = wrapText(ctx, textToDraw, maxWidth);
+                    attempts++;
+                }
+
+                // Calculate line height
+                const lineHeight = fontSize * scaleFactor * 1.2;
+
+                // Adjust starting Y position based on number of lines and anchor
+                let startY = 0;
+                if (textConfig.anchor === "middle") {
+                    startY = -(lines.length - 1) * lineHeight / 2;
+                } else if (textConfig.anchor === "bottom") {
+                    startY = -(lines.length - 1) * lineHeight;
+                }
+
+                // Draw each line
+                lines.forEach((line, lineIndex) => {
+                    const lineY = startY + (lineIndex * lineHeight);
+
+                    if (textConfig.stroke !== "transparent") {
+                        ctx.strokeText(line, 0, lineY);
+                    }
+                    ctx.fillText(line, 0, lineY);
+                });
 
                 ctx.restore();
             });
@@ -176,7 +363,8 @@ export default function MemePage() {
         try {
             const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
             const link = document.createElement("a");
-            link.download = `meme-${selectedTemplate.name.replace(/\s+/g, '-').toLowerCase()}-${Date.now()}.jpg`;
+            const formatSuffix = format === 'reels' ? 'reels' : 'square';
+            link.download = `meme-${selectedTemplate.name.replace(/\s+/g, '-').toLowerCase()}-${formatSuffix}-${Date.now()}.jpg`;
             link.href = dataUrl;
             document.body.appendChild(link);
             link.click();
@@ -224,9 +412,31 @@ export default function MemePage() {
                 <main className="flex-1 max-w-[600px] border-x border-[#333] min-h-screen flex flex-col">
                     {/* Header */}
                     <div className="sticky top-0 bg-black/80 backdrop-blur-md z-10 border-b border-[#333] p-4">
-                        <h1 className="text-xl font-bold text-white flex items-center gap-2">
-                            <Sparkles className="text-purple-500" /> Meme Studio
-                        </h1>
+                        <div className="flex items-center justify-between">
+                            <h1 className="text-xl font-bold text-white flex items-center gap-2">
+                                <Sparkles className="text-purple-500" /> Meme Studio
+                            </h1>
+                            <div className="flex gap-2 bg-[#16181c] rounded-lg p-1 border border-[#333]">
+                                <button
+                                    onClick={() => setFormat('square')}
+                                    className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-all ${format === 'square'
+                                        ? 'bg-white text-black'
+                                        : 'text-[#71767b] hover:text-white'
+                                        }`}
+                                >
+                                    Square
+                                </button>
+                                <button
+                                    onClick={() => setFormat('reels')}
+                                    className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-all ${format === 'reels'
+                                        ? 'bg-white text-black'
+                                        : 'text-[#71767b] hover:text-white'
+                                        }`}
+                                >
+                                    Reels
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
                     <div className="p-4 space-y-8 pb-32">
