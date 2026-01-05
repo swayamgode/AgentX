@@ -93,29 +93,98 @@ export function BulkMemeGenerator() {
         setError("");
 
         try {
-            const response = await fetch('/api/video/batch-create', {
+            // Step 1: Generate videos for each meme
+            setSuccess(`Generating ${generatedMemes.length} videos...`);
+
+            const videosWithBlobs = [];
+
+            for (let i = 0; i < generatedMemes.length; i++) {
+                const meme = generatedMemes[i];
+
+                try {
+                    // Generate video from meme config
+                    const videoBlob = await generateVideoFromMemeConfig(meme);
+                    videosWithBlobs.push({
+                        meme,
+                        blob: videoBlob,
+                        scheduledFor: schedule[i],
+                    });
+
+                    setSuccess(`Generated ${i + 1}/${generatedMemes.length} videos...`);
+                } catch (err) {
+                    console.error(`Failed to generate video ${i}:`, err);
+                }
+            }
+
+            // Step 2: Upload to YouTube
+            setSuccess(`Uploading ${videosWithBlobs.length} videos to YouTube...`);
+
+            const response = await fetch('/api/youtube/bulk-upload', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    memes: generatedMemes,
-                    schedule: schedule.map(d => d.toISOString()),
+                    memes: videosWithBlobs.map(v => v.meme),
+                    schedule: videosWithBlobs.map(v => v.scheduledFor.toISOString()),
                 }),
             });
 
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.error || 'Scheduling failed');
+                throw new Error(data.error || 'Upload failed');
             }
 
-            setSuccess(`Scheduled ${data.successful} videos successfully!`);
+            setSuccess(`✅ Successfully uploaded ${data.uploaded} videos to YouTube!`);
             setGeneratedMemes([]);
             setSchedule([]);
+
+            // Show uploaded video links
+            if (data.uploadedVideos && data.uploadedVideos.length > 0) {
+                console.log('Uploaded videos:', data.uploadedVideos);
+            }
+
         } catch (err: any) {
-            setError(err.message || 'Failed to schedule videos');
+            setError(err.message || 'Failed to upload videos');
         } finally {
             setIsScheduling(false);
         }
+    };
+
+    // Helper function to generate video from meme config
+    const generateVideoFromMemeConfig = async (meme: GeneratedMeme): Promise<Blob> => {
+        // Import video generation utilities
+        const { createVideoWithOverlays, loadVideo } = await import('@/lib/video-editor');
+        const { VIDEO_TEMPLATES } = await import('@/lib/video-templates');
+        const { AUDIO_LIBRARY } = await import('@/lib/audio-library');
+
+        // Get template and audio
+        const template = VIDEO_TEMPLATES.find(t => t.id === meme.templateId);
+        const audio = meme.audioId ? AUDIO_LIBRARY.find(a => a.id === meme.audioId) : null;
+
+        if (!template) {
+            throw new Error(`Template ${meme.templateId} not found`);
+        }
+
+        // Load video element
+        const videoElement = await loadVideo(template.videoUrl);
+
+        // Map text overlays
+        const textOverlays = template.textOverlays.map((overlay, index) => {
+            const memeText = meme.textOverlays[index];
+            return {
+                ...overlay,
+                text: memeText?.text || overlay.text,
+            };
+        });
+
+        // Generate video
+        const videoBlob = await createVideoWithOverlays(videoElement, {
+            template,
+            textOverlays,
+            audioTrack: audio || undefined,
+        });
+
+        return videoBlob;
     };
 
     const formattedSchedule = schedule.length > 0 ? formatSchedule(schedule) : [];
@@ -244,12 +313,12 @@ export function BulkMemeGenerator() {
                             {isScheduling ? (
                                 <>
                                     <Loader2 className="animate-spin" size={16} />
-                                    Scheduling...
+                                    Uploading...
                                 </>
                             ) : (
                                 <>
                                     <Calendar size={16} />
-                                    Schedule All
+                                    Upload to YouTube
                                 </>
                             )}
                         </button>
