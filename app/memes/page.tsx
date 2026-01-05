@@ -3,11 +3,16 @@
 import { useState, useRef, useEffect } from "react";
 import { LeftSidebar } from "@/components/LeftSidebar";
 import { RightSidebar } from "@/components/RightSidebar";
-import { Download, Image as ImageIcon, Sparkles, RefreshCw, Grid, Share2, Video } from "lucide-react";
+import { Download, Image as ImageIcon, Sparkles, RefreshCw, Grid, Share2, Video, Film } from "lucide-react";
 import { MEME_TEMPLATES, MemeTemplate } from "@/lib/memes";
 import { PostingModal } from "@/components/PostingModal";
 import { SocialMediaConnect } from "@/components/SocialMediaConnect";
 import { canvasToVideoBlob, downloadVideoBlob } from "@/lib/video-converter";
+import { VideoTemplateSelector } from "@/components/VideoTemplateSelector";
+import { AudioSelector } from "@/components/AudioSelector";
+import { VideoEditor } from "@/components/VideoEditor";
+import { VideoTemplate, VIDEO_TEMPLATES } from "@/lib/video-templates";
+import { AudioTrack } from "@/lib/audio-library";
 
 // Sub-component to render a single meme thumbnail
 function MemeThumbnail({
@@ -166,6 +171,13 @@ export default function MemePage() {
     const [videoBlob, setVideoBlob] = useState<Blob | null>(null);
     const [isGeneratingVideo, setIsGeneratingVideo] = useState(false);
     const [showSocialConnect, setShowSocialConnect] = useState(false);
+
+    // Tab State
+    const [activeTab, setActiveTab] = useState<'image' | 'video'>('image');
+
+    // Video Meme State
+    const [selectedVideoTemplate, setSelectedVideoTemplate] = useState<VideoTemplate>(VIDEO_TEMPLATES[0]);
+    const [selectedAudio, setSelectedAudio] = useState<AudioTrack | null>(null);
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -478,167 +490,210 @@ export default function MemePage() {
                     </div>
 
                     <div className="p-4 space-y-8 pb-32">
+                        {/* Image Memes Tab */}
+                        {activeTab === 'image' && (
+                            <>
 
-                        {/* Editor Section */}
-                        <div className="space-y-6">
+                                {/* Editor Section */}
+                                <div className="space-y-6">
 
-                            {/* Canvas */}
-                            <div className="bg-[#1a1a1a] rounded-2xl border border-[#333] p-4 flex justify-center items-center min-h-[300px]">
-                                <canvas
-                                    ref={canvasRef}
-                                    className="max-w-full max-h-[500px] object-contain shadow-2xl rounded-sm"
-                                />
-                            </div>
-
-                            {/* Inputs */}
-                            <div className="space-y-3 bg-[#16181c] p-4 rounded-2xl border border-[#333]">
-                                {selectedTemplate.textData.map((pos, idx) => (
-                                    <div key={pos.id}>
-                                        <label className="text-xs font-bold text-[#71767b] mb-1 block">TEXT {idx + 1}</label>
-                                        <input
-                                            type="text"
-                                            value={textInputs[idx] || ""}
-                                            onChange={(e) => {
-                                                const newTexts = [...textInputs];
-                                                newTexts[idx] = e.target.value;
-                                                setTextInputs(newTexts);
-                                            }}
-                                            className="w-full bg-[#000] border border-[#333] rounded-lg p-3 text-white focus:border-white transition-colors outline-none"
-                                            placeholder={`Text for ${pos.id}...`}
+                                    {/* Canvas */}
+                                    <div className="bg-[#1a1a1a] rounded-2xl border border-[#333] p-4 flex justify-center items-center min-h-[300px]">
+                                        <canvas
+                                            ref={canvasRef}
+                                            className="max-w-full max-h-[500px] object-contain shadow-2xl rounded-sm"
                                         />
                                     </div>
-                                ))}
-                            </div>
 
-                            {/* Actions */}
-                            <div className="space-y-3">
-                                <div className="flex gap-3">
-                                    <button
-                                        onClick={() => setTextInputs(Array(selectedTemplate.boxCount).fill(""))}
-                                        className="flex-1 bg-[#333] hover:bg-[#444] text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
-                                    >
-                                        <RefreshCw size={18} /> Reset
-                                    </button>
-                                    <button
-                                        onClick={handleDownload}
-                                        className="flex-1 bg-[#333] hover:bg-[#444] text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
-                                    >
-                                        <Download size={18} /> Download
-                                    </button>
-                                </div>
+                                    {/* Inputs */}
+                                    <div className="space-y-3 bg-[#16181c] p-4 rounded-2xl border border-[#333]">
+                                        {selectedTemplate.textData.map((pos, idx) => (
+                                            <div key={pos.id}>
+                                                <label className="text-xs font-bold text-[#71767b] mb-1 block">TEXT {idx + 1}</label>
+                                                <input
+                                                    type="text"
+                                                    value={textInputs[idx] || ""}
+                                                    onChange={(e) => {
+                                                        const newTexts = [...textInputs];
+                                                        newTexts[idx] = e.target.value;
+                                                        setTextInputs(newTexts);
+                                                    }}
+                                                    className="w-full bg-[#000] border border-[#333] rounded-lg p-3 text-white focus:border-white transition-colors outline-none"
+                                                    placeholder={`Text for ${pos.id}...`}
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
 
-                                {format === 'reels' && (
-                                    <button
-                                        onClick={handleGenerateVideo}
-                                        disabled={isGeneratingVideo}
-                                        className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-3 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50"
-                                    >
-                                        {isGeneratingVideo ? (
-                                            <>
-                                                <Video className="animate-pulse" size={18} />
-                                                Generating Video...
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Share2 size={18} />
-                                                Share to YouTube & Instagram
-                                            </>
+                                    {/* Actions */}
+                                    <div className="space-y-3">
+                                        <div className="flex gap-3">
+                                            <button
+                                                onClick={() => setTextInputs(Array(selectedTemplate.boxCount).fill(""))}
+                                                className="flex-1 bg-[#333] hover:bg-[#444] text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+                                            >
+                                                <RefreshCw size={18} /> Reset
+                                            </button>
+                                            <button
+                                                onClick={handleDownload}
+                                                className="flex-1 bg-[#333] hover:bg-[#444] text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+                                            >
+                                                <Download size={18} /> Download
+                                            </button>
+                                        </div>
+
+                                        {format === 'reels' && (
+                                            <button
+                                                onClick={handleGenerateVideo}
+                                                disabled={isGeneratingVideo}
+                                                className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-3 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50"
+                                            >
+                                                {isGeneratingVideo ? (
+                                                    <>
+                                                        <Video className="animate-pulse" size={18} />
+                                                        Generating Video...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Share2 size={18} />
+                                                        Share to YouTube & Instagram
+                                                    </>
+                                                )}
+                                            </button>
                                         )}
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-
-                        <hr className="border-[#333]" />
-
-                        {/* Social Media Connections */}
-                        <div className="space-y-4">
-                            <button
-                                onClick={() => setShowSocialConnect(!showSocialConnect)}
-                                className="w-full flex items-center justify-between p-4 bg-[#16181c] border border-[#333] rounded-xl hover:border-[#444] transition-colors"
-                            >
-                                <div className="flex items-center gap-2">
-                                    <Share2 className="text-purple-500" size={20} />
-                                    <h2 className="text-lg font-bold text-white">Social Media Accounts</h2>
+                                    </div>
                                 </div>
-                                <span className="text-[#71767b]">{showSocialConnect ? '▼' : '▶'}</span>
-                            </button>
 
-                            {showSocialConnect && (
-                                <div className="bg-[#16181c] border border-[#333] rounded-xl p-4">
-                                    <SocialMediaConnect />
-                                </div>
-                            )}
-                        </div>
+                                <hr className="border-[#333]" />
 
-                        <hr className="border-[#333]" />
-
-                        {/* AI Generator Section */}
-                        <div className="space-y-4">
-                            <div className="flex items-center gap-2 mb-2">
-                                <Sparkles className="text-[#1d9bf0]" size={20} />
-                                <h2 className="text-lg font-bold text-white">AI Magic Generator</h2>
-                            </div>
-
-                            <div className="flex gap-3">
-                                <input
-                                    value={aiTopic}
-                                    onChange={(e) => setAiTopic(e.target.value)}
-                                    placeholder="Enter a topic (e.g. 'Monday morning meetings')..."
-                                    className="flex-1 bg-[#16181c] border border-[#333] rounded-xl px-4 py-3 text-white focus:border-[#1d9bf0] outline-none"
-                                />
-                                <button
-                                    onClick={handleAiGenerate}
-                                    disabled={isAiGenerating || !aiTopic}
-                                    className="bg-[#1d9bf0] hover:bg-[#1a8cd8] text-white font-bold px-6 rounded-xl disabled:opacity-50 transition-colors"
-                                >
-                                    {isAiGenerating ? "Thinking..." : "Generate Ideas"}
-                                </button>
-                            </div>
-
-                            {/* Grid Results */}
-                            {generatedMemes.length > 0 && (
-                                <div className="grid grid-cols-2 gap-4 mt-4">
-                                    {generatedMemes.map((meme, i) => {
-                                        const tmpl = MEME_TEMPLATES.find(t => t.id === meme.templateId);
-                                        if (!tmpl) return null;
-                                        return (
-                                            <MemeThumbnail
-                                                key={i}
-                                                template={tmpl}
-                                                texts={meme.texts}
-                                                onClick={() => loadGeneratedMeme(meme)}
-                                            />
-                                        );
-                                    })}
-                                </div>
-                            )}
-                        </div>
-
-                        <hr className="border-[#333]" />
-
-                        {/* Template Library */}
-                        <div className="space-y-2">
-                            <label className="text-sm font-bold text-[#71767b] flex items-center gap-2">
-                                <Grid size={16} /> All Templates
-                            </label>
-                            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                                {MEME_TEMPLATES.map((t) => (
+                                {/* Social Media Connections */}
+                                <div className="space-y-4">
                                     <button
-                                        key={t.id}
-                                        onClick={() => {
-                                            setSelectedTemplate(t);
-                                            window.scrollTo({ top: 0, behavior: "smooth" });
-                                        }}
-                                        className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all ${selectedTemplate.id === t.id ? "border-white scale-105 shadow-xl" : "border-transparent opacity-60 hover:opacity-100"
-                                            }`}
+                                        onClick={() => setShowSocialConnect(!showSocialConnect)}
+                                        className="w-full flex items-center justify-between p-4 bg-[#16181c] border border-[#333] rounded-xl hover:border-[#444] transition-colors"
                                     >
-                                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                                        <img src={t.url} alt={t.name} className="w-full h-full object-cover" />
+                                        <div className="flex items-center gap-2">
+                                            <Share2 className="text-purple-500" size={20} />
+                                            <h2 className="text-lg font-bold text-white">Social Media Accounts</h2>
+                                        </div>
+                                        <span className="text-[#71767b]">{showSocialConnect ? '▼' : '▶'}</span>
                                     </button>
-                                ))}
-                            </div>
-                        </div>
+
+                                    {showSocialConnect && (
+                                        <div className="bg-[#16181c] border border-[#333] rounded-xl p-4">
+                                            <SocialMediaConnect />
+                                        </div>
+                                    )}
+                                </div>
+
+                                <hr className="border-[#333]" />
+
+                                {/* AI Generator Section */}
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <Sparkles className="text-[#1d9bf0]" size={20} />
+                                        <h2 className="text-lg font-bold text-white">AI Magic Generator</h2>
+                                    </div>
+
+                                    <div className="flex gap-3">
+                                        <input
+                                            value={aiTopic}
+                                            onChange={(e) => setAiTopic(e.target.value)}
+                                            placeholder="Enter a topic (e.g. 'Monday morning meetings')..."
+                                            className="flex-1 bg-[#16181c] border border-[#333] rounded-xl px-4 py-3 text-white focus:border-[#1d9bf0] outline-none"
+                                        />
+                                        <button
+                                            onClick={handleAiGenerate}
+                                            disabled={isAiGenerating || !aiTopic}
+                                            className="bg-[#1d9bf0] hover:bg-[#1a8cd8] text-white font-bold px-6 rounded-xl disabled:opacity-50 transition-colors"
+                                        >
+                                            {isAiGenerating ? "Thinking..." : "Generate Ideas"}
+                                        </button>
+                                    </div>
+
+                                    {/* Grid Results */}
+                                    {generatedMemes.length > 0 && (
+                                        <div className="grid grid-cols-2 gap-4 mt-4">
+                                            {generatedMemes.map((meme, i) => {
+                                                const tmpl = MEME_TEMPLATES.find(t => t.id === meme.templateId);
+                                                if (!tmpl) return null;
+                                                return (
+                                                    <MemeThumbnail
+                                                        key={i}
+                                                        template={tmpl}
+                                                        texts={meme.texts}
+                                                        onClick={() => loadGeneratedMeme(meme)}
+                                                    />
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <hr className="border-[#333]" />
+
+                                {/* Template Library */}
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-[#71767b] flex items-center gap-2">
+                                        <Grid size={16} /> All Templates
+                                    </label>
+                                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                                        {MEME_TEMPLATES.map((t) => (
+                                            <button
+                                                key={t.id}
+                                                onClick={() => {
+                                                    setSelectedTemplate(t);
+                                                    window.scrollTo({ top: 0, behavior: "smooth" });
+                                                }}
+                                                className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all ${selectedTemplate.id === t.id ? "border-white scale-105 shadow-xl" : "border-transparent opacity-60 hover:opacity-100"
+                                                    }`}
+                                            >
+                                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                <img src={t.url} alt={t.name} className="w-full h-full object-cover" />
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                            </>
+                        )}
+
+                        {/* Video Memes Tab */}
+                        {activeTab === 'video' && (
+                            <>
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                    {/* Left Column - Template & Audio Selection */}
+                                    <div className="space-y-6">
+                                        <VideoTemplateSelector
+                                            selectedTemplate={selectedVideoTemplate}
+                                            onSelect={setSelectedVideoTemplate}
+                                        />
+
+                                        <hr className="border-[#333]" />
+
+                                        <AudioSelector
+                                            selectedAudio={selectedAudio}
+                                            onSelect={setSelectedAudio}
+                                        />
+                                    </div>
+
+                                    {/* Right Column - Video Editor */}
+                                    <div>
+                                        <VideoEditor
+                                            template={selectedVideoTemplate}
+                                            audio={selectedAudio}
+                                            onExport={(blob) => {
+                                                downloadVideoBlob(blob, `video-meme-${selectedVideoTemplate.id}-${Date.now()}.webm`);
+                                            }}
+                                            onShare={(blob) => {
+                                                setVideoBlob(blob);
+                                                setIsPostingModalOpen(true);
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                            </>
+                        )}
 
                     </div>
                 </main>
