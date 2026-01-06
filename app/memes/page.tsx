@@ -569,13 +569,8 @@ export default function MemePage() {
                             {/* Editor Section */}
                             <div className="space-y-6">
 
-                                {/* Canvas */}
-                                <div className="bg-[#1a1a1a] rounded-2xl border border-[#333] p-4 flex justify-center items-center min-h-[300px]">
-                                    <canvas
-                                        ref={canvasRef}
-                                        className="max-w-full max-h-[500px] object-contain shadow-2xl rounded-sm"
-                                    />
-                                </div>
+                                {/* Hidden canvas for rendering - preview shown in PreviewPanel */}
+                                <canvas ref={canvasRef} className="hidden" />
 
                                 {/* Inputs */}
                                 <div className="space-y-3 bg-[#16181c] p-4 rounded-2xl border border-[#333]">
