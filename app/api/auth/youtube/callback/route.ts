@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { tokenStorage } from '@/lib/token-storage';
 
 export async function GET(request: NextRequest) {
     try {
@@ -7,19 +8,20 @@ export async function GET(request: NextRequest) {
         const error = searchParams.get('error');
 
         if (error) {
-            return NextResponse.redirect(`/?error=youtube_auth_failed&message=${error}`);
+            return NextResponse.redirect(new URL('/memes?error=youtube_auth_failed&message=' + error, request.url));
         }
 
         if (!code) {
-            return NextResponse.redirect('/?error=youtube_auth_failed&message=no_code');
+            return NextResponse.redirect(new URL('/memes?error=youtube_auth_failed&message=no_code', request.url));
         }
 
         const clientId = process.env.YOUTUBE_CLIENT_ID;
         const clientSecret = process.env.YOUTUBE_CLIENT_SECRET;
-        const redirectUri = process.env.YOUTUBE_REDIRECT_URI || 'http://localhost:3000/api/youtube/callback';
+        // Default to the path that matches Google Console (inferred from error)
+        const redirectUri = process.env.YOUTUBE_REDIRECT_URI || 'http://localhost:3000/api/auth/youtube/callback';
 
         if (!clientId || !clientSecret) {
-            return NextResponse.redirect('/?error=youtube_config_missing');
+            return NextResponse.redirect(new URL('/memes?error=youtube_config_missing', request.url));
         }
 
         // Exchange code for tokens
@@ -40,12 +42,15 @@ export async function GET(request: NextRequest) {
         if (!tokenResponse.ok) {
             const errorData = await tokenResponse.text();
             console.error('Token exchange failed:', errorData);
-            return NextResponse.redirect('/?error=youtube_token_exchange_failed');
+            return NextResponse.redirect(new URL('/memes?error=youtube_token_exchange_failed', request.url));
         }
 
         const tokens = await tokenResponse.json();
 
-        // Get user info
+        // Save to persistent storage
+        tokenStorage.save(tokens);
+
+        // Get user info for UI
         const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
             headers: {
                 Authorization: `Bearer ${tokens.access_token}`,
@@ -54,31 +59,13 @@ export async function GET(request: NextRequest) {
 
         const userInfo = await userInfoResponse.json();
 
-        // Store tokens in localStorage via redirect with tokens in URL (temporary solution)
-        // In production, store in database
-        const successUrl = new URL('/memes', request.nextUrl.origin);
+        // Redirect back to memes page
+        const successUrl = new URL('/memes', request.url);
         successUrl.searchParams.set('youtube_connected', 'true');
-        successUrl.searchParams.set('youtube_name', userInfo.name || 'YouTube User');
+        return NextResponse.redirect(successUrl);
 
-        // Store tokens in cookie (temporary - should use database)
-        const response = NextResponse.redirect(successUrl.toString());
-        response.cookies.set('youtube_access_token', tokens.access_token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            maxAge: tokens.expires_in || 3600,
-        });
-
-        if (tokens.refresh_token) {
-            response.cookies.set('youtube_refresh_token', tokens.refresh_token, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                maxAge: 60 * 60 * 24 * 30, // 30 days
-            });
-        }
-
-        return response;
     } catch (error) {
         console.error('YouTube callback error:', error);
-        return NextResponse.redirect('/?error=youtube_callback_failed');
+        return NextResponse.redirect(new URL('/memes?error=youtube_callback_failed', request.url));
     }
 }

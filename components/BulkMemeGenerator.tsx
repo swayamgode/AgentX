@@ -119,28 +119,44 @@ export function BulkMemeGenerator() {
             // Step 2: Upload to YouTube
             setSuccess(`Uploading ${videosWithBlobs.length} videos to YouTube...`);
 
-            const response = await fetch('/api/youtube/bulk-upload', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    memes: videosWithBlobs.map(v => v.meme),
-                    schedule: videosWithBlobs.map(v => v.scheduledFor.toISOString()),
-                }),
-            });
+            const uploadedVideos = [];
+            let successCount = 0;
+            let failCount = 0;
 
-            const data = await response.json();
+            for (const item of videosWithBlobs) {
+                const formData = new FormData();
+                formData.append('video', item.blob, `meme-${Date.now()}.webm`);
+                formData.append('title', item.meme.title);
+                formData.append('description', item.meme.description);
+                formData.append('tags', JSON.stringify(item.meme.tags));
 
-            if (!response.ok) {
-                throw new Error(data.error || 'Upload failed');
+                try {
+                    const response = await fetch('/api/youtube/upload-video', {
+                        method: 'POST',
+                        body: formData,
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        successCount++;
+                        uploadedVideos.push(data.videoUrl);
+                        setSuccess(`Uploaded ${successCount}/${videosWithBlobs.length} videos...`);
+                    } else {
+                        failCount++;
+                        console.error('Upload failed for video', await response.text());
+                    }
+                } catch (e) {
+                    failCount++;
+                    console.error('Upload network error', e);
+                }
             }
 
-            setSuccess(`✅ Successfully uploaded ${data.uploaded} videos to YouTube!`);
+            setSuccess(`✅ Batch complete! ${successCount} uploaded, ${failCount} failed.`);
             setGeneratedMemes([]);
             setSchedule([]);
 
-            // Show uploaded video links
-            if (data.uploadedVideos && data.uploadedVideos.length > 0) {
-                console.log('Uploaded videos:', data.uploadedVideos);
+            if (uploadedVideos.length > 0) {
+                console.log('Uploaded videos:', uploadedVideos);
             }
 
         } catch (err: any) {

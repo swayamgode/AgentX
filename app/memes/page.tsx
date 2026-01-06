@@ -13,6 +13,7 @@ import { AudioSelector } from "@/components/AudioSelector";
 import { VideoEditor } from "@/components/VideoEditor";
 import { VideoTemplate, VIDEO_TEMPLATES } from "@/lib/video-templates";
 import { AudioTrack } from "@/lib/audio-library";
+import { BulkMemeGenerator } from "@/components/BulkMemeGenerator"; // Import BulkMemeGenerator
 
 // Sub-component to render a single meme thumbnail
 function MemeThumbnail({
@@ -173,7 +174,7 @@ export default function MemePage() {
     const [showSocialConnect, setShowSocialConnect] = useState(false);
 
     // Tab State
-    const [activeTab, setActiveTab] = useState<'image' | 'video'>('image');
+    const [activeTab, setActiveTab] = useState<'image' | 'video' | 'bulk'>('image'); // Added 'bulk'
 
     // Video Meme State
     const [selectedVideoTemplate, setSelectedVideoTemplate] = useState<VideoTemplate>(VIDEO_TEMPLATES[0]);
@@ -461,8 +462,8 @@ export default function MemePage() {
 
                 <main className="flex-1 max-w-[600px] border-x border-[#333] min-h-screen flex flex-col">
                     {/* Header */}
-                    <div className="sticky top-0 bg-black/80 backdrop-blur-md z-10 border-b border-[#333] p-4">
-                        <div className="flex items-center justify-between">
+                    <div className="sticky top-0 bg-black/80 backdrop-blur-md z-10 border-b border-[#333]">
+                        <div className="p-4 flex items-center justify-between">
                             <h1 className="text-xl font-bold text-white flex items-center gap-2">
                                 <Sparkles className="text-purple-500" /> Meme Studio
                             </h1>
@@ -486,6 +487,46 @@ export default function MemePage() {
                                     Reels
                                 </button>
                             </div>
+                        </div>
+
+                        {/* Tabs */}
+                        <div className="flex px-4 border-t border-[#333]">
+                            <button
+                                onClick={() => setActiveTab('image')}
+                                className={`flex-1 py-3 text-sm font-bold border-b-2 transition-colors ${activeTab === 'image'
+                                    ? 'text-white border-[#1d9bf0]'
+                                    : 'text-[#71767b] border-transparent hover:bg-[#16181c]'
+                                    }`}
+                            >
+                                <div className="flex items-center justify-center gap-2">
+                                    <ImageIcon size={18} />
+                                    Image Memes
+                                </div>
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('video')}
+                                className={`flex-1 py-3 text-sm font-bold border-b-2 transition-colors ${activeTab === 'video'
+                                    ? 'text-white border-[#1d9bf0]'
+                                    : 'text-[#71767b] border-transparent hover:bg-[#16181c]'
+                                    }`}
+                            >
+                                <div className="flex items-center justify-center gap-2">
+                                    <Video size={18} />
+                                    Video Memes
+                                </div>
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('bulk')}
+                                className={`flex-1 py-3 text-sm font-bold border-b-2 transition-colors ${activeTab === 'bulk'
+                                    ? 'text-white border-purple-500' // Purple accent for special feature
+                                    : 'text-[#71767b] border-transparent hover:bg-[#16181c]'
+                                    }`}
+                            >
+                                <div className="flex items-center justify-center gap-2">
+                                    <Sparkles size={18} className={activeTab === 'bulk' ? 'text-purple-500' : ''} />
+                                    Auto Schedule
+                                </div>
+                            </button>
                         </div>
                     </div>
 
@@ -693,6 +734,13 @@ export default function MemePage() {
                                     </div>
                                 </div>
                             </>
+                        )}
+
+                        {/* Bulk Auto Schedule Tab */}
+                        {activeTab === 'bulk' && (
+                            <div className="animate-in fade-in duration-300">
+                                <BulkMemeGenerator />
+                            </div>
                         )}
 
                     </div>

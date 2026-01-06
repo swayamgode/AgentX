@@ -5,6 +5,7 @@ import { Key, Save, Check, AlertCircle, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { LeftSidebar } from "@/components/LeftSidebar";
 import { RightSidebar } from "@/components/RightSidebar";
+import { SocialMediaConnect } from "@/components/SocialMediaConnect";
 
 export default function SettingsPage() {
     const [apiKey, setApiKey] = useState("");
@@ -137,6 +138,13 @@ export default function SettingsPage() {
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+
+                    {/* Social Media Connections */}
+                    <div className="space-y-4">
+                        <div className="bg-black border border-[#333] rounded-2xl overflow-hidden p-6">
+                            <SocialMediaConnect />
                         </div>
                     </div>
 

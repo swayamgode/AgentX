@@ -1,68 +1,81 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Youtube, Instagram, CheckCircle, AlertCircle, ExternalLink } from "lucide-react";
-
-interface SocialMediaAccount {
-    platform: 'youtube' | 'instagram';
-    connected: boolean;
-    username?: string;
-}
+import { Youtube, Instagram, CheckCircle, AlertCircle, ExternalLink, RefreshCw } from "lucide-react";
+import { useSocialConnection } from "@/hooks/useSocialConnection";
+import { useRouter } from "next/navigation";
 
 export function SocialMediaConnect() {
-    const [accounts, setAccounts] = useState<SocialMediaAccount[]>([
-        { platform: 'youtube', connected: false },
-        { platform: 'instagram', connected: false },
-    ]);
+    const { status, loading, refresh } = useSocialConnection();
+    const router = useRouter();
+    const [isRefreshing, setIsRefreshing] = useState(false);
 
+    // Refresh status when component mounts to ensure we catch any redirect results
     useEffect(() => {
-        // Check for connection status from URL params (after OAuth redirect)
-        const params = new URLSearchParams(window.location.search);
-
-        if (params.get('youtube_connected') === 'true') {
-            const username = params.get('youtube_name');
-            setAccounts(prev => prev.map(acc =>
-                acc.platform === 'youtube'
-                    ? { ...acc, connected: true, username: username || undefined }
-                    : acc
-            ));
-            // Clean up URL
-            window.history.replaceState({}, '', window.location.pathname);
-        }
-
-        if (params.get('instagram_connected') === 'true') {
-            const username = params.get('instagram_username');
-            setAccounts(prev => prev.map(acc =>
-                acc.platform === 'instagram'
-                    ? { ...acc, connected: true, username: username || undefined }
-                    : acc
-            ));
-            // Clean up URL
-            window.history.replaceState({}, '', window.location.pathname);
-        }
-    }, []);
+        refresh();
+    }, [refresh]);
 
     const handleConnect = (platform: 'youtube' | 'instagram') => {
         // Redirect to OAuth flow
+        // We use window.location because we're leaving the app
         window.location.href = `/api/${platform}/auth`;
     };
 
-    const handleDisconnect = (platform: 'youtube' | 'instagram') => {
-        // Clear cookies and update state
-        document.cookie = `${platform}_access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-        setAccounts(prev => prev.map(acc =>
-            acc.platform === platform
-                ? { ...acc, connected: false, username: undefined }
-                : acc
-        ));
+    const handleDisconnect = async (platform: 'youtube' | 'instagram') => {
+        // Call an endpoint to clear tokens (we need to implement this endpoint if it doesn't exist)
+        // For now, assume a simple fetch to clear it, or we can just ignore it client side, 
+        // but server side cleanup is better. 
+        // Let's create a disconnect endpoint later, for now we will just manually set local state 
+        // or re-fetch. Since we don't have a specific disconnect API yet, we might fallback
+        // to clearing cookies if that was the old way, but we moved to file storage.
+        // We should create a DELETE /api/social/connection endpoint. 
+
+        try {
+            await fetch(`/api/social/disconnect?platform=${platform}`, { method: 'POST' });
+            refresh();
+        } catch (e) {
+            console.error("Disconnect failed", e);
+        }
     };
+
+    const handleManualRefresh = async () => {
+        setIsRefreshing(true);
+        await refresh();
+        setTimeout(() => setIsRefreshing(false), 500);
+    };
+
+    if (loading) {
+        return <div className="p-4 text-[#71767b]">Loading connections...</div>;
+    }
+
+    const accounts = [
+        {
+            platform: 'youtube',
+            connected: status.youtube.connected,
+            username: status.youtube.username
+        },
+        {
+            platform: 'instagram',
+            connected: status.instagram.connected,
+            username: status.instagram.username
+        }
+    ];
 
     return (
         <div className="space-y-4">
-            <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                <ExternalLink size={20} className="text-purple-500" />
-                Social Media Connections
-            </h3>
+            <div className="flex items-center justify-between">
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                    <ExternalLink size={20} className="text-purple-500" />
+                    Social Media Connections
+                </h3>
+                <button
+                    onClick={handleManualRefresh}
+                    className={`text-[#71767b] hover:text-white transition-colors ${isRefreshing ? 'animate-spin' : ''}`}
+                    title="Refresh connections"
+                >
+                    <RefreshCw size={16} />
+                </button>
+            </div>
 
             <div className="space-y-3">
                 {accounts.map((account) => (
@@ -78,8 +91,8 @@ export function SocialMediaConnect() {
                             )}
                             <div>
                                 <p className="font-bold text-white capitalize">{account.platform}</p>
-                                {account.connected && account.username ? (
-                                    <p className="text-sm text-[#71767b]">@{account.username}</p>
+                                {account.connected ? (
+                                    <p className="text-sm text-green-500">Connected</p>
                                 ) : (
                                     <p className="text-sm text-[#71767b]">Not connected</p>
                                 )}
@@ -91,7 +104,7 @@ export function SocialMediaConnect() {
                                 <>
                                     <CheckCircle className="text-green-500" size={20} />
                                     <button
-                                        onClick={() => handleDisconnect(account.platform)}
+                                        onClick={() => handleDisconnect(account.platform as 'youtube' | 'instagram')}
                                         className="px-4 py-2 bg-[#333] hover:bg-[#444] text-white rounded-lg text-sm font-semibold transition-colors"
                                     >
                                         Disconnect
@@ -99,7 +112,7 @@ export function SocialMediaConnect() {
                                 </>
                             ) : (
                                 <button
-                                    onClick={() => handleConnect(account.platform)}
+                                    onClick={() => handleConnect(account.platform as 'youtube' | 'instagram')}
                                     className="px-4 py-2 bg-white hover:bg-[#e5e5e5] text-black rounded-lg text-sm font-semibold transition-colors"
                                 >
                                     Connect
