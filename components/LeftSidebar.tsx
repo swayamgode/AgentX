@@ -10,7 +10,6 @@ export function LeftSidebar() {
     const navItems = [
         { icon: Home, label: "Home", href: "/" },
         { icon: Smile, label: "Meme Studio", href: "/memes" },
-        { icon: Calendar, label: "Schedule", href: "/schedule" },
         { icon: Settings, label: "Settings", href: "/settings" },
     ];
 

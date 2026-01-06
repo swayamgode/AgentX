@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { LeftSidebar } from "@/components/LeftSidebar";
-import { RightSidebar } from "@/components/RightSidebar";
+import { PreviewPanel } from "@/components/PreviewPanel";
 import { Download, Image as ImageIcon, Sparkles, RefreshCw, Grid, Share2, Video, Film } from "lucide-react";
 import { MEME_TEMPLATES, MemeTemplate } from "@/lib/memes";
 import { PostingModal } from "@/components/PostingModal";
@@ -13,7 +13,7 @@ import { AudioSelector } from "@/components/AudioSelector";
 import { VideoEditor } from "@/components/VideoEditor";
 import { VideoTemplate, VIDEO_TEMPLATES } from "@/lib/video-templates";
 import { AudioTrack } from "@/lib/audio-library";
-import { BulkMemeGenerator } from "@/components/BulkMemeGenerator"; // Import BulkMemeGenerator
+import { BulkMemeGenerator } from "@/components/BulkMemeGenerator";
 
 // Sub-component to render a single meme thumbnail
 function MemeThumbnail({
@@ -179,8 +179,12 @@ export default function MemePage() {
     // Video Meme State
     const [selectedVideoTemplate, setSelectedVideoTemplate] = useState<VideoTemplate>(VIDEO_TEMPLATES[0]);
     const [selectedAudio, setSelectedAudio] = useState<AudioTrack | null>(null);
+    const [videoAiTopic, setVideoAiTopic] = useState("");
+    const [isVideoAiGenerating, setIsVideoAiGenerating] = useState(false);
+    const [generatedVideoMemes, setGeneratedVideoMemes] = useState<{ templateId: string; textOverlays: { id: string; text: string }[] }[]>([]);
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const videoRef = useRef<HTMLVideoElement>(null);
 
     // Update text inputs when template changes
     useEffect(() => {
@@ -455,299 +459,394 @@ export default function MemePage() {
         }
     };
 
+    const handleVideoAiGenerate = async () => {
+        if (!videoAiTopic) return;
+        setIsVideoAiGenerating(true);
+        setGeneratedVideoMemes([]);
+        try {
+            const res = await fetch("/api/memes/generate-video", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ topic: videoAiTopic, count: 6 })
+            });
+            const data = await res.json();
+            if (data.memes) {
+                setGeneratedVideoMemes(data.memes);
+            }
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setIsVideoAiGenerating(false);
+        }
+    };
+
+    const loadGeneratedVideoMeme = (meme: { templateId: string; textOverlays: { id: string; text: string }[] }) => {
+        const template = VIDEO_TEMPLATES.find(t => t.id === meme.templateId);
+        if (template) {
+            setSelectedVideoTemplate(template);
+            // Update VideoEditor will need to accept these overlays
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+    };
+
     return (
-        <div className="flex justify-center min-h-screen bg-black text-[#e7e9ea]">
-            <div className="flex w-full max-w-[1265px]">
-                <LeftSidebar />
+        <div className="flex min-h-screen bg-black text-[#e7e9ea]">
+            <LeftSidebar />
 
-                <main className="flex-1 max-w-[600px] border-x border-[#333] min-h-screen flex flex-col">
-                    {/* Header */}
-                    <div className="sticky top-0 bg-black/80 backdrop-blur-md z-10 border-b border-[#333]">
-                        <div className="p-4 flex items-center justify-between">
-                            <h1 className="text-xl font-bold text-white flex items-center gap-2">
-                                <Sparkles className="text-purple-500" /> Meme Studio
-                            </h1>
-                            <div className="flex gap-2 bg-[#16181c] rounded-lg p-1 border border-[#333]">
-                                <button
-                                    onClick={() => setFormat('square')}
-                                    className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-all ${format === 'square'
-                                        ? 'bg-white text-black'
-                                        : 'text-[#71767b] hover:text-white'
-                                        }`}
-                                >
-                                    Square
-                                </button>
-                                <button
-                                    onClick={() => setFormat('reels')}
-                                    className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-all ${format === 'reels'
-                                        ? 'bg-white text-black'
-                                        : 'text-[#71767b] hover:text-white'
-                                        }`}
-                                >
-                                    Reels
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* Tabs */}
-                        <div className="flex px-4 border-t border-[#333]">
+            <main className="flex-1 border-x border-[#333] min-h-screen flex flex-col">
+                {/* Header */}
+                <div className="sticky top-0 bg-black/80 backdrop-blur-md z-10 border-b border-[#333]">
+                    <div className="p-4 flex items-center justify-between">
+                        <h1 className="text-xl font-bold text-white flex items-center gap-2">
+                            <Sparkles className="text-purple-500" /> Meme Studio
+                        </h1>
+                        <div className="flex gap-2 bg-[#16181c] rounded-lg p-1 border border-[#333]">
                             <button
-                                onClick={() => setActiveTab('image')}
-                                className={`flex-1 py-3 text-sm font-bold border-b-2 transition-colors ${activeTab === 'image'
-                                    ? 'text-white border-[#1d9bf0]'
-                                    : 'text-[#71767b] border-transparent hover:bg-[#16181c]'
+                                onClick={() => setFormat('square')}
+                                className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-all ${format === 'square'
+                                    ? 'bg-white text-black'
+                                    : 'text-[#71767b] hover:text-white'
                                     }`}
                             >
-                                <div className="flex items-center justify-center gap-2">
-                                    <ImageIcon size={18} />
-                                    Image Memes
-                                </div>
+                                Square
+                            </button>
+                            <button
+                                onClick={() => setFormat('reels')}
+                                className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-all ${format === 'reels'
+                                    ? 'bg-white text-black'
+                                    : 'text-[#71767b] hover:text-white'
+                                    }`}
+                            >
+                                Reels
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Modern Segmented Control Tabs */}
+                    <div className="px-4 pb-4">
+                        <div className="flex p-1 bg-[#16181c] border border-[#333] rounded-xl relative">
+                            {/* Sliding Background (Visual only - handled by state styles) */}
+                            {activeTab === 'image' && (
+                                <div className="absolute left-1 top-1 bottom-1 w-[calc(33.33%-4px)] bg-[#333] rounded-lg border border-[#444] shadow-sm transition-all duration-300" />
+                            )}
+                            {activeTab === 'video' && (
+                                <div className="absolute left-[calc(33.33%)] top-1 bottom-1 w-[calc(33.33%)] bg-[#333] rounded-lg border border-[#444] shadow-sm transition-all duration-300" />
+                            )}
+                            {activeTab === 'bulk' && (
+                                <div className="absolute right-1 top-1 bottom-1 w-[calc(33.33%-4px)] bg-[#333] rounded-lg border border-[#444] shadow-sm transition-all duration-300" />
+                            )}
+
+                            <button
+                                onClick={() => setActiveTab('image')}
+                                className={`relative z-10 flex-1 py-2 text-sm font-bold transition-colors rounded-lg flex items-center justify-center gap-2 ${activeTab === 'image' ? 'text-white' : 'text-[#71767b] hover:text-[#a1a1aa]'}`}
+                            >
+                                <ImageIcon size={16} />
+                                Image Memes
                             </button>
                             <button
                                 onClick={() => setActiveTab('video')}
-                                className={`flex-1 py-3 text-sm font-bold border-b-2 transition-colors ${activeTab === 'video'
-                                    ? 'text-white border-[#1d9bf0]'
-                                    : 'text-[#71767b] border-transparent hover:bg-[#16181c]'
-                                    }`}
+                                className={`relative z-10 flex-1 py-2 text-sm font-bold transition-colors rounded-lg flex items-center justify-center gap-2 ${activeTab === 'video' ? 'text-white' : 'text-[#71767b] hover:text-[#a1a1aa]'}`}
                             >
-                                <div className="flex items-center justify-center gap-2">
-                                    <Video size={18} />
-                                    Video Memes
-                                </div>
+                                <Video size={16} />
+                                Video Memes
                             </button>
                             <button
                                 onClick={() => setActiveTab('bulk')}
-                                className={`flex-1 py-3 text-sm font-bold border-b-2 transition-colors ${activeTab === 'bulk'
-                                    ? 'text-white border-purple-500' // Purple accent for special feature
-                                    : 'text-[#71767b] border-transparent hover:bg-[#16181c]'
-                                    }`}
+                                className={`relative z-10 flex-1 py-2 text-sm font-bold transition-colors rounded-lg flex items-center justify-center gap-2 ${activeTab === 'bulk' ? 'text-white' : 'text-[#71767b] hover:text-[#a1a1aa]'}`}
                             >
-                                <div className="flex items-center justify-center gap-2">
-                                    <Sparkles size={18} className={activeTab === 'bulk' ? 'text-purple-500' : ''} />
-                                    Auto Schedule
-                                </div>
+                                <Sparkles size={16} className={activeTab === 'bulk' ? 'text-purple-400' : ''} />
+                                Auto Schedule
                             </button>
                         </div>
                     </div>
+                </div>
 
-                    <div className="p-4 space-y-8 pb-32">
-                        {/* Image Memes Tab */}
-                        {activeTab === 'image' && (
-                            <>
+                <div className="p-4 space-y-8 pb-32">
+                    {/* Image Memes Tab */}
+                    {activeTab === 'image' && (
+                        <>
 
-                                {/* Editor Section */}
-                                <div className="space-y-6">
+                            {/* Editor Section */}
+                            <div className="space-y-6">
 
-                                    {/* Canvas */}
-                                    <div className="bg-[#1a1a1a] rounded-2xl border border-[#333] p-4 flex justify-center items-center min-h-[300px]">
-                                        <canvas
-                                            ref={canvasRef}
-                                            className="max-w-full max-h-[500px] object-contain shadow-2xl rounded-sm"
-                                        />
-                                    </div>
-
-                                    {/* Inputs */}
-                                    <div className="space-y-3 bg-[#16181c] p-4 rounded-2xl border border-[#333]">
-                                        {selectedTemplate.textData.map((pos, idx) => (
-                                            <div key={pos.id}>
-                                                <label className="text-xs font-bold text-[#71767b] mb-1 block">TEXT {idx + 1}</label>
-                                                <input
-                                                    type="text"
-                                                    value={textInputs[idx] || ""}
-                                                    onChange={(e) => {
-                                                        const newTexts = [...textInputs];
-                                                        newTexts[idx] = e.target.value;
-                                                        setTextInputs(newTexts);
-                                                    }}
-                                                    className="w-full bg-[#000] border border-[#333] rounded-lg p-3 text-white focus:border-white transition-colors outline-none"
-                                                    placeholder={`Text for ${pos.id}...`}
-                                                />
-                                            </div>
-                                        ))}
-                                    </div>
-
-                                    {/* Actions */}
-                                    <div className="space-y-3">
-                                        <div className="flex gap-3">
-                                            <button
-                                                onClick={() => setTextInputs(Array(selectedTemplate.boxCount).fill(""))}
-                                                className="flex-1 bg-[#333] hover:bg-[#444] text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
-                                            >
-                                                <RefreshCw size={18} /> Reset
-                                            </button>
-                                            <button
-                                                onClick={handleDownload}
-                                                className="flex-1 bg-[#333] hover:bg-[#444] text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
-                                            >
-                                                <Download size={18} /> Download
-                                            </button>
-                                        </div>
-
-                                        {format === 'reels' && (
-                                            <button
-                                                onClick={handleGenerateVideo}
-                                                disabled={isGeneratingVideo}
-                                                className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-3 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50"
-                                            >
-                                                {isGeneratingVideo ? (
-                                                    <>
-                                                        <Video className="animate-pulse" size={18} />
-                                                        Generating Video...
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <Share2 size={18} />
-                                                        Share to YouTube & Instagram
-                                                    </>
-                                                )}
-                                            </button>
-                                        )}
-                                    </div>
+                                {/* Canvas */}
+                                <div className="bg-[#1a1a1a] rounded-2xl border border-[#333] p-4 flex justify-center items-center min-h-[300px]">
+                                    <canvas
+                                        ref={canvasRef}
+                                        className="max-w-full max-h-[500px] object-contain shadow-2xl rounded-sm"
+                                    />
                                 </div>
 
-                                <hr className="border-[#333]" />
-
-                                {/* Social Media Connections */}
-                                <div className="space-y-4">
-                                    <button
-                                        onClick={() => setShowSocialConnect(!showSocialConnect)}
-                                        className="w-full flex items-center justify-between p-4 bg-[#16181c] border border-[#333] rounded-xl hover:border-[#444] transition-colors"
-                                    >
-                                        <div className="flex items-center gap-2">
-                                            <Share2 className="text-purple-500" size={20} />
-                                            <h2 className="text-lg font-bold text-white">Social Media Accounts</h2>
+                                {/* Inputs */}
+                                <div className="space-y-3 bg-[#16181c] p-4 rounded-2xl border border-[#333]">
+                                    {selectedTemplate.textData.map((pos, idx) => (
+                                        <div key={pos.id}>
+                                            <label className="text-xs font-bold text-[#71767b] mb-1 block">TEXT {idx + 1}</label>
+                                            <input
+                                                type="text"
+                                                value={textInputs[idx] || ""}
+                                                onChange={(e) => {
+                                                    const newTexts = [...textInputs];
+                                                    newTexts[idx] = e.target.value;
+                                                    setTextInputs(newTexts);
+                                                }}
+                                                className="w-full bg-[#000] border border-[#333] rounded-lg p-3 text-white focus:border-white transition-colors outline-none"
+                                                placeholder={`Text for ${pos.id}...`}
+                                            />
                                         </div>
-                                        <span className="text-[#71767b]">{showSocialConnect ? '▼' : '▶'}</span>
-                                    </button>
-
-                                    {showSocialConnect && (
-                                        <div className="bg-[#16181c] border border-[#333] rounded-xl p-4">
-                                            <SocialMediaConnect />
-                                        </div>
-                                    )}
+                                    ))}
                                 </div>
 
-                                <hr className="border-[#333]" />
-
-                                {/* AI Generator Section */}
-                                <div className="space-y-4">
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <Sparkles className="text-[#1d9bf0]" size={20} />
-                                        <h2 className="text-lg font-bold text-white">AI Magic Generator</h2>
-                                    </div>
-
+                                {/* Actions */}
+                                <div className="space-y-3">
                                     <div className="flex gap-3">
-                                        <input
-                                            value={aiTopic}
-                                            onChange={(e) => setAiTopic(e.target.value)}
-                                            placeholder="Enter a topic (e.g. 'Monday morning meetings')..."
-                                            className="flex-1 bg-[#16181c] border border-[#333] rounded-xl px-4 py-3 text-white focus:border-[#1d9bf0] outline-none"
-                                        />
                                         <button
-                                            onClick={handleAiGenerate}
-                                            disabled={isAiGenerating || !aiTopic}
-                                            className="bg-[#1d9bf0] hover:bg-[#1a8cd8] text-white font-bold px-6 rounded-xl disabled:opacity-50 transition-colors"
+                                            onClick={() => setTextInputs(Array(selectedTemplate.boxCount).fill(""))}
+                                            className="flex-1 bg-[#333] hover:bg-[#444] text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
                                         >
-                                            {isAiGenerating ? "Thinking..." : "Generate Ideas"}
+                                            <RefreshCw size={18} /> Reset
+                                        </button>
+                                        <button
+                                            onClick={handleDownload}
+                                            className="flex-1 bg-[#333] hover:bg-[#444] text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+                                        >
+                                            <Download size={18} /> Download
                                         </button>
                                     </div>
 
-                                    {/* Grid Results */}
-                                    {generatedMemes.length > 0 && (
-                                        <div className="grid grid-cols-2 gap-4 mt-4">
-                                            {generatedMemes.map((meme, i) => {
-                                                const tmpl = MEME_TEMPLATES.find(t => t.id === meme.templateId);
-                                                if (!tmpl) return null;
-                                                return (
-                                                    <MemeThumbnail
-                                                        key={i}
-                                                        template={tmpl}
-                                                        texts={meme.texts}
-                                                        onClick={() => loadGeneratedMeme(meme)}
-                                                    />
-                                                );
-                                            })}
-                                        </div>
+                                    {format === 'reels' && (
+                                        <button
+                                            onClick={handleGenerateVideo}
+                                            disabled={isGeneratingVideo}
+                                            className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-3 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50"
+                                        >
+                                            {isGeneratingVideo ? (
+                                                <>
+                                                    <Video className="animate-pulse" size={18} />
+                                                    Generating Video...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Share2 size={18} />
+                                                    Share to YouTube & Instagram
+                                                </>
+                                            )}
+                                        </button>
                                     )}
                                 </div>
-
-                                <hr className="border-[#333]" />
-
-                                {/* Template Library */}
-                                <div className="space-y-2">
-                                    <label className="text-sm font-bold text-[#71767b] flex items-center gap-2">
-                                        <Grid size={16} /> All Templates
-                                    </label>
-                                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                                        {MEME_TEMPLATES.map((t) => (
-                                            <button
-                                                key={t.id}
-                                                onClick={() => {
-                                                    setSelectedTemplate(t);
-                                                    window.scrollTo({ top: 0, behavior: "smooth" });
-                                                }}
-                                                className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all ${selectedTemplate.id === t.id ? "border-white scale-105 shadow-xl" : "border-transparent opacity-60 hover:opacity-100"
-                                                    }`}
-                                            >
-                                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                                <img src={t.url} alt={t.name} className="w-full h-full object-cover" />
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-
-                            </>
-                        )}
-
-                        {/* Video Memes Tab */}
-                        {activeTab === 'video' && (
-                            <>
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                    {/* Left Column - Template & Audio Selection */}
-                                    <div className="space-y-6">
-                                        <VideoTemplateSelector
-                                            selectedTemplate={selectedVideoTemplate}
-                                            onSelect={setSelectedVideoTemplate}
-                                        />
-
-                                        <hr className="border-[#333]" />
-
-                                        <AudioSelector
-                                            selectedAudio={selectedAudio}
-                                            onSelect={setSelectedAudio}
-                                        />
-                                    </div>
-
-                                    {/* Right Column - Video Editor */}
-                                    <div>
-                                        <VideoEditor
-                                            template={selectedVideoTemplate}
-                                            audio={selectedAudio}
-                                            onExport={(blob) => {
-                                                downloadVideoBlob(blob, `video-meme-${selectedVideoTemplate.id}-${Date.now()}.webm`);
-                                            }}
-                                            onShare={(blob) => {
-                                                setVideoBlob(blob);
-                                                setIsPostingModalOpen(true);
-                                            }}
-                                        />
-                                    </div>
-                                </div>
-                            </>
-                        )}
-
-                        {/* Bulk Auto Schedule Tab */}
-                        {activeTab === 'bulk' && (
-                            <div className="animate-in fade-in duration-300">
-                                <BulkMemeGenerator />
                             </div>
-                        )}
 
-                    </div>
-                </main>
+                            <hr className="border-[#333]" />
 
-                <RightSidebar />
-            </div>
+                            {/* Social Media Connections */}
+                            <div className="space-y-4">
+                                <button
+                                    onClick={() => setShowSocialConnect(!showSocialConnect)}
+                                    className="w-full flex items-center justify-between p-4 bg-[#16181c] border border-[#333] rounded-xl hover:border-[#444] transition-colors"
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <Share2 className="text-purple-500" size={20} />
+                                        <h2 className="text-lg font-bold text-white">Social Media Accounts</h2>
+                                    </div>
+                                    <span className="text-[#71767b]">{showSocialConnect ? '▼' : '▶'}</span>
+                                </button>
+
+                                {showSocialConnect && (
+                                    <div className="bg-[#16181c] border border-[#333] rounded-xl p-4">
+                                        <SocialMediaConnect />
+                                    </div>
+                                )}
+                            </div>
+
+                            <hr className="border-[#333]" />
+
+                            {/* AI Generator Section */}
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <Sparkles className="text-[#1d9bf0]" size={20} />
+                                    <h2 className="text-lg font-bold text-white">AI Magic Generator</h2>
+                                </div>
+
+                                <div className="flex gap-3">
+                                    <input
+                                        value={aiTopic}
+                                        onChange={(e) => setAiTopic(e.target.value)}
+                                        placeholder="Enter a topic (e.g. 'Monday morning meetings')..."
+                                        className="flex-1 bg-[#16181c] border border-[#333] rounded-xl px-4 py-3 text-white focus:border-[#1d9bf0] outline-none"
+                                    />
+                                    <button
+                                        onClick={handleAiGenerate}
+                                        disabled={isAiGenerating || !aiTopic}
+                                        className="bg-[#1d9bf0] hover:bg-[#1a8cd8] text-white font-bold px-6 rounded-xl disabled:opacity-50 transition-colors"
+                                    >
+                                        {isAiGenerating ? "Thinking..." : "Generate Ideas"}
+                                    </button>
+                                </div>
+
+                                {/* Grid Results */}
+                                {generatedMemes.length > 0 && (
+                                    <div className="grid grid-cols-2 gap-4 mt-4">
+                                        {generatedMemes.map((meme, i) => {
+                                            const tmpl = MEME_TEMPLATES.find(t => t.id === meme.templateId);
+                                            if (!tmpl) return null;
+                                            return (
+                                                <MemeThumbnail
+                                                    key={i}
+                                                    template={tmpl}
+                                                    texts={meme.texts}
+                                                    onClick={() => loadGeneratedMeme(meme)}
+                                                />
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </div>
+
+                            <hr className="border-[#333]" />
+
+                            {/* Template Library */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-[#71767b] flex items-center gap-2">
+                                    <Grid size={16} /> All Templates
+                                </label>
+                                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                                    {MEME_TEMPLATES.map((t) => (
+                                        <button
+                                            key={t.id}
+                                            onClick={() => {
+                                                setSelectedTemplate(t);
+                                                window.scrollTo({ top: 0, behavior: "smooth" });
+                                            }}
+                                            className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all ${selectedTemplate.id === t.id ? "border-white scale-105 shadow-xl" : "border-transparent opacity-60 hover:opacity-100"
+                                                }`}
+                                        >
+                                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                                            <img src={t.url} alt={t.name} className="w-full h-full object-cover" />
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                        </>
+                    )}
+
+                    {/* Video Memes Tab */}
+                    {activeTab === 'video' && (
+                        <>
+                            {/* AI Generator Section */}
+                            <div className="space-y-4 mb-8">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <Sparkles className="text-purple-500" size={20} />
+                                    <h2 className="text-lg font-bold text-white">AI Video Meme Generator</h2>
+                                </div>
+
+                                <div className="flex gap-3">
+                                    <input
+                                        value={videoAiTopic}
+                                        onChange={(e) => setVideoAiTopic(e.target.value)}
+                                        placeholder="Enter a topic (e.g. 'coding bugs', 'Monday mornings')..."
+                                        className="flex-1 bg-[#16181c] border border-[#333] rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none"
+                                    />
+                                    <button
+                                        onClick={handleVideoAiGenerate}
+                                        disabled={isVideoAiGenerating || !videoAiTopic}
+                                        className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold px-6 rounded-xl disabled:opacity-50 transition-colors"
+                                    >
+                                        {isVideoAiGenerating ? "Generating..." : "Generate Ideas"}
+                                    </button>
+                                </div>
+
+                                {/* Generated Video Memes Grid */}
+                                {generatedVideoMemes.length > 0 && (
+                                    <div className="grid grid-cols-2 gap-4 mt-4">
+                                        {generatedVideoMemes.map((meme, i) => {
+                                            const tmpl = VIDEO_TEMPLATES.find(t => t.id === meme.templateId);
+                                            if (!tmpl) return null;
+                                            return (
+                                                <div
+                                                    key={i}
+                                                    onClick={() => loadGeneratedVideoMeme(meme)}
+                                                    className="cursor-pointer hover:scale-105 transition-transform bg-[#16181c] border border-[#333] rounded-xl overflow-hidden hover:border-purple-500"
+                                                >
+                                                    <div className="aspect-video relative">
+                                                        <img
+                                                            src={tmpl.thumbnailUrl}
+                                                            alt={tmpl.name}
+                                                            className="w-full h-full object-cover"
+                                                        />
+                                                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-3">
+                                                            <div className="text-white text-xs font-bold">
+                                                                {meme.textOverlays[0]?.text}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="p-2">
+                                                        <p className="text-xs text-[#71767b] truncate">{tmpl.name}</p>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </div>
+
+                            <hr className="border-[#333]" />
+
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                {/* Left Column - Template & Audio Selection */}
+                                <div className="space-y-6">
+                                    <VideoTemplateSelector
+                                        selectedTemplate={selectedVideoTemplate}
+                                        onSelect={setSelectedVideoTemplate}
+                                    />
+
+                                    <hr className="border-[#333]" />
+
+                                    <AudioSelector
+                                        selectedAudio={selectedAudio}
+                                        onSelect={setSelectedAudio}
+                                    />
+                                </div>
+
+                                {/* Right Column - Video Editor */}
+                                <div>
+                                    <VideoEditor
+                                        template={selectedVideoTemplate}
+                                        audio={selectedAudio}
+                                        onExport={(blob) => {
+                                            downloadVideoBlob(blob, `video-meme-${selectedVideoTemplate.id}-${Date.now()}.webm`);
+                                        }}
+                                        onShare={(blob) => {
+                                            setVideoBlob(blob);
+                                            setIsPostingModalOpen(true);
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        </>
+                    )}
+
+                    {/* Bulk Auto Schedule Tab */}
+                    {activeTab === 'bulk' && (
+                        <div className="animate-in fade-in duration-300">
+                            <BulkMemeGenerator />
+                        </div>
+                    )}
+
+                </div>
+            </main>
+
+            {/* Fixed Preview Panel */}
+            <PreviewPanel
+                canvasRef={activeTab === 'image' ? canvasRef : undefined}
+                videoRef={activeTab === 'video' ? videoRef : undefined}
+                type={activeTab === 'bulk' ? 'image' : activeTab}
+                format={format}
+                onDownload={activeTab === 'image' ? handleDownload : handleDownloadVideo}
+                onShare={activeTab === 'image' ? handleGenerateVideo : () => setIsPostingModalOpen(true)}
+                isGenerating={isGeneratingVideo}
+            />
+
 
             {/* Posting Modal */}
             <PostingModal
