@@ -79,7 +79,7 @@ export function UnifiedMemeWorkflow() {
                     const ctx = canvas.getContext('2d');
 
                     if (ctx) {
-                        // Draw meme on canvas (simplified - you'd use your existing rendering logic)
+                        // Draw meme on canvas with proper text rendering
                         const img = new Image();
                         img.crossOrigin = "anonymous";
                         img.src = template.url;
@@ -87,38 +87,99 @@ export function UnifiedMemeWorkflow() {
                         await new Promise((resolve) => {
                             img.onload = () => {
                                 // Fill background
-                                ctx.fillStyle = '#0a0a0a';
+                                ctx.fillStyle = '#000000';
                                 ctx.fillRect(0, 0, 1080, 1920);
 
-                                // Draw image centered
+                                // Calculate image dimensions to fit in reels format
                                 const imgAspect = template.width / template.height;
                                 let imgWidth = 1080;
                                 let imgHeight = 1080 / imgAspect;
-                                const imgX = 0;
+
+                                // If image is taller than space, fit by height
+                                if (imgHeight > 1920) {
+                                    imgHeight = 1920;
+                                    imgWidth = 1920 * imgAspect;
+                                }
+
+                                const imgX = (1080 - imgWidth) / 2;
                                 const imgY = (1920 - imgHeight) / 2;
 
                                 ctx.drawImage(img, imgX, imgY, imgWidth, imgHeight);
 
-                                // Draw text overlays (simplified)
-                                ctx.fillStyle = 'white';
-                                ctx.font = 'bold 48px Impact';
+                                // Draw text overlays with proper wrapping and scaling
                                 ctx.textAlign = 'center';
-                                ctx.strokeStyle = 'black';
-                                ctx.lineWidth = 3;
+                                ctx.textBaseline = 'middle';
 
+                                // Function to wrap text
+                                const wrapText = (text: string, maxWidth: number, fontSize: number) => {
+                                    ctx.font = `bold ${fontSize}px Impact, Arial Black, sans-serif`;
+                                    const words = text.split(' ');
+                                    const lines: string[] = [];
+                                    let currentLine = words[0];
+
+                                    for (let i = 1; i < words.length; i++) {
+                                        const testLine = currentLine + ' ' + words[i];
+                                        const metrics = ctx.measureText(testLine);
+                                        if (metrics.width > maxWidth) {
+                                            lines.push(currentLine);
+                                            currentLine = words[i];
+                                        } else {
+                                            currentLine = testLine;
+                                        }
+                                    }
+                                    lines.push(currentLine);
+                                    return lines;
+                                };
+
+                                // Draw each text overlay
                                 meme.texts.forEach((text, i) => {
-                                    const y = i === 0 ? 200 : 1720;
-                                    ctx.strokeText(text.toUpperCase(), 540, y);
-                                    ctx.fillText(text.toUpperCase(), 540, y);
+                                    if (!text) return;
+
+                                    const maxWidth = 1000; // Max text width
+                                    let fontSize = 80;
+
+                                    // Auto-scale font size if text is too long
+                                    if (text.length > 30) fontSize = 60;
+                                    if (text.length > 50) fontSize = 50;
+
+                                    const lines = wrapText(text.toUpperCase(), maxWidth, fontSize);
+
+                                    // Position: top or bottom
+                                    const lineHeight = fontSize * 1.2;
+                                    const totalHeight = lines.length * lineHeight;
+                                    const startY = i === 0
+                                        ? 150 + (totalHeight / 2)
+                                        : 1920 - 150 - (totalHeight / 2);
+
+                                    // Draw each line
+                                    lines.forEach((line, lineIndex) => {
+                                        const y = startY + (lineIndex - (lines.length - 1) / 2) * lineHeight;
+
+                                        // Draw text with stroke for readability
+                                        ctx.font = `bold ${fontSize}px Impact, Arial Black, sans-serif`;
+                                        ctx.strokeStyle = '#000000';
+                                        ctx.lineWidth = fontSize / 10;
+                                        ctx.lineJoin = 'round';
+                                        ctx.miterLimit = 2;
+
+                                        // Multiple stroke passes for better outline
+                                        for (let j = 0; j < 3; j++) {
+                                            ctx.strokeText(line, 540, y);
+                                        }
+
+                                        // Fill text
+                                        ctx.fillStyle = '#FFFFFF';
+                                        ctx.fillText(line, 540, y);
+                                    });
                                 });
 
                                 resolve(null);
                             };
                         });
 
-                        // Convert to video
+                        // Convert to video - WebM format (browsers don't support MP4 encoding)
                         const videoBlob = await canvasToVideoBlob(canvas, {
-                            duration: 5,
+                            duration: 6,
                             fps: 30,
                             format: 'webm'
                         });
@@ -159,31 +220,52 @@ export function UnifiedMemeWorkflow() {
             // Upload videos to YouTube
             for (let i = 0; i < selectedMemes.length; i++) {
                 const meme = selectedMemes[i];
-                console.log(`Uploading video ${i + 1}/${selectedMemes.length}...`);
-
-                const formData = new FormData();
-                formData.append('video', meme.videoBlob!, `meme-${meme.id}.webm`);
-                formData.append('title', `${topic} Meme #${i + 1}`);
-                formData.append('description', `Funny meme about ${topic}\n\nGenerated with AI Meme Studio`);
-                formData.append('tags', JSON.stringify([topic, 'meme', 'funny', 'shorts']));
+                console.log(`Processing video ${i + 1}/${selectedMemes.length}...`);
 
                 try {
-                    const response = await fetch('/api/youtube/upload-video', {
+                    // Step 1: Convert WebM to MP4
+                    console.log(`Converting video ${i + 1} to MP4...`);
+                    const convertFormData = new FormData();
+                    convertFormData.append('video', meme.videoBlob!, `meme-${meme.id}.webm`);
+
+                    const convertResponse = await fetch('/api/video/convert', {
                         method: 'POST',
-                        body: formData
+                        body: convertFormData
                     });
 
-                    const data = await response.json();
+                    if (!convertResponse.ok) {
+                        const error = await convertResponse.json();
+                        throw new Error(`Conversion failed: ${error.error}`);
+                    }
 
-                    if (response.ok) {
+                    // Get MP4 blob
+                    const mp4Blob = await convertResponse.blob();
+                    console.log(`✓ Video ${i + 1} converted to MP4`);
+
+                    // Step 2: Upload MP4 to YouTube
+                    console.log(`Uploading video ${i + 1} to YouTube...`);
+                    const uploadFormData = new FormData();
+                    uploadFormData.append('video', mp4Blob, `meme-${meme.id}.mp4`);
+                    uploadFormData.append('title', `${topic} Meme #${i + 1}`);
+                    uploadFormData.append('description', `Funny meme about ${topic}\n\nGenerated with AI Meme Studio`);
+                    uploadFormData.append('tags', JSON.stringify([topic, 'meme', 'funny', 'shorts']));
+
+                    const uploadResponse = await fetch('/api/youtube/upload-video', {
+                        method: 'POST',
+                        body: uploadFormData
+                    });
+
+                    const data = await uploadResponse.json();
+
+                    if (uploadResponse.ok) {
                         successCount++;
                         console.log(`✓ Video ${i + 1} uploaded successfully:`, data.videoUrl);
                     } else {
-                        console.error(`✗ Video ${i + 1} failed:`, data.error);
+                        console.error(`✗ Video ${i + 1} upload failed:`, data.error);
                         errors.push(`Video ${i + 1}: ${data.error}`);
                     }
                 } catch (uploadError: any) {
-                    console.error(`✗ Video ${i + 1} upload error:`, uploadError);
+                    console.error(`✗ Video ${i + 1} error:`, uploadError);
                     errors.push(`Video ${i + 1}: ${uploadError.message}`);
                 }
             }
