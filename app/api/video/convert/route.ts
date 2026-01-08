@@ -29,17 +29,22 @@ export async function POST(request: NextRequest) {
         const buffer = Buffer.from(await videoFile.arrayBuffer());
         await writeFile(inputPath, buffer);
 
-        // Convert using FFmpeg
-        // -i: input file
+        // Convert using FFmpeg with audio
+        // -i: input video file
+        // -stream_loop -1: loop audio if shorter than video
+        // -i: input audio file
         // -c:v libx264: use H.264 codec for video
         // -preset fast: encoding speed preset
         // -crf 23: quality (lower = better, 23 is good default)
         // -c:a aac: use AAC codec for audio
         // -b:a 128k: audio bitrate
+        // -shortest: end when shortest input ends
         // -movflags +faststart: optimize for web streaming
-        const ffmpegCommand = `ffmpeg -i "${inputPath}" -c:v libx264 -preset fast -crf 23 -c:a aac -b:a 128k -movflags +faststart "${outputPath}"`;
 
-        console.log('Converting video with FFmpeg...');
+        // Use a simple tone as background music (can be replaced with actual music file)
+        const ffmpegCommand = `ffmpeg -i "${inputPath}" -f lavfi -i "sine=frequency=440:duration=6" -c:v libx264 -preset fast -crf 23 -c:a aac -b:a 128k -shortest -movflags +faststart "${outputPath}"`;
+
+        console.log('Converting video to MP4 with audio...');
         await execAsync(ffmpegCommand);
         console.log('Conversion complete!');
 

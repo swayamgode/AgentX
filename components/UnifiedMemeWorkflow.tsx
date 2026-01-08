@@ -217,14 +217,35 @@ export function UnifiedMemeWorkflow() {
             let successCount = 0;
             let errors: string[] = [];
 
-            // Upload videos to YouTube (WebM is supported)
+            // Convert and upload videos to YouTube
             for (let i = 0; i < selectedMemes.length; i++) {
                 const meme = selectedMemes[i];
-                console.log(`Uploading video ${i + 1}/${selectedMemes.length}...`);
+                console.log(`Processing video ${i + 1}/${selectedMemes.length}...`);
 
                 try {
+                    // Step 1: Convert WebM to MP4 with audio
+                    console.log(`Converting video ${i + 1} to MP4 with audio...`);
+                    const convertFormData = new FormData();
+                    convertFormData.append('video', meme.videoBlob!, `meme-${meme.id}.webm`);
+
+                    const convertResponse = await fetch('/api/video/convert', {
+                        method: 'POST',
+                        body: convertFormData
+                    });
+
+                    if (!convertResponse.ok) {
+                        const error = await convertResponse.json();
+                        throw new Error(`Conversion failed: ${error.error || 'Unknown error'}`);
+                    }
+
+                    // Get MP4 blob with audio
+                    const mp4Blob = await convertResponse.blob();
+                    console.log(`✓ Video ${i + 1} converted to MP4 with audio`);
+
+                    // Step 2: Upload MP4 to YouTube
+                    console.log(`Uploading video ${i + 1} to YouTube...`);
                     const uploadFormData = new FormData();
-                    uploadFormData.append('video', meme.videoBlob!, `meme-${meme.id}.webm`);
+                    uploadFormData.append('video', mp4Blob, `meme-${meme.id}.mp4`);
                     uploadFormData.append('title', `${topic} Meme #${i + 1}`);
                     uploadFormData.append('description', `Funny meme about ${topic}\n\nGenerated with AI Meme Studio`);
                     uploadFormData.append('tags', JSON.stringify([topic, 'meme', 'funny', 'shorts']));

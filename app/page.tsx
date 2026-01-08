@@ -8,7 +8,7 @@ import ApprovalModal from "@/components/ApprovalModal";
 import { Image, Smile, Calendar, MapPin, Layers, Globe, Sparkles, Video, Play, Youtube } from "lucide-react";
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<"post" | "bulk" | "video">("post");
+  const [activeTab, setActiveTab] = useState<"post" | "bulk">("post");
 
   // Single Post State
   const [postContent, setPostContent] = useState("");
@@ -194,13 +194,6 @@ export default function Home() {
               {activeTab === 'post' && <div className="absolute bottom-0 h-1 w-14 bg-white rounded-full left-1/2 -translate-x-1/2"></div>}
             </button>
             <button
-              onClick={() => setActiveTab("video")}
-              className={`flex-1 p-4 text-center font-bold relative hover:bg-[#1a1a1a] transition-colors ${activeTab === 'video' ? 'text-white' : 'text-[#71767b]'}`}
-            >
-              Video
-              {activeTab === 'video' && <div className="absolute bottom-0 h-1 w-14 bg-white rounded-full left-1/2 -translate-x-1/2"></div>}
-            </button>
-            <button
               onClick={() => setActiveTab("bulk")}
               className={`flex-1 p-4 text-center font-bold relative hover:bg-[#1a1a1a] transition-colors ${activeTab === 'bulk' ? 'text-white' : 'text-[#71767b]'}`}
             >
@@ -342,68 +335,8 @@ export default function Home() {
 
 
 
-          {
-            activeTab === 'video' && generatedVideo && (
-              <div className="p-4 border-b border-[#333] flex justify-center bg-[#0a0a0a]">
-                <div className="flex flex-col gap-4 items-center">
 
-                  <div className="relative w-[280px] aspect-[9/16] bg-[#1a1a1a] rounded-[2rem] border-4 border-[#333] overflow-hidden shadow-2xl flex flex-col group">
-                    {/* Top Overlay */}
-                    <div className="absolute top-4 left-0 right-0 z-30 flex justify-between px-4 text-white drop-shadow-md mix-blend-difference pointer-events-none">
-                      <span className="text-xs font-bold">Reels</span>
-                      <span className="text-xs">Camera</span>
-                    </div>
-
-                    {/* Rendered HTML Content - HD SCALED */}
-                    <div className="absolute top-0 left-0 w-[1080px] h-[1920px] bg-black origin-top-left scale-[0.25925] z-10 pointer-events-none select-none">
-                      <div
-                        className="w-full h-full overflow-hidden"
-                        dangerouslySetInnerHTML={{ __html: generatedVideo.html }}
-                      />
-                    </div>
-
-                    {/* Side Actions (Static) */}
-                    <div className="absolute right-2 bottom-20 flex flex-col gap-4 items-center z-30 mix-blend-difference pointer-events-none scale-90 origin-bottom-right">
-                      <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center"><Smile size={16} className="text-white" /></div>
-                      <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center"><Layers size={16} className="text-white" /></div>
-                      <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center"><Globe size={16} className="text-white" /></div>
-                    </div>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex flex-col gap-2 w-full max-w-[280px]">
-                    <button
-                      onClick={handleYouTubeUpload}
-                      disabled={isUploading}
-                      className="flex items-center justify-center gap-2 bg-[#FF0000] text-white px-4 py-2 rounded-xl font-bold hover:bg-[#cc0000] transition-colors shadow-lg disabled:opacity-50 text-sm"
-                    >
-                      {isUploading ? "Uploading..." : <><Youtube size={18} /> Post to YouTube</>}
-                    </button>
-
-                    <div className="flex gap-2">
-                      <button
-                        onClick={handleDownloadHtml}
-                        className="flex-1 bg-[#333] hover:bg-[#444] text-white py-2 rounded-xl font-bold text-sm transition-colors border border-white/10"
-                      >
-                        Download HTML
-                      </button>
-                      <button
-                        onClick={handleExportVideo}
-                        disabled={isExporting} // Ensure state is defined
-                        className="flex-1 bg-[#333] hover:bg-[#444] text-white py-2 rounded-xl font-bold text-sm transition-colors border border-white/10 flex items-center justify-center gap-2"
-                      >
-                        {isExporting ? "Exporting..." : <><Video size={14} /> Export Video</>}
-                      </button>
-                    </div>
-                    <p className="text-[10px] text-[#71767b] text-center">To record MP4: Click 'Record', select this Tab, and stop when done.</p>
-                  </div>
-
-                </div>
-              </div>
-            )
-          }
-
-          {activeTab !== 'video' && <Feed refreshTrigger={refreshFeed} />}
+          <Feed refreshTrigger={refreshFeed} />
 
         </main >
 
