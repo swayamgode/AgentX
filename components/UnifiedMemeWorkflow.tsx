@@ -217,35 +217,14 @@ export function UnifiedMemeWorkflow() {
             let successCount = 0;
             let errors: string[] = [];
 
-            // Upload videos to YouTube
+            // Upload videos to YouTube (WebM is supported)
             for (let i = 0; i < selectedMemes.length; i++) {
                 const meme = selectedMemes[i];
-                console.log(`Processing video ${i + 1}/${selectedMemes.length}...`);
+                console.log(`Uploading video ${i + 1}/${selectedMemes.length}...`);
 
                 try {
-                    // Step 1: Convert WebM to MP4
-                    console.log(`Converting video ${i + 1} to MP4...`);
-                    const convertFormData = new FormData();
-                    convertFormData.append('video', meme.videoBlob!, `meme-${meme.id}.webm`);
-
-                    const convertResponse = await fetch('/api/video/convert', {
-                        method: 'POST',
-                        body: convertFormData
-                    });
-
-                    if (!convertResponse.ok) {
-                        const error = await convertResponse.json();
-                        throw new Error(`Conversion failed: ${error.error}`);
-                    }
-
-                    // Get MP4 blob
-                    const mp4Blob = await convertResponse.blob();
-                    console.log(`✓ Video ${i + 1} converted to MP4`);
-
-                    // Step 2: Upload MP4 to YouTube
-                    console.log(`Uploading video ${i + 1} to YouTube...`);
                     const uploadFormData = new FormData();
-                    uploadFormData.append('video', mp4Blob, `meme-${meme.id}.mp4`);
+                    uploadFormData.append('video', meme.videoBlob!, `meme-${meme.id}.webm`);
                     uploadFormData.append('title', `${topic} Meme #${i + 1}`);
                     uploadFormData.append('description', `Funny meme about ${topic}\n\nGenerated with AI Meme Studio`);
                     uploadFormData.append('tags', JSON.stringify([topic, 'meme', 'funny', 'shorts']));
@@ -477,28 +456,32 @@ export function UnifiedMemeWorkflow() {
                         </div>
                     )}
 
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        {generatedMemes.filter(m => m.selected && m.videoBlob).map(meme => {
-                            const videoUrl = meme.videoBlob ? URL.createObjectURL(meme.videoBlob) : '';
-                            return (
-                                <div key={meme.id} className="bg-[#16181c] rounded-xl overflow-hidden border border-[#333] group">
-                                    <div className="aspect-[9/16] bg-black relative">
-                                        <video
-                                            src={videoUrl}
-                                            className="w-full h-full object-contain"
-                                            controls
-                                            loop
-                                            muted
-                                            playsInline
-                                        />
+                    {/* Video Preview Grid */}
+                    <div>
+                        <h3 className="text-lg font-bold text-white mb-3">Preview Videos ({generatedMemes.filter(m => m.selected && m.videoBlob).length})</h3>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            {generatedMemes.filter(m => m.selected && m.videoBlob).map(meme => {
+                                const videoUrl = meme.videoBlob ? URL.createObjectURL(meme.videoBlob) : '';
+                                return (
+                                    <div key={meme.id} className="bg-[#16181c] rounded-xl overflow-hidden border border-[#333] group hover:border-purple-500 transition-all">
+                                        <div className="aspect-[9/16] bg-black relative">
+                                            <video
+                                                src={videoUrl}
+                                                className="w-full h-full object-contain"
+                                                controls
+                                                loop
+                                                muted
+                                                playsInline
+                                            />
+                                        </div>
+                                        <div className="p-3">
+                                            <p className="text-white text-sm font-bold truncate">{meme.texts[0]}</p>
+                                            <p className="text-[#71767b] text-xs">Ready to upload</p>
+                                        </div>
                                     </div>
-                                    <div className="p-3">
-                                        <p className="text-white text-sm font-bold truncate">{meme.texts[0]}</p>
-                                        <p className="text-[#71767b] text-xs">Ready to upload</p>
-                                    </div>
-                                </div>
-                            );
-                        })}
+                                );
+                            })}
+                        </div>
                     </div>
 
                     <button

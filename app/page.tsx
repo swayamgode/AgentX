@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { LeftSidebar } from "@/components/LeftSidebar";
-import { RightSidebar } from "@/components/RightSidebar";
+import { PostingModal } from "@/components/PostingModal";
 import { Feed } from "@/components/Feed";
 import ApprovalModal from "@/components/ApprovalModal";
 import { Image, Smile, Calendar, MapPin, Layers, Globe, Sparkles, Video, Play, Youtube } from "lucide-react";
@@ -407,7 +407,6 @@ export default function Home() {
 
         </main >
 
-        <RightSidebar />
       </div >
 
       {showApprovalModal && (

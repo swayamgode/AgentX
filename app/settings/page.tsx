@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { Key, Save, Check, AlertCircle, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { LeftSidebar } from "@/components/LeftSidebar";
-import { RightSidebar } from "@/components/RightSidebar";
 import { SocialMediaConnect } from "@/components/SocialMediaConnect";
 
 export default function SettingsPage() {
@@ -154,8 +153,6 @@ export default function SettingsPage() {
 
                 </div>
             </main>
-
-            <RightSidebar />
         </div>
     );
 }

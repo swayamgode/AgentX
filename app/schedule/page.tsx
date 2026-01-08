@@ -1,7 +1,6 @@
 "use client";
 
 import { LeftSidebar } from "@/components/LeftSidebar";
-import { RightSidebar } from "@/components/RightSidebar";
 import { BulkMemeGenerator } from "@/components/BulkMemeGenerator";
 import { Calendar, TrendingUp } from "lucide-react";
 
@@ -72,8 +71,6 @@ export default function SchedulePage() {
                         </div>
                     </div>
                 </main>
-
-                <RightSidebar />
             </div>
         </div>
     );
