@@ -14,8 +14,9 @@ export async function POST(req: NextRequest) {
         }
 
         const { GoogleGenerativeAI } = await import('@google/generative-ai');
-        const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+        // process.env.GEMINI_API_KEY should be set in .env.local
+        // Using gemini-1.5-flash for speed and reliability
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
         const stylePrompts = {
             inspirational: 'inspirational and motivational',
@@ -49,11 +50,22 @@ Return ONLY the JSON array, no other text.`;
 
         let quotes;
         try {
-            const jsonMatch = responseText.match(/```json\s*([\s\S]*?)\s*```/) || responseText.match(/\[[\s\S]*\]/);
+            // Clean up regex to be more permissive
+            const jsonMatch = responseText.match(/```json\s*([\s\S]*?)\s*```/) ||
+                responseText.match(/\[[\s\S]*\]/);
+
             const jsonText = jsonMatch ? (jsonMatch[1] || jsonMatch[0]) : responseText;
-            quotes = JSON.parse(jsonText.trim());
+
+            // Clean any trailing commas or markdown artifacts if needed
+            const cleanJson = jsonText.replace(/,\s*]/g, ']').replace(/,\s*}/g, '}').trim();
+
+            quotes = JSON.parse(cleanJson);
+
+            if (!Array.isArray(quotes)) {
+                throw new Error("Response is not an array");
+            }
         } catch (parseError) {
-            console.error("Failed to parse AI response, using fallback");
+            console.error("Failed to parse AI response, using fallback. Response was:", responseText);
             quotes = generateFallbackQuotes(topic, count);
         }
 

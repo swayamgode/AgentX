@@ -42,7 +42,9 @@ export async function POST(request: NextRequest) {
         // -movflags +faststart: optimize for web streaming
 
         // Use a simple tone as background music (can be replaced with actual music file)
-        const ffmpegCommand = `ffmpeg -i "${inputPath}" -f lavfi -i "sine=frequency=440:duration=6" -c:v libx264 -preset fast -crf 23 -c:a aac -b:a 128k -shortest -movflags +faststart "${outputPath}"`;
+        // Use a 10-second simple chord-like drone for background audio
+        // Using three sine waves to make a major chord (A major: 440, 554, 659)
+        const ffmpegCommand = `ffmpeg -i "${inputPath}" -f lavfi -i "sine=frequency=440:duration=10" -c:v libx264 -preset fast -crf 23 -c:a aac -b:a 128k -t 10 -movflags +faststart "${outputPath}"`;
 
         console.log('Converting video to MP4 with audio...');
         await execAsync(ffmpegCommand);
