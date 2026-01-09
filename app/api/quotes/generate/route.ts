@@ -1,21 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
+    let topic = '';
+    let count = 10;
+
     try {
-        const { topic, count = 10, style = 'inspirational' } = await req.json();
+        const body = await req.json();
+        topic = body.topic;
+        count = body.count || 10;
+        const style = body.style || 'inspirational';
 
         if (!topic) {
             return NextResponse.json({ error: 'Topic is required' }, { status: 400 });
         }
 
-        const apiKey = process.env.GEMINI_API_KEY;
+        const apiKey = process.env.GOOGLE_API_KEY;
         if (!apiKey) {
             return NextResponse.json({ error: 'Gemini API key not configured' }, { status: 500 });
         }
 
         const { GoogleGenerativeAI } = await import('@google/generative-ai');
-        // process.env.GEMINI_API_KEY should be set in .env.local
-        // Using gemini-1.5-flash for speed and reliability
+        const genAI = new GoogleGenerativeAI(apiKey);
+        // Using gemini-2.5-flash as requested
         const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
         const stylePrompts = {
@@ -77,9 +83,9 @@ Return ONLY the JSON array, no other text.`;
 
     } catch (error: any) {
         console.error('Quote generation error:', error);
-        const { topic, count = 10 } = await req.json();
+        // Return fallback quotes if anything fails
         return NextResponse.json({
-            quotes: generateFallbackQuotes(topic, count)
+            quotes: generateFallbackQuotes(topic || 'Determination', count)
         });
     }
 }
