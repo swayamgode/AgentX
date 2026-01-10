@@ -125,3 +125,7 @@ body {
 .zoom-in {
   animation-name: zoomIn;
 }
+
+@utility container-query {
+  container-type: inline-size;
+}

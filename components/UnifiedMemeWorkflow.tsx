@@ -95,7 +95,7 @@ export function UnifiedMemeWorkflow() {
                                 let imgWidth = 1080;
                                 let imgHeight = 1080 / imgAspect;
 
-                                // If image is taller than space, fit by height
+                                // If image is taller than space, fit by height (rare for memes, usually fit width)
                                 if (imgHeight > 1920) {
                                     imgHeight = 1920;
                                     imgWidth = 1920 * imgAspect;
@@ -106,71 +106,89 @@ export function UnifiedMemeWorkflow() {
 
                                 ctx.drawImage(img, imgX, imgY, imgWidth, imgHeight);
 
-                                // Draw text overlays with proper wrapping and scaling
+                                // Draw text overlays using template coordinates
                                 ctx.textAlign = 'center';
                                 ctx.textBaseline = 'middle';
 
-                                // Function to wrap text
-                                const wrapText = (text: string, maxWidth: number, fontSize: number) => {
-                                    ctx.font = `bold ${fontSize}px Impact, Arial Black, sans-serif`;
-                                    const words = text.split(' ');
+                                meme.texts.forEach((text, i) => {
+                                    // Safety check for missing text or template data
+                                    if (!text || !template.textData[i]) return;
+
+                                    const textPos = template.textData[i];
+
+                                    // Calculate precise position relative to the image on canvas
+                                    const x = imgX + (textPos.x / 100) * imgWidth;
+                                    const y = imgY + (textPos.y / 100) * imgHeight;
+
+                                    // Font size calculation relative to image width on canvas
+                                    const fontSize = (textPos.fontSize / 1000) * imgWidth * (textPos.style === 'impact' ? 1.5 : 1);
+
+                                    // Configure context font
+                                    ctx.font = `900 ${fontSize}px ${textPos.style === 'impact' ? 'Impact, Arial Black' : 'Arial, Helvetica'}, sans-serif`;
+                                    ctx.textAlign = textPos.anchor === 'middle' ? 'center' : textPos.anchor as CanvasTextAlign;
+                                    if (textPos.anchor === 'top') ctx.textBaseline = 'top';
+                                    else if (textPos.anchor === 'bottom') ctx.textBaseline = 'bottom';
+                                    else ctx.textBaseline = 'middle';
+
+                                    // Colors
+                                    ctx.fillStyle = textPos.color;
+                                    ctx.strokeStyle = textPos.stroke;
+                                    ctx.lineWidth = fontSize / 15; // Proportional stroke
+                                    ctx.lineJoin = 'round';
+                                    ctx.miterLimit = 2;
+
+                                    // Transform for rotation if needed
+                                    ctx.save();
+                                    ctx.translate(x, y);
+                                    if (textPos.rotation) {
+                                        ctx.rotate((textPos.rotation * Math.PI) / 180);
+                                    }
+
+                                    // Function to wrap text
+                                    const maxWidth = (textPos.maxWidth ? textPos.maxWidth / 100 : 0.9) * imgWidth;
+                                    const words = (textPos.allCaps !== false ? text.toUpperCase() : text).split(' ');
                                     const lines: string[] = [];
                                     let currentLine = words[0];
 
-                                    for (let i = 1; i < words.length; i++) {
-                                        const testLine = currentLine + ' ' + words[i];
+                                    for (let j = 1; j < words.length; j++) {
+                                        const testLine = currentLine + ' ' + words[j];
                                         const metrics = ctx.measureText(testLine);
                                         if (metrics.width > maxWidth) {
                                             lines.push(currentLine);
-                                            currentLine = words[i];
+                                            currentLine = words[j];
                                         } else {
                                             currentLine = testLine;
                                         }
                                     }
                                     lines.push(currentLine);
-                                    return lines;
-                                };
-
-                                // Draw each text overlay
-                                meme.texts.forEach((text, i) => {
-                                    if (!text) return;
-
-                                    const maxWidth = 1000; // Max text width
-                                    let fontSize = 80;
-
-                                    // Auto-scale font size if text is too long
-                                    if (text.length > 30) fontSize = 60;
-                                    if (text.length > 50) fontSize = 50;
-
-                                    const lines = wrapText(text.toUpperCase(), maxWidth, fontSize);
-
-                                    // Position: top or bottom
-                                    const lineHeight = fontSize * 1.2;
-                                    const totalHeight = lines.length * lineHeight;
-                                    const startY = i === 0
-                                        ? 150 + (totalHeight / 2)
-                                        : 1920 - 150 - (totalHeight / 2);
 
                                     // Draw each line
+                                    const lineHeight = fontSize * 1.2;
+                                    const totalBlockHeight = lines.length * lineHeight;
+
+                                    // Adjust start Y based on anchor for multi-line block center adjustment if needed
+                                    // For simple single point anchors, we draw lines downwards from (0,0) after translation
+                                    // But if anchor is 'middle', we want the whole BLOCK centered.
+                                    // The ctx.textAlign handles horizontal centering. Vertical centering of the block needs logic if baseline is middle.
+                                    let startYOffset = 0;
+                                    if (ctx.textBaseline === 'middle') {
+                                        startYOffset = -((totalBlockHeight - lineHeight) / 2);
+                                    } else if (ctx.textBaseline === 'bottom') {
+                                        startYOffset = -(totalBlockHeight - lineHeight);
+                                    }
+
                                     lines.forEach((line, lineIndex) => {
-                                        const y = startY + (lineIndex - (lines.length - 1) / 2) * lineHeight;
+                                        const lineY = startYOffset + (lineIndex * lineHeight);
 
-                                        // Draw text with stroke for readability
-                                        ctx.font = `bold ${fontSize}px Impact, Arial Black, sans-serif`;
-                                        ctx.strokeStyle = '#000000';
-                                        ctx.lineWidth = fontSize / 10;
-                                        ctx.lineJoin = 'round';
-                                        ctx.miterLimit = 2;
-
-                                        // Multiple stroke passes for better outline
-                                        for (let j = 0; j < 3; j++) {
-                                            ctx.strokeText(line, 540, y);
+                                        // Draw stroke first
+                                        if (textPos.stroke !== 'transparent') {
+                                            ctx.strokeText(line, 0, lineY);
                                         }
-
-                                        // Fill text
-                                        ctx.fillStyle = '#FFFFFF';
-                                        ctx.fillText(line, 540, y);
+                                        // Then fill
+                                        ctx.fillText(line, 0, lineY);
                                     });
+
+                                    ctx.restore();
                                 });
 
                                 resolve(null);
@@ -179,7 +197,7 @@ export function UnifiedMemeWorkflow() {
 
                         // Convert to video - WebM format (browsers don't support MP4 encoding)
                         const videoBlob = await canvasToVideoBlob(canvas, {
-                            duration: 6,
+                            duration: 10, // Increased to 10s as requested
                             fps: 30,
                             format: 'webm'
                         });
@@ -461,6 +479,8 @@ export function UnifiedMemeWorkflow() {
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 p-4">
                             {generatedMemes.map(meme => {
                                 const template = MEME_TEMPLATES.find(t => t.id === meme.templateId);
+                                if (!template) return null;
+
                                 return (
                                     <div
                                         key={meme.id}
@@ -472,17 +492,54 @@ export function UnifiedMemeWorkflow() {
                                                 : 'border-transparent hover:border-white/20 hover:scale-102 opacity-70 hover:opacity-100'}
                                         `}
                                     >
-                                        <div className="aspect-[9/16] relative bg-black">
-                                            {template && (
-                                                <img src={template.url} alt={template.name} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
-                                            )}
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent flex flex-col justify-end p-4">
-                                                <p className="text-white text-sm font-bold line-clamp-3 leading-tight drop-shadow-md">
-                                                    {meme.texts[0]}
-                                                </p>
+                                        <div className="aspect-[9/16] relative bg-black flex items-center justify-center overflow-hidden">
+                                            {/* Preview Container: 9:16 Aspect Ratio based */}
+                                            <div className="relative w-full" style={{ aspectRatio: `${template.width}/${template.height}` }}>
+                                                <img src={template.url} alt={template.name} className="w-full h-full object-contain" />
+
+                                                {/* Text Overlays - Scaled Overlay using percents to match Canvas Logic */}
+                                                {meme.texts.map((text, idx) => {
+                                                    const textPos = template.textData[idx];
+                                                    if (!textPos) return null;
+
+                                                    // Calculate styles matching canvas logic as closely as possible in CSS
+                                                    // Note: CSS font-size vs Canvas font-size can vary slightly, but percentages help.
+                                                    // Canvas fontSize was relative to image WIDTH (1080 usually).
+                                                    // Here container width is 100%. So we use 'container' units or %.
+
+                                                    const isImpact = textPos.style === 'impact';
+
+                                                    return (
+                                                        <div
+                                                            key={idx}
+                                                            className="absolute flex items-center justify-center text-center leading-tight pointer-events-none"
+                                                            style={{
+                                                                left: `${textPos.x}%`,
+                                                                top: `${textPos.y}%`,
+                                                                transform: `translate(${textPos.anchor === 'middle' ? '-50%' : textPos.anchor === 'right' ? '-100%' : '0'}, ${textPos.anchor === 'middle' ? '-50%' : textPos.anchor === 'bottom' ? '-100%' : '0'}) rotate(${textPos.rotation || 0}deg)`,
+                                                                color: textPos.color,
+                                                                width: `${textPos.maxWidth || 80}%`,
+                                                                // Use viewport-like units or calc based on parent container width if possible. 
+                                                                // Since parent is fluid, we use standard font mapping.
+                                                                // Template fontSize is ~ 1/12 of width for 80px on 1000px width.
+                                                                // We'll use a rough multiplier for preview.
+                                                                fontSize: `${(textPos.fontSize / 10) * (isImpact ? 1.5 : 1)}cqw`, // Container Query Width would be ideal, but fallback to %
+                                                                fontFamily: isImpact ? 'Impact, Arial Black, sans-serif' : 'Arial, Helvetica, sans-serif',
+                                                                textShadow: textPos.stroke !== 'transparent'
+                                                                    ? `-1px -1px 0 ${textPos.stroke}, 1px -1px 0 ${textPos.stroke}, -1px 1px 0 ${textPos.stroke}, 1px 1px 0 ${textPos.stroke}`
+                                                                    : 'none',
+                                                                fontWeight: 900,
+                                                                textTransform: textPos.allCaps !== false ? 'uppercase' : 'none'
+                                                            }}
+                                                        >
+                                                            {text}
+                                                        </div>
+                                                    );
+                                                })}
                                             </div>
+
                                             {meme.selected && (
-                                                <div className="absolute top-3 right-3 bg-purple-500 rounded-full p-1.5 shadow-lg animate-in zoom-in duration-200">
+                                                <div className="absolute top-3 right-3 bg-purple-500 rounded-full p-1.5 shadow-lg animate-in zoom-in duration-200 z-20">
                                                     <CheckCircle size={16} className="text-white" />
                                                 </div>
                                             )}

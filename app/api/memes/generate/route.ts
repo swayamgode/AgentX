@@ -24,9 +24,12 @@ export async function POST(req: Request) {
         }
 
         const prompt = `
-      You are a hilarious creative humor bot.
-      Topic: "${topic}"
+      You are a world-class meme creator for 2026. Your goal is to create viral, "Gen Z" style, and "Shorts-ready" memes.
       
+      Topic: "${topic}"
+      Current Date: ${new Date().toLocaleDateString()}
+      Trends to consider: "365 buttons", "delulu", "gym resolutions", "POV", "Me vs. Guy she tells you not to worry about".
+
       Generate ${count} distinct meme ideas based on this topic.
       I will provide a list of Template IDs to use for each meme.
       
@@ -37,11 +40,11 @@ export async function POST(req: Request) {
       Each object must have:
       - "index": number (matching the index above)
       - "templateId": string
-      - "texts": string[] (Array of strings matching the required boxCount. Keep them short and punchy.)
+      - "texts": string[] (Array of strings matching the required boxCount. Keep them short, punchy, edgy, and relatable. Use ALL CAPS for classic memes, but normal case for labeling memes if appropriate.)
 
       Example JSON Structure:
       [
-        { "index": 0, "templateId": "drake", "texts": ["Using a Switch Statement", "Using a lookup map"] }
+        { "index": 0, "templateId": "drake", "texts": ["WRITING UNIT TESTS", "PUSHING TO PROD ON FRIDAY"] }
       ]
     `;
 
