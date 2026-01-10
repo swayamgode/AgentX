@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Sparkles, Video, Calendar, CheckCircle, Loader2, Play, Edit2, AlertCircle } from "lucide-react";
+import { Sparkles, Video, Calendar, CheckCircle, Loader2, Play, Edit2, AlertCircle, Wand2, X, Music, Share2, Download, Trash2 } from "lucide-react";
 import { MEME_TEMPLATES, MemeTemplate } from "@/lib/memes";
 import { canvasToVideoBlob } from "@/lib/video-converter";
 import { useSocialConnection } from "@/hooks/useSocialConnection";
@@ -309,182 +309,256 @@ export function UnifiedMemeWorkflow() {
     };
 
     return (
-        <div className="space-y-6">
-            {/* Progress Steps */}
-            <div className="flex items-center justify-between bg-[#16181c] p-4 rounded-2xl border border-[#333]">
-                {[
-                    { step: 'generate', label: 'Generate', icon: Sparkles },
-                    { step: 'review', label: 'Review', icon: Edit2 },
-                    { step: 'convert', label: 'Convert', icon: Video },
-                    { step: 'schedule', label: 'Schedule', icon: Calendar }
-                ].map(({ step, label, icon: Icon }, index) => (
-                    <div key={step} className="flex items-center gap-2">
-                        <div className={`flex items-center gap-2 px-4 py-2 rounded-lg ${currentStep === step ? 'bg-purple-500 text-white' :
-                            ['review', 'convert', 'schedule'].indexOf(currentStep) > ['review', 'convert', 'schedule'].indexOf(step as any) ? 'bg-green-500/20 text-green-400' :
-                                'bg-[#333] text-[#71767b]'
-                            }`}>
-                            <Icon size={18} />
-                            <span className="font-bold text-sm">{label}</span>
-                        </div>
-                        {index < 3 && <div className="w-8 h-0.5 bg-[#333]" />}
-                    </div>
-                ))}
+        <div className="w-full max-w-7xl mx-auto space-y-8 pb-20">
+            {/* Header */}
+            <div className="text-center space-y-4 mb-12">
+                <h1 className="text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 tracking-tight">
+                    Meme Studio
+                </h1>
+                <p className="text-xl text-gray-400 font-light max-w-2xl mx-auto">
+                    Create viral, shorts-ready memes for your social media in seconds using AI.
+                </p>
             </div>
 
-            {/* Step 1: Generate */}
-            {currentStep === 'generate' && (
-                <div className="bg-gradient-to-br from-[#1a1a1a] to-[#0a0a0a] p-8 rounded-3xl border border-[#333] shadow-xl space-y-6">
-                    <div className="text-center space-y-2">
-                        <h2 className="text-2xl font-bold text-white flex items-center justify-center gap-2">
-                            <Sparkles className="text-purple-500" size={28} />
-                            Generate Memes with AI
-                        </h2>
-                        <p className="text-[#71767b]">Enter a topic and let AI create funny memes for you</p>
-                    </div>
+            {/* Progress Steps */}
+            <div className="relative mb-16">
+                <div className="absolute top-1/2 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-white/10 to-transparent -z-10" />
+                <div className="flex justify-between max-w-4xl mx-auto px-4">
+                    {[
+                        { step: 'generate', label: 'Ideate & Generate', icon: Sparkles },
+                        { step: 'review', label: 'Curate Selection', icon: Edit2 },
+                        { step: 'convert', label: 'Render Video', icon: Video },
+                        { step: 'schedule', label: 'Publish', icon: Calendar }
+                    ].map(({ step, label, icon: Icon }, index) => {
+                        const isActive = currentStep === step;
+                        const isCompleted = ['generate', 'review', 'convert', 'schedule'].indexOf(currentStep) > ['generate', 'review', 'convert', 'schedule'].indexOf(step as any);
 
-                    <div className="space-y-4">
-                        <input
-                            value={topic}
-                            onChange={(e) => setTopic(e.target.value)}
-                            placeholder="Enter topic (e.g., 'Monday mornings', 'coding bugs')..."
-                            className="w-full bg-[#000] border border-[#333] rounded-xl px-4 py-4 text-white text-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 outline-none transition-all"
-                        />
-
-                        <div className="flex gap-3">
-                            {[10, 20, 50].map(num => (
-                                <button
-                                    key={num}
-                                    onClick={() => setQuantity(num)}
-                                    className={`flex-1 py-3 rounded-xl font-bold transition-all ${quantity === num
-                                        ? 'bg-purple-500 text-white'
-                                        : 'bg-[#333] text-[#71767b] hover:bg-[#444]'
-                                        }`}
-                                >
-                                    {num} Memes
-                                </button>
-                            ))}
-                        </div>
-
-                        <button
-                            onClick={handleGenerate}
-                            disabled={isGenerating || !topic}
-                            className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-purple-500/20 disabled:opacity-50 flex items-center justify-center gap-2"
-                        >
-                            {isGenerating ? (
-                                <>
-                                    <Loader2 className="animate-spin" size={20} />
-                                    Generating {quantity} Memes...
-                                </>
-                            ) : (
-                                <>
-                                    <Sparkles size={20} />
-                                    Generate {quantity} Memes
-                                </>
-                            )}
-                        </button>
-                    </div>
-                </div>
-            )}
-
-            {/* Step 2: Review */}
-            {currentStep === 'review' && (
-                <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                        <h2 className="text-xl font-bold text-white">Review Generated Memes</h2>
-                        <div className="flex gap-2">
-                            <button onClick={selectAll} className="px-4 py-2 bg-[#333] hover:bg-[#444] text-white rounded-lg text-sm font-bold">
-                                Select All
-                            </button>
-                            <button onClick={deselectAll} className="px-4 py-2 bg-[#333] hover:bg-[#444] text-white rounded-lg text-sm font-bold">
-                                Deselect All
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                        {generatedMemes.map(meme => {
-                            const template = MEME_TEMPLATES.find(t => t.id === meme.templateId);
-                            return (
-                                <div
-                                    key={meme.id}
-                                    onClick={() => toggleMemeSelection(meme.id)}
-                                    className={`relative cursor-pointer rounded-xl overflow-hidden border-2 transition-all ${meme.selected ? 'border-purple-500 scale-105' : 'border-[#333] hover:border-[#444]'
-                                        }`}
-                                >
-                                    {template && (
-                                        <img src={template.url} alt={template.name} className="w-full aspect-square object-cover" />
+                        return (
+                            <div key={step} className="flex flex-col items-center gap-4 group">
+                                <div className={`
+                                    w-14 h-14 rounded-2xl flex items-center justify-center border transition-all duration-300 relative overflow-hidden
+                                    ${isActive || isCompleted
+                                        ? 'border-purple-500 bg-purple-500/10 text-white shadow-[0_0_30px_rgba(168,85,247,0.3)]'
+                                        : 'border-white/10 bg-[#0a0a0a] text-gray-600 group-hover:border-white/30 group-hover:text-gray-400'}
+                                `}>
+                                    {(isActive || isCompleted) && (
+                                        <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/20 to-transparent" />
                                     )}
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-3">
-                                        <p className="text-white text-xs font-bold line-clamp-2">{meme.texts[0]}</p>
-                                    </div>
-                                    {meme.selected && (
-                                        <div className="absolute top-2 right-2 bg-purple-500 rounded-full p-1">
-                                            <CheckCircle size={20} className="text-white" />
-                                        </div>
-                                    )}
+                                    <Icon size={24} className="relative z-10" />
                                 </div>
-                            );
-                        })}
-                    </div>
-
-                    <button
-                        onClick={handleConvertToVideos}
-                        disabled={!generatedMemes.some(m => m.selected)}
-                        className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-purple-500/20 disabled:opacity-50 flex items-center justify-center gap-2"
-                    >
-                        <Video size={20} />
-                        Convert {generatedMemes.filter(m => m.selected).length} Memes to Videos
-                    </button>
+                                <span className={`text-sm font-medium transition-colors ${isActive || isCompleted ? 'text-white' : 'text-gray-600'}`}>
+                                    {label}
+                                </span>
+                            </div>
+                        );
+                    })}
                 </div>
-            )}
+            </div>
 
-            {/* Step 3: Convert */}
-            {currentStep === 'convert' && (
-                <div className="bg-gradient-to-br from-[#1a1a1a] to-[#0a0a0a] p-8 rounded-3xl border border-[#333] shadow-xl space-y-6 text-center">
-                    <Loader2 className="animate-spin text-purple-500 mx-auto" size={48} />
-                    <h2 className="text-2xl font-bold text-white">Converting to Videos...</h2>
-                    <div className="w-full bg-[#333] rounded-full h-3 overflow-hidden">
-                        <div
-                            className="bg-gradient-to-r from-purple-500 to-pink-500 h-full transition-all duration-300"
-                            style={{ width: `${conversionProgress}%` }}
-                        />
-                    </div>
-                    <p className="text-[#71767b]">{Math.round(conversionProgress)}% Complete</p>
-                </div>
-            )}
+            {/* Main Content Area */}
+            <div className="min-h-[600px] relative">
+                {/* Step 1: Generate */}
+                {currentStep === 'generate' && (
+                    <div className="max-w-3xl mx-auto animate-in fade-in zoom-in-95 duration-500">
+                        <div className="bg-[#0a0a0a]/80 backdrop-blur-2xl border border-white/10 rounded-[2rem] p-10 space-y-10 shadow-2xl relative overflow-hidden group">
+                            {/* Decorative gradients */}
+                            <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500/20 rounded-full blur-[100px] group-hover:bg-purple-500/30 transition-colors duration-700" />
+                            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-500/20 rounded-full blur-[100px] group-hover:bg-pink-500/30 transition-colors duration-700" />
 
-            {/* Step 4: Schedule */}
-            {currentStep === 'schedule' && (
-                <div className="space-y-4">
-                    <h2 className="text-xl font-bold text-white">Schedule to YouTube</h2>
+                            <div className="space-y-6 relative z-10">
+                                <div className="space-y-2">
+                                    <label className="text-lg font-bold text-white flex items-center gap-2">
+                                        <Wand2 className="text-purple-400" size={20} />
+                                        Meme Topic
+                                    </label>
+                                    <div className="relative group/input">
+                                        <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl blur opacity-20 group-focus-within/input:opacity-100 transition-opacity duration-300" />
+                                        <input
+                                            value={topic}
+                                            onChange={(e) => setTopic(e.target.value)}
+                                            placeholder="What's trending? e.g., 'POV: Senior Dev fixing bugs'..."
+                                            className="relative w-full bg-[#050505] border border-white/10 rounded-xl px-6 py-6 text-xl text-white placeholder:text-gray-600 focus:outline-none focus:border-transparent focus:ring-0 transition-all shadow-inner"
+                                            onKeyDown={(e) => e.key === 'Enter' && topic && !isGenerating && handleGenerate()}
+                                        />
+                                    </div>
+                                </div>
 
-                    {/* YouTube Connection Warning */}
-                    {!status.youtube && (
-                        <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 flex items-start gap-3">
-                            <AlertCircle className="text-yellow-500 flex-shrink-0 mt-0.5" size={20} />
-                            <div className="flex-1">
-                                <p className="text-yellow-500 font-bold mb-1">YouTube Not Connected</p>
-                                <p className="text-sm text-[#71767b] mb-3">
-                                    You need to connect your YouTube account before uploading videos.
-                                </p>
-                                <Link
-                                    href="/settings"
-                                    className="inline-block bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-4 py-2 rounded-lg text-sm transition-colors"
-                                >
-                                    Go to Settings
-                                </Link>
+                                <div className="space-y-4">
+                                    <label className="text-sm font-medium text-gray-400 uppercase tracking-wider ml-1">Quantity</label>
+                                    <div className="grid grid-cols-3 gap-6">
+                                        {[10, 20, 50].map(num => (
+                                            <button
+                                                key={num}
+                                                onClick={() => setQuantity(num)}
+                                                className={`
+                                                    relative py-6 rounded-2xl font-bold transition-all border group/btn overflow-hidden
+                                                    ${quantity === num
+                                                        ? 'bg-purple-500/10 border-purple-500 text-white shadow-[0_0_20px_rgba(168,85,247,0.2)]'
+                                                        : 'bg-white/5 border-white/5 text-gray-500 hover:bg-white/10 hover:border-white/20 hover:text-gray-300'}
+                                                `}
+                                            >
+                                                {quantity === num && (
+                                                    <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10" />
+                                                )}
+                                                <span className="text-3xl block mb-1">{num}</span>
+                                                <span className="text-xs uppercase tracking-widest opacity-60">Memes</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="pt-4">
+                                    <button
+                                        onClick={handleGenerate}
+                                        disabled={isGenerating || !topic}
+                                        className="w-full group/gen relative overflow-hidden bg-white text-black p-1 rounded-2xl transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed shadow-[0_0_40px_rgba(255,255,255,0.1)]"
+                                    >
+                                        <div className="relative bg-gradient-to-r from-purple-500 to-pink-600 rounded-xl px-8 py-6 transition-all group-hover/gen:opacity-90">
+                                            <div className="flex items-center justify-center gap-3 text-white font-black text-xl tracking-wide">
+                                                {isGenerating ? (
+                                                    <>
+                                                        <Loader2 className="animate-spin" size={28} />
+                                                        <span>COOKING M AGIC...</span>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Sparkles className="group-hover/gen:rotate-12 transition-transform" size={28} />
+                                                        <span>GENERATE MAGIC MEMES</span>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    )}
+                    </div>
+                )}
 
-                    {/* Video Preview Grid */}
-                    <div>
-                        <h3 className="text-lg font-bold text-white mb-3">Preview Videos ({generatedMemes.filter(m => m.selected && m.videoBlob).length})</h3>
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                            {generatedMemes.filter(m => m.selected && m.videoBlob).map(meme => {
+                {/* Step 2: Review */}
+                {currentStep === 'review' && (
+                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <div className="flex items-center justify-between bg-white/5 backdrop-blur-xl p-6 rounded-2xl border border-white/10 sticky top-4 z-50 shadow-2xl">
+                            <div className="flex items-center gap-4">
+                                <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                                    <CheckCircle className="text-purple-500" />
+                                    Review & Select
+                                </h2>
+                                <span className="px-3 py-1 bg-white/10 rounded-full text-sm font-medium text-gray-300">
+                                    {generatedMemes.filter(m => m.selected).length} selected
+                                </span>
+                            </div>
+                            <div className="flex gap-3">
+                                <button onClick={selectAll} className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-lg text-sm font-bold transition-colors">
+                                    Select All
+                                </button>
+                                <button onClick={deselectAll} className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-lg text-sm font-bold transition-colors">
+                                    Deselect All
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 p-4">
+                            {generatedMemes.map(meme => {
+                                const template = MEME_TEMPLATES.find(t => t.id === meme.templateId);
+                                return (
+                                    <div
+                                        key={meme.id}
+                                        onClick={() => toggleMemeSelection(meme.id)}
+                                        className={`
+                                            relative cursor-pointer rounded-2xl overflow-hidden border-2 transition-all duration-300 group
+                                            ${meme.selected
+                                                ? 'border-purple-500 scale-105 shadow-[0_0_30px_rgba(168,85,247,0.3)] z-10'
+                                                : 'border-transparent hover:border-white/20 hover:scale-102 opacity-70 hover:opacity-100'}
+                                        `}
+                                    >
+                                        <div className="aspect-[9/16] relative bg-black">
+                                            {template && (
+                                                <img src={template.url} alt={template.name} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                                            )}
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent flex flex-col justify-end p-4">
+                                                <p className="text-white text-sm font-bold line-clamp-3 leading-tight drop-shadow-md">
+                                                    {meme.texts[0]}
+                                                </p>
+                                            </div>
+                                            {meme.selected && (
+                                                <div className="absolute top-3 right-3 bg-purple-500 rounded-full p-1.5 shadow-lg animate-in zoom-in duration-200">
+                                                    <CheckCircle size={16} className="text-white" />
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        <div className="sticky bottom-8 max-w-xl mx-auto z-50">
+                            <button
+                                onClick={handleConvertToVideos}
+                                disabled={!generatedMemes.some(m => m.selected)}
+                                className="w-full bg-[#0a0a0a] border border-white/10 text-white p-2 rounded-2xl shadow-2xl disabled:opacity-0 transition-all duration-300 transform translate-y-0 disabled:translate-y-10"
+                            >
+                                <div className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl py-4 px-8 flex items-center justify-center gap-3 font-bold text-lg hover:brightness-110 transition-all">
+                                    <Video size={24} />
+                                    Convert {generatedMemes.filter(m => m.selected).length} Memes to Videos
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* Step 3: Convert */}
+                {currentStep === 'convert' && (
+                    <div className="max-w-xl mx-auto pt-20 animate-in fade-in zoom-in-95 duration-500">
+                        <div className="bg-[#0a0a0a] border border-white/10 p-12 rounded-[2.5rem] text-center space-y-10 shadow-[0_0_100px_rgba(168,85,247,0.1)] relative overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-b from-purple-500/5 to-transparent pointer-events-none" />
+
+                            <div className="relative">
+                                <div className="w-24 h-24 mx-auto bg-purple-500/10 rounded-full flex items-center justify-center mb-6">
+                                    <Loader2 className="animate-spin text-purple-500" size={48} />
+                                </div>
+                                <h2 className="text-4xl font-bold text-white mb-2">Rendering Magic</h2>
+                                <p className="text-gray-400">Transforming your ideas into viral videos...</p>
+                            </div>
+
+                            <div className="space-y-4">
+                                <div className="w-full bg-white/5 rounded-full h-4 overflow-hidden p-1 border border-white/5">
+                                    <div
+                                        className="bg-gradient-to-r from-purple-500 to-pink-500 h-full rounded-full transition-all duration-300 shadow-[0_0_15px_rgba(168,85,247,0.5)]"
+                                        style={{ width: `${conversionProgress}%` }}
+                                    />
+                                </div>
+                                <div className="flex justify-between text-xs font-mono text-gray-500 uppercase tracking-widest">
+                                    <span>Progress</span>
+                                    <span>{Math.round(conversionProgress)}%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Step 4: Schedule */}
+                {currentStep === 'schedule' && (
+                    <div className="space-y-8 animate-in fade-in slide-in-from-right-8 duration-500">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-3xl font-bold text-white">Ready to Publish</h2>
+                            {!status.youtube && (
+                                <Link
+                                    href="/settings"
+                                    className="flex items-center gap-2 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-500 border border-yellow-500/50 px-4 py-2 rounded-xl transition-all"
+                                >
+                                    <AlertCircle size={18} />
+                                    <span>Connect YouTube to Upload</span>
+                                </Link>
+                            )}
+                        </div>
+
+                        {/* Video Preview Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                            {generatedMemes.filter(m => m.selected && m.videoBlob).map((meme, i) => {
                                 const videoUrl = meme.videoBlob ? URL.createObjectURL(meme.videoBlob) : '';
                                 return (
-                                    <div key={meme.id} className="bg-[#16181c] rounded-xl overflow-hidden border border-[#333] group hover:border-purple-500 transition-all">
+                                    <div key={meme.id} className="bg-[#0a0a0a] rounded-2xl overflow-hidden border border-white/5 group hover:border-purple-500/50 transition-all duration-300 hover:shadow-2xl">
                                         <div className="aspect-[9/16] bg-black relative">
                                             <video
                                                 src={videoUrl}
@@ -495,40 +569,64 @@ export function UnifiedMemeWorkflow() {
                                                 playsInline
                                             />
                                         </div>
-                                        <div className="p-3">
-                                            <p className="text-white text-sm font-bold truncate">{meme.texts[0]}</p>
-                                            <p className="text-[#71767b] text-xs">Ready to upload</p>
+                                        <div className="p-4 space-y-3 bg-[#111]">
+                                            <div className="flex items-start justify-between gap-2">
+                                                <p className="text-white text-sm font-semibold line-clamp-2 leading-relaxed">
+                                                    {meme.texts[0]}
+                                                </p>
+                                                <span className="text-xs font-mono text-gray-500 bg-white/5 px-2 py-1 rounded">
+                                                    #{i + 1}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center gap-2 text-xs text-green-400">
+                                                <CheckCircle size={12} />
+                                                Video Optimized
+                                            </div>
                                         </div>
                                     </div>
                                 );
                             })}
                         </div>
-                    </div>
 
-                    <button
-                        onClick={handleSchedule}
-                        disabled={isScheduling || !status.youtube}
-                        className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-purple-500/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                    >
-                        {isScheduling ? (
-                            <>
-                                <Loader2 className="animate-spin" size={20} />
-                                Uploading to YouTube...
-                            </>
-                        ) : !status.youtube ? (
-                            <>
-                                <AlertCircle size={20} />
-                                Connect YouTube First
-                            </>
-                        ) : (
-                            <>
-                                <Calendar size={20} />
-                                Upload {generatedMemes.filter(m => m.selected && m.videoBlob).length} Videos to YouTube
-                            </>
-                        )}
-                    </button>
-                </div>
-            )}
+                        <div className="fixed bottom-8 right-8 left-8 max-w-4xl mx-auto md:left-auto md:w-auto z-50">
+                            <button
+                                onClick={handleSchedule}
+                                disabled={isScheduling || !status.youtube}
+                                className={`
+                                    w-full md:w-auto bg-white text-black rounded-2xl shadow-2xl transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:scale-100 disabled:grayscale
+                                    ${!status.youtube ? 'opacity-50 cursor-not-allowed' : ''}
+                                `}
+                            >
+                                <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-1 rounded-2xl">
+                                    <div className="bg-black/80 backdrop-blur-md rounded-xl px-8 py-4 flex items-center gap-4">
+                                        {isScheduling ? (
+                                            <>
+                                                <Loader2 className="animate-spin text-white" size={24} />
+                                                <div className="text-left">
+                                                    <div className="text-white font-bold">Uploading to YouTube...</div>
+                                                    <div className="text-purple-300 text-xs">Please wait while we publish</div>
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <div className="p-3 bg-purple-500 rounded-lg text-white">
+                                                    <Share2 size={24} />
+                                                </div>
+                                                <div className="text-left text-white">
+                                                    <div className="font-bold text-lg">Upload to YouTube Shorts</div>
+                                                    <div className="text-gray-400 text-xs">
+                                                        {generatedMemes.filter(m => m.selected && m.videoBlob).length} videos ready to go
+                                                    </div>
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }
