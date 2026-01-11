@@ -335,6 +335,52 @@ export function QuotesGenerator() {
 
                     {/* Right Column: Style & Media Settings */}
                     <div className="flex-1 space-y-6">
+
+                        {/* Live Preview Card */}
+                        <div className="bg-[#1a1a1a] rounded-3xl border border-[#333] p-4 flex flex-col items-center">
+                            <div className="flex items-center gap-2 mb-3 self-start text-gray-400 text-xs font-bold uppercase tracking-wider">
+                                <Monitor size={12} /> Live Preview
+                            </div>
+
+                            <div
+                                className={`relative group overflow-hidden rounded-2xl border border-[#333] shadow-2xl transition-all duration-300 ${aspectRatio === 'story' ? 'aspect-[9/16] w-48' : 'aspect-square w-64'}`}
+                            >
+                                {/* Preview Background */}
+                                <div className="absolute inset-0 z-0">
+                                    {backgroundType === 'image' && backgroundImage ? (
+                                        <>
+                                            <img src={backgroundImage} alt="bg" className="w-full h-full object-cover" />
+                                            <div className="absolute inset-0 bg-black/60" />
+                                        </>
+                                    ) : (
+                                        <div
+                                            className="w-full h-full"
+                                            style={{ background: `linear-gradient(to bottom right, ${color1}, ${color2})` }}
+                                        />
+                                    )}
+                                </div>
+
+                                {/* Content */}
+                                <div className="absolute inset-0 z-10 p-4 flex flex-col justify-center items-center text-center">
+                                    <Sparkles className="text-white/30 mb-2" size={16} />
+                                    <p
+                                        className="text-white font-bold leading-relaxed mb-4 drop-shadow-lg tracking-tight"
+                                        style={{
+                                            color: textColor,
+                                            textAlign: textAlign,
+                                            fontSize: `${(aspectRatio === 'story' ? 1.0 : 1.0) * fontSizeScale}rem` // Smaller base for mini-preview
+                                        }}
+                                    >
+                                        "Your amazing quote will appear here."
+                                    </p>
+                                    <div className="h-0.5 w-6 bg-white/20 mb-2 rounded-full" />
+                                    <p className="text-white/90 text-xs font-medium tracking-wide italic">
+                                        - Preview
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
                         <div className="flex items-center gap-3 mb-2">
                             <div className="p-2 bg-[#222] rounded-lg border border-[#333]">
                                 <Palette className="text-purple-400" size={20} />
