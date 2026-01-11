@@ -32,8 +32,8 @@ export const MEME_TEMPLATES: MemeTemplate[] = [
         height: 1200,
         boxCount: 2,
         textData: [
-            { id: "text0", x: 75, y: 25, fontSize: 80, maxWidth: 45, color: "black", stroke: "white", anchor: "middle", allCaps: true, style: "label" },
-            { id: "text1", x: 75, y: 75, fontSize: 80, maxWidth: 45, color: "black", stroke: "white", anchor: "middle", allCaps: true, style: "label" }
+            { id: "text0", x: 75, y: 25, fontSize: 60, maxWidth: 45, color: "black", stroke: "white", anchor: "middle", allCaps: true, style: "label" },
+            { id: "text1", x: 75, y: 75, fontSize: 60, maxWidth: 45, color: "black", stroke: "white", anchor: "middle", allCaps: true, style: "label" }
         ]
     },
     {
@@ -57,8 +57,8 @@ export const MEME_TEMPLATES: MemeTemplate[] = [
         height: 908,
         boxCount: 2,
         textData: [
-            { id: "text0", x: 28, y: 20, fontSize: 35, maxWidth: 25, color: "black", stroke: "white", anchor: "middle", rotation: -10, allCaps: true, style: "label" }, // Left Button
-            { id: "text1", x: 67, y: 22, fontSize: 35, maxWidth: 25, color: "black", stroke: "white", anchor: "middle", rotation: -10, allCaps: true, style: "label" }, // Right Button
+            { id: "text0", x: 30, y: 15, fontSize: 30, maxWidth: 25, color: "black", stroke: "white", anchor: "middle", rotation: -10, allCaps: true, style: "label" }, // Left Button - Moved up slightly
+            { id: "text1", x: 65, y: 17, fontSize: 30, maxWidth: 25, color: "black", stroke: "white", anchor: "middle", rotation: -10, allCaps: true, style: "label" }, // Right Button - Moved up slightly
         ]
     },
     {

@@ -40,7 +40,7 @@ export async function POST(req: Request) {
       Each object must have:
       - "index": number (matching the index above)
       - "templateId": string
-      - "texts": string[] (Array of strings matching the required boxCount. Keep them short, punchy, edgy, and relatable. Use ALL CAPS for classic memes, but normal case for labeling memes if appropriate.)
+      - "texts": string[] (Array of strings matching the required boxCount. Keep them EXTREMELY SHORT. Max 5 words per text box. NO complex sentences. Use ALL CAPS for classic memes.)
 
       Example JSON Structure:
       [
