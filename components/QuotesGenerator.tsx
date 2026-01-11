@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Sparkles, Download, Share2, RefreshCw, Smartphone, Monitor, Image as ImageIcon, Palette, Video, Music, Upload, Type } from "lucide-react";
+import { Sparkles, Download, Share2, RefreshCw, Smartphone, Monitor, Image as ImageIcon, Palette, Video, Music, Upload, Type, AlignLeft, AlignCenter, AlignRight, Minus, Plus } from "lucide-react";
 
 interface Quote {
     text: string;
@@ -22,6 +22,11 @@ export function QuotesGenerator() {
     const [color1, setColor1] = useState('#667eea');
     const [color2, setColor2] = useState('#764ba2');
     const [audioFile, setAudioFile] = useState<File | null>(null);
+
+    // Text Customization State
+    const [textColor, setTextColor] = useState('#ffffff');
+    const [textAlign, setTextAlign] = useState<'left' | 'center' | 'right'>('center');
+    const [fontSizeScale, setFontSizeScale] = useState(1); // 0.8 to 1.5
 
     // Refs
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -118,11 +123,13 @@ export function QuotesGenerator() {
         }
 
         // 2. Draw Text Configuration
-        ctx.fillStyle = '#ffffff';
+        ctx.fillStyle = textColor;
         const isStory = width === 1080 && height === 1920;
-        const fontSize = isStory ? 64 : 50;
+        const baseFontSize = isStory ? 64 : 50;
+        const fontSize = baseFontSize * fontSizeScale;
+
         ctx.font = `bold ${fontSize}px "Inter", Arial, sans-serif`;
-        ctx.textAlign = 'center';
+        ctx.textAlign = textAlign;
         ctx.textBaseline = 'middle';
 
         // Add shadow for better readability
@@ -149,7 +156,7 @@ export function QuotesGenerator() {
         }
         lines.push(currentLine);
 
-        // 3. Draw Quote Text (Centered)
+        // 3. Draw Quote Text
         const lineHeight = fontSize * 1.4;
         const totalHeight = lines.length * lineHeight;
         const startY = (height / 2) - (totalHeight / 2);
@@ -157,8 +164,13 @@ export function QuotesGenerator() {
         // Subtle Float Animation for text
         const floatY = Math.sin(time / 2000) * 10;
 
+        // Calculate X positioning based on alignment
+        let textX = width / 2; // Default center
+        if (textAlign === 'left') textX = width * 0.1;
+        else if (textAlign === 'right') textX = width * 0.9;
+
         lines.forEach((line, i) => {
-            ctx.fillText(line, width / 2, startY + i * lineHeight + floatY);
+            ctx.fillText(line, textX, startY + i * lineHeight + floatY);
         });
 
         // 4. Draw Author
@@ -410,90 +422,160 @@ export function QuotesGenerator() {
                                 </button>
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                {/* Generate Button */}
-                <button
-                    onClick={handleGenerate}
-                    disabled={isGenerating || !topic}
-                    className="w-full mt-8 bg-white text-black hover:bg-gray-100 font-bold py-4 rounded-xl transition-all shadow-lg shadow-white/10 disabled:opacity-50 flex items-center justify-center gap-3 text-lg transform hover:scale-[1.01] active:scale-[0.99]"
-                >
-                    {isGenerating ? (
-                        <>
-                            <RefreshCw className="animate-spin" size={24} />
-                            Creating Magic...
-                        </>
-                    ) : (
-                        <>
-                            <Sparkles size={24} className="text-purple-600" />
-                            Generate Quotes
-                        </>
-                    )}
-                </button>
-            </div>
+                        {/* Text Customization */}
+                        <div>
+                            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 block">Text Styling</label>
+                            <div className="space-y-4 bg-[#1a1a1a] p-4 rounded-xl border border-[#333]">
+                                {/* Color */}
+                                <div className="flex items-center justify-between">
+                                    <span className="text-sm text-gray-400 flex items-center gap-2"><Palette size={14} /> Color</span>
+                                    <div className="flex items-center gap-2">
+                                        <input
+                                            type="color"
+                                            value={textColor}
+                                            onChange={(e) => setTextColor(e.target.value)}
+                                            className="w-6 h-6 rounded-full cursor-pointer border-none p-0 bg-transparent"
+                                        />
+                                        <span className="text-xs font-mono text-gray-500">{textColor}</span>
+                                    </div>
+                                </div>
 
-            {/* Quotes Grid Output */}
-            {quotes.length > 0 && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-8 duration-700">
-                    {quotes.map((quote, index) => (
-                        <div
-                            key={index}
-                            className={`relative group overflow-hidden rounded-3xl border border-[#333] transition-all duration-300 hover:border-purple-500/50 hover:shadow-2xl hover:shadow-purple-500/20 ${aspectRatio === 'story' ? 'aspect-[9/16]' : 'aspect-square'}`}
-                        >
-                            {/* Preview Background */}
-                            <div className="absolute inset-0 z-0 transition-transform duration-700 group-hover:scale-110">
-                                {backgroundType === 'image' && backgroundImage ? (
-                                    <>
-                                        <img src={backgroundImage} alt="bg" className="w-full h-full object-cover" />
-                                        <div className="absolute inset-0 bg-black/60" />
-                                    </>
-                                ) : (
-                                    <div
-                                        className="w-full h-full"
-                                        style={{ background: `linear-gradient(to bottom right, ${color1}, ${color2})` }}
-                                    />
-                                )}
-                            </div>
+                                {/* Alignment */}
+                                <div className="flex items-center justify-between">
+                                    <span className="text-sm text-gray-400 flex items-center gap-2"><AlignLeft size={14} /> Align</span>
+                                    <div className="flex bg-[#111] rounded-lg p-1 border border-[#333]">
+                                        {[
+                                            { id: 'left', icon: AlignLeft },
+                                            { id: 'center', icon: AlignCenter },
+                                            { id: 'right', icon: AlignRight }
+                                        ].map(({ id, icon: Icon }) => (
+                                            <button
+                                                key={id}
+                                                onClick={() => setTextAlign(id as any)}
+                                                className={`p-1.5 rounded-md transition-all ${textAlign === id ? 'bg-[#333] text-white' : 'text-gray-500 hover:text-gray-300'}`}
+                                            >
+                                                <Icon size={16} />
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
 
-                            {/* Content */}
-                            <div className="absolute inset-0 z-10 p-8 flex flex-col justify-center items-center text-center">
-                                <Sparkles className="text-white/30 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500" size={24} />
-                                <p className="text-white text-xl md:text-2xl font-bold leading-relaxed mb-6 drop-shadow-lg tracking-tight">
-                                    "{quote.text}"
-                                </p>
-                                <div className="h-0.5 w-12 bg-white/20 mb-6 rounded-full" />
-                                <p className="text-white/90 text-sm md:text-base font-medium tracking-wide italic">
-                                    - {quote.author}
-                                </p>
-                            </div>
-
-                            {/* Actions Overlay */}
-                            <div className="absolute inset-0 z-20 bg-black/80 flex flex-col justify-center items-center gap-4 opacity-0 group-hover:opacity-100 transition-all duration-300 backdrop-blur-md">
-                                <button
-                                    onClick={() => downloadImage(quote, index)}
-                                    className="w-56 bg-white text-black hover:bg-gray-200 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 transform hover:scale-105"
-                                >
-                                    <Download size={18} />
-                                    Save Image
-                                </button>
-                                <button
-                                    onClick={() => downloadVideo(quote, index)}
-                                    className={`w-56 bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 transform hover:scale-105 shadow-lg shadow-purple-500/25`}
-                                >
-                                    <Video size={18} />
-                                    Save 10s Video
-                                </button>
-                                {audioFile && (
-                                    <p className="text-green-400 text-xs font-semibold flex items-center gap-1.5 bg-green-500/10 px-3 py-1 rounded-full border border-green-500/20">
-                                        <Music size={12} /> Sound On
-                                    </p>
-                                )}
+                                {/* Size */}
+                                <div className="flex items-center justify-between">
+                                    <span className="text-sm text-gray-400 flex items-center gap-2"><Type size={14} /> Size</span>
+                                    <div className="flex items-center gap-3">
+                                        <button
+                                            onClick={() => setFontSizeScale(prev => Math.max(0.6, prev - 0.1))}
+                                            className="p-1 text-gray-500 hover:text-white transition-colors"
+                                        >
+                                            <Minus size={14} />
+                                        </button>
+                                        <span className="text-xs font-mono w-8 text-center">{Math.round(fontSizeScale * 100)}%</span>
+                                        <button
+                                            onClick={() => setFontSizeScale(prev => Math.min(2.0, prev + 0.1))}
+                                            className="p-1 text-gray-500 hover:text-white transition-colors"
+                                        >
+                                            <Plus size={14} />
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    ))}
+                    </div>
                 </div>
-            )}
-        </div>
+            </div>
+
+            {/* Generate Button */}
+            <button
+                onClick={handleGenerate}
+                disabled={isGenerating || !topic}
+                className="w-full mt-8 bg-white text-black hover:bg-gray-100 font-bold py-4 rounded-xl transition-all shadow-lg shadow-white/10 disabled:opacity-50 flex items-center justify-center gap-3 text-lg transform hover:scale-[1.01] active:scale-[0.99]"
+            >
+                {isGenerating ? (
+                    <>
+                        <RefreshCw className="animate-spin" size={24} />
+                        Creating Magic...
+                    </>
+                ) : (
+                    <>
+                        <Sparkles size={24} className="text-purple-600" />
+                        Generate Quotes
+                    </>
+                )}
+            </button>
+
+
+            {/* Quotes Grid Output */}
+            {
+                quotes.length > 0 && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-8 duration-700">
+                        {quotes.map((quote, index) => (
+                            <div
+                                key={index}
+                                className={`relative group overflow-hidden rounded-3xl border border-[#333] transition-all duration-300 hover:border-purple-500/50 hover:shadow-2xl hover:shadow-purple-500/20 ${aspectRatio === 'story' ? 'aspect-[9/16]' : 'aspect-square'}`}
+                            >
+                                {/* Preview Background */}
+                                <div className="absolute inset-0 z-0 transition-transform duration-700 group-hover:scale-110">
+                                    {backgroundType === 'image' && backgroundImage ? (
+                                        <>
+                                            <img src={backgroundImage} alt="bg" className="w-full h-full object-cover" />
+                                            <div className="absolute inset-0 bg-black/60" />
+                                        </>
+                                    ) : (
+                                        <div
+                                            className="w-full h-full"
+                                            style={{ background: `linear-gradient(to bottom right, ${color1}, ${color2})` }}
+                                        />
+                                    )}
+                                </div>
+
+                                {/* Content */}
+                                <div className="absolute inset-0 z-10 p-8 flex flex-col justify-center items-center text-center">
+                                    <Sparkles className="text-white/30 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500" size={24} />
+                                    <p
+                                        className="text-white text-xl md:text-2xl font-bold leading-relaxed mb-6 drop-shadow-lg tracking-tight"
+                                        style={{
+                                            color: textColor,
+                                            textAlign: textAlign,
+                                            fontSize: `${(aspectRatio === 'story' ? 1.5 : 1.25) * fontSizeScale}rem` // Approximation for preview
+                                        }}
+                                    >
+                                        "{quote.text}"
+                                    </p>
+                                    <div className="h-0.5 w-12 bg-white/20 mb-6 rounded-full" />
+                                    <p className="text-white/90 text-sm md:text-base font-medium tracking-wide italic">
+                                        - {quote.author}
+                                    </p>
+                                </div>
+
+                                {/* Actions Overlay */}
+                                <div className="absolute inset-0 z-20 bg-black/80 flex flex-col justify-center items-center gap-4 opacity-0 group-hover:opacity-100 transition-all duration-300 backdrop-blur-md">
+                                    <button
+                                        onClick={() => downloadImage(quote, index)}
+                                        className="w-56 bg-white text-black hover:bg-gray-200 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 transform hover:scale-105"
+                                    >
+                                        <Download size={18} />
+                                        Save Image
+                                    </button>
+                                    <button
+                                        onClick={() => downloadVideo(quote, index)}
+                                        className={`w-56 bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 transform hover:scale-105 shadow-lg shadow-purple-500/25`}
+                                    >
+                                        <Video size={18} />
+                                        Save 10s Video
+                                    </button>
+                                    {audioFile && (
+                                        <p className="text-green-400 text-xs font-semibold flex items-center gap-1.5 bg-green-500/10 px-3 py-1 rounded-full border border-green-500/20">
+                                            <Music size={12} /> Sound On
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )
+            }
+        </div >
     );
 }
