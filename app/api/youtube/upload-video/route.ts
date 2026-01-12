@@ -50,38 +50,85 @@ export async function POST(request: NextRequest) {
             }
         }
 
-        const youtube = google.youtube({ version: 'v3', auth: oauth2Client });
-        const buffer = Buffer.from(await videoFile.arrayBuffer());
-        const stream = Readable.from(buffer);
-
-        const response = await youtube.videos.insert({
-            part: ['snippet', 'status'],
-            requestBody: {
-                snippet: {
-                    title: title.substring(0, 100),
-                    description: description.substring(0, 5000),
-                    tags: tags,
-                    categoryId: '23', // Comedy
-                },
-                status: {
-                    privacyStatus: formData.get('publishAt') ? 'private' : 'public',
-                    publishAt: formData.get('publishAt') as string || undefined,
-                    selfDeclaredMadeForKids: false,
-                },
-            },
-            media: {
-                body: stream,
-            },
+        // Debug logging
+        console.log('Token status:', {
+            hasAccessToken: !!tokens.access_token,
+            hasRefreshToken: !!tokens.refresh_token,
+            expiryDate: tokens.expiry_date,
+            isExpired: tokens.expiry_date ? tokens.expiry_date < Date.now() : 'unknown',
+            now: Date.now()
         });
 
-        return NextResponse.json({
-            success: true,
-            videoId: response.data.id,
-            videoUrl: `https://www.youtube.com/watch?v=${response.data.id}`
-        });
+        const uploadVideo = async (authClient: any) => {
+            const youtube = google.youtube({ version: 'v3', auth: authClient });
+            const response = await youtube.videos.insert({
+                part: ['snippet', 'status'],
+                requestBody: {
+                    snippet: {
+                        title: title.substring(0, 100),
+                        description: description.substring(0, 5000),
+                        tags: tags,
+                        categoryId: '23', // Comedy
+                    },
+                    status: {
+                        privacyStatus: formData.get('publishAt') ? 'private' : 'public',
+                        publishAt: formData.get('publishAt') as string || undefined,
+                        selfDeclaredMadeForKids: false,
+                    },
+                },
+                media: {
+                    body: Readable.from(Buffer.from(await videoFile.arrayBuffer())),
+                },
+            });
+            return response;
+        };
+
+        try {
+            const response = await uploadVideo(oauth2Client);
+            return NextResponse.json({
+                success: true,
+                videoId: response.data.id,
+                videoUrl: `https://www.youtube.com/watch?v=${response.data.id}`
+            });
+        } catch (error: any) {
+            console.error('Initial upload failed:', error.message);
+
+            // If 401 and we have a refresh token, try to refresh and retry
+            if (error.code === 401 && tokens.refresh_token) {
+                console.log('Attempting to refresh token and retry...');
+                try {
+                    const { credentials } = await oauth2Client.refreshAccessToken();
+
+                    // Update tokens in storage
+                    tokenStorage.save({
+                        access_token: credentials.access_token!,
+                        refresh_token: credentials.refresh_token || tokens.refresh_token,
+                        expiry_date: credentials.expiry_date || undefined
+                    });
+
+                    // Update client
+                    oauth2Client.setCredentials(credentials);
+
+                    // Retry upload
+                    const response = await uploadVideo(oauth2Client);
+                    return NextResponse.json({
+                        success: true,
+                        videoId: response.data.id,
+                        videoUrl: `https://www.youtube.com/watch?v=${response.data.id}`
+                    });
+                } catch (retryError: any) {
+                    console.error('Retry failed:', retryError);
+                    throw retryError; // Throw to outer catch
+                }
+            }
+            throw error; // Throw if not 401 or no refresh token
+        }
 
     } catch (error: any) {
-        console.error('Upload error:', error);
-        return NextResponse.json({ error: error.message || 'Upload failed' }, { status: 500 });
+        console.error('Upload error detail:', error);
+        return NextResponse.json({
+            error: error.message || 'Upload failed',
+            details: error.response?.data || 'No details'
+        }, { status: error.code || 500 });
     }
 }
