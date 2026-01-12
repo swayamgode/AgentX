@@ -37,7 +37,13 @@ export async function POST(request: NextRequest) {
                     refresh_token: credentials.refresh_token || tokens.refresh_token,
                     expiry_date: credentials.expiry_date || undefined
                 });
-                tokens = { ...tokens, ...credentials };
+                tokens = {
+                    ...tokens,
+                    ...credentials,
+                    access_token: credentials.access_token!,
+                    refresh_token: credentials.refresh_token || tokens.refresh_token || undefined,
+                    expiry_date: credentials.expiry_date || undefined
+                };
             } catch (err) {
                 console.error("Failed to refresh token", err);
                 return NextResponse.json({ error: 'Authentication expired' }, { status: 401 });
@@ -58,7 +64,8 @@ export async function POST(request: NextRequest) {
                     categoryId: '23', // Comedy
                 },
                 status: {
-                    privacyStatus: 'public',
+                    privacyStatus: formData.get('publishAt') ? 'private' : 'public',
+                    publishAt: formData.get('publishAt') as string || undefined,
                     selfDeclaredMadeForKids: false,
                 },
             },

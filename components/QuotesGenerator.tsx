@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Sparkles, Download, Share2, RefreshCw, Smartphone, Monitor, Image as ImageIcon, Palette, Video, Music, Upload, Type, AlignLeft, AlignCenter, AlignRight, Minus, Plus } from "lucide-react";
+import { Sparkles, Download, Share2, RefreshCw, Smartphone, Monitor, Image as ImageIcon, Palette, Video, Music, Upload, Type, AlignLeft, AlignCenter, AlignRight, Minus, Plus, Calendar, Clock } from "lucide-react";
 
 interface Quote {
     text: string;
@@ -28,6 +28,13 @@ export function QuotesGenerator() {
     const [textAlign, setTextAlign] = useState<'left' | 'center' | 'right'>('center');
     const [fontSizeScale, setFontSizeScale] = useState(1); // 0.8 to 1.5
 
+    // Scheduling & Batch State
+    const [quoteCount, setQuoteCount] = useState(1);
+    const [isScheduling, setIsScheduling] = useState(false);
+    const [scheduleProgress, setScheduleProgress] = useState('');
+    const [scheduleTime, setScheduleTime] = useState('');
+    const [scheduleInterval, setScheduleInterval] = useState(60); // minutes
+
     // Refs
     const fileInputRef = useRef<HTMLInputElement>(null);
     const audioInputRef = useRef<HTMLInputElement>(null);
@@ -39,7 +46,7 @@ export function QuotesGenerator() {
             const res = await fetch("/api/quotes/generate", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ topic, count: 9, style })
+                body: JSON.stringify({ topic, count: quoteCount, style })
             });
             const data = await res.json();
             if (data.quotes) {
@@ -204,72 +211,120 @@ export function QuotesGenerator() {
         });
     };
 
-    const downloadVideo = async (quote: Quote, index: number) => {
-        const canvas = document.createElement('canvas');
-        canvas.width = 1080;
-        canvas.height = aspectRatio === 'story' ? 1920 : 1080;
+    const generateVideoBlob = async (quote: Quote): Promise<Blob | null> => {
+        return new Promise(async (resolve) => {
+            const canvas = document.createElement('canvas');
+            canvas.width = 1080;
+            canvas.height = aspectRatio === 'story' ? 1920 : 1080;
 
-        // Audio Setup
-        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-        const dest = audioContext.createMediaStreamDestination();
+            // Audio Setup
+            const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+            const dest = audioContext.createMediaStreamDestination();
 
-        if (audioFile) {
-            try {
-                const arrayBuffer = await audioFile.arrayBuffer();
-                const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-                const source = audioContext.createBufferSource();
-                source.buffer = audioBuffer;
-                source.connect(dest);
-                source.loop = true; // Loop audio if shorter than 10s
-                source.start();
-            } catch (err) {
-                console.error("Audio processing failed", err);
+            if (audioFile) {
+                try {
+                    const arrayBuffer = await audioFile.arrayBuffer();
+                    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                    const source = audioContext.createBufferSource();
+                    source.buffer = audioBuffer;
+                    source.connect(dest);
+                    source.loop = true;
+                    source.start();
+                } catch (err) {
+                    console.error("Audio processing failed", err);
+                }
             }
-        }
 
-        const canvasStream = canvas.captureStream(30); // 30 FPS
+            const canvasStream = canvas.captureStream(30);
+            const audioTrack = dest.stream.getAudioTracks()[0];
+            if (audioTrack) {
+                canvasStream.addTrack(audioTrack);
+            }
 
-        // Add audio track if available
-        const audioTrack = dest.stream.getAudioTracks()[0];
-        if (audioTrack) {
-            canvasStream.addTrack(audioTrack);
-        }
+            const mediaRecorder = new MediaRecorder(canvasStream, {
+                mimeType: 'video/webm;codecs=vp9',
+                videoBitsPerSecond: 8000000
+            });
 
-        const mediaRecorder = new MediaRecorder(canvasStream, {
-            mimeType: 'video/webm;codecs=vp9', // Ideally use 'video/mp4' if supported by browser, else fallback
-            videoBitsPerSecond: 8000000 // High bitrate for quality
+            const chunks: BlobPart[] = [];
+            mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(chunks, { type: 'video/mp4' });
+                audioContext.close();
+                resolve(blob);
+            };
+
+            mediaRecorder.start();
+
+            const duration = 10000; // 10 seconds
+            const startTime = Date.now();
+
+            const animate = async () => {
+                const elapsed = Date.now() - startTime;
+                if (elapsed < duration) {
+                    await drawCanvas(canvas, quote, elapsed);
+                    requestAnimationFrame(animate);
+                } else {
+                    mediaRecorder.stop();
+                }
+            };
+            animate();
         });
+    };
 
-        const chunks: BlobPart[] = [];
-        mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
-        mediaRecorder.onstop = () => {
-            const blob = new Blob(chunks, { type: 'video/mp4' });
+    const downloadVideo = async (quote: Quote, index: number) => {
+        const blob = await generateVideoBlob(quote);
+        if (blob) {
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
             a.download = `quote-video-${index + 1}.mp4`;
             a.click();
             URL.revokeObjectURL(url);
-            audioContext.close();
-        };
+        }
+    };
 
-        mediaRecorder.start();
+    const handleSchedule = async () => {
+        if (!scheduleTime || quotes.length === 0) return;
+        setIsScheduling(true);
+        setScheduleProgress('Starting scheduling...');
 
-        const duration = 10000; // 10 seconds
-        const startTime = Date.now();
+        try {
+            const baseTime = new Date(scheduleTime).getTime();
 
-        // Animation Loop
-        const animate = async () => {
-            const elapsed = Date.now() - startTime;
-            if (elapsed < duration) {
-                await drawCanvas(canvas, quote, elapsed);
-                requestAnimationFrame(animate);
-            } else {
-                mediaRecorder.stop();
+            for (let i = 0; i < quotes.length; i++) {
+                setScheduleProgress(`Generating video ${i + 1}/${quotes.length}...`);
+                const blob = await generateVideoBlob(quotes[i]);
+
+                if (!blob) continue;
+
+                setScheduleProgress(`Uploading video ${i + 1}/${quotes.length}...`);
+                const publishTime = new Date(baseTime + (i * scheduleInterval * 60 * 1000));
+
+                const formData = new FormData();
+                formData.append('video', blob, `quote-${i}.mp4`);
+                formData.append('title', `${quotes[i].text.substring(0, 50)}... #shorts #quotes`);
+                formData.append('description', `${quotes[i].text}\n\n- ${quotes[i].author}\n\nGenerated by AgentX`);
+                formData.append('tags', JSON.stringify(['quotes', 'motivation', quotes[i].category]));
+                formData.append('publishAt', publishTime.toISOString());
+
+                const res = await fetch('/api/youtube/upload-video', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!res.ok) {
+                    console.error(`Failed to upload video ${i + 1}`);
+                }
             }
-        };
-
-        animate();
+            setScheduleProgress('All videos scheduled successfully!');
+            setTimeout(() => setScheduleProgress(''), 3000);
+        } catch (error) {
+            console.error('Scheduling error:', error);
+            setScheduleProgress('Error during scheduling');
+        } finally {
+            setIsScheduling(false);
+        }
     };
 
     return (
@@ -328,6 +383,22 @@ export function QuotesGenerator() {
                                             {s.charAt(0).toUpperCase() + s.slice(1)}
                                         </button>
                                     ))}
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider ml-1 mb-2 block">Quantity</label>
+                                <div className="flex items-center gap-4 bg-[#1a1a1a] border border-[#333] rounded-xl px-4 py-3">
+                                    <span className="text-gray-400 text-sm">Generate:</span>
+                                    <input
+                                        type="range"
+                                        min="1"
+                                        max="50"
+                                        value={quoteCount}
+                                        onChange={(e) => setQuoteCount(parseInt(e.target.value))}
+                                        className="flex-1 accent-purple-500 h-2 bg-[#333] rounded-lg appearance-none cursor-pointer"
+                                    />
+                                    <span className="text-white font-mono font-bold w-6 text-center">{quoteCount}</span>
                                 </div>
                             </div>
                         </div>
@@ -550,6 +621,58 @@ export function QuotesGenerator() {
                     </>
                 )}
             </button>
+
+            {/* Scheduling Section */}
+            {quotes.length > 0 && (
+                <div className="bg-[#111] bg-opacity-80 backdrop-blur-xl p-6 rounded-3xl border border-[#333] mt-8 animate-in fade-in slide-in-from-bottom-4">
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="p-2 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg shadow-lg shadow-cyan-500/20">
+                            <Calendar className="text-white" size={20} />
+                        </div>
+                        <h2 className="text-2xl font-bold text-white tracking-tight">Schedule Posting</h2>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider ml-1 mb-2 block">Start Time</label>
+                            <div className="relative">
+                                <input
+                                    type="datetime-local"
+                                    value={scheduleTime}
+                                    onChange={(e) => setScheduleTime(e.target.value)}
+                                    className="w-full bg-[#1a1a1a] border border-[#333] rounded-xl px-4 py-3 text-white focus:border-cyan-500 outline-none"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider ml-1 mb-2 block">Interval (Minutes)</label>
+                            <div className="flex items-center gap-2 bg-[#1a1a1a] border border-[#333] rounded-xl px-4 py-3">
+                                <Clock size={16} className="text-gray-500" />
+                                <input
+                                    type="number"
+                                    min="1"
+                                    value={scheduleInterval}
+                                    onChange={(e) => setScheduleInterval(parseInt(e.target.value))}
+                                    className="w-full bg-transparent text-white outline-none"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="flex items-end">
+                            <button
+                                onClick={handleSchedule}
+                                disabled={isScheduling || !scheduleTime}
+                                className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-cyan-500/20 hover:from-blue-500 hover:to-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                            >
+                                {isScheduling ? scheduleProgress : `Schedule ${quotes.length} Videos`}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            <div className="h-px bg-[#333] w-full my-8" />
 
 
             {/* Quotes Grid Output */}
