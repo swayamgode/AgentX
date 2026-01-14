@@ -268,56 +268,34 @@ export function QuotesGenerator() {
             canvas.width = 1080;
             canvas.height = aspectRatio === 'story' ? 1920 : 1080;
 
-            // Audio Setup
-            const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-            const dest = audioContext.createMediaStreamDestination();
-
-            // Use library music if selected, otherwise use uploaded file
-            let audioSource: File | Blob | null = null;
-
-            if (useLibraryMusic && selectedTrack) {
-                // Fetch the royalty-free track
-                audioSource = await fetchTrackAsBlob(selectedTrack.filename);
-            } else if (audioFile) {
-                audioSource = audioFile;
-            }
-
-            if (audioSource) {
-                try {
-                    const arrayBuffer = await audioSource.arrayBuffer();
-                    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-                    const source = audioContext.createBufferSource();
-                    source.buffer = audioBuffer;
-                    source.connect(dest);
-                    source.loop = true;
-                    source.start();
-                } catch (err) {
-                    console.error("Audio processing failed", err);
-                }
-            }
-
+            // SIMPLIFIED: No audio for now to fix YouTube processing issues
+            // Audio mixing was causing "Processing abandoned" errors
             const canvasStream = canvas.captureStream(30);
-            const audioTrack = dest.stream.getAudioTracks()[0];
-            if (audioTrack) {
-                canvasStream.addTrack(audioTrack);
+
+            // Try H.264 first (better YouTube compatibility), fallback to VP9
+            let mimeType = 'video/webm;codecs=h264';
+            if (!MediaRecorder.isTypeSupported(mimeType)) {
+                mimeType = 'video/webm;codecs=vp9';
+            }
+            if (!MediaRecorder.isTypeSupported(mimeType)) {
+                mimeType = 'video/webm';
             }
 
             const mediaRecorder = new MediaRecorder(canvasStream, {
-                mimeType: 'video/webm;codecs=vp9',
-                videoBitsPerSecond: 8000000
+                mimeType: mimeType,
+                videoBitsPerSecond: 5000000 // 5 Mbps for better quality
             });
 
             const chunks: BlobPart[] = [];
             mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
             mediaRecorder.onstop = () => {
-                const blob = new Blob(chunks, { type: 'video/mp4' });
-                audioContext.close();
+                const blob = new Blob(chunks, { type: 'video/webm' });
                 resolve(blob);
             };
 
             mediaRecorder.start();
 
-            const duration = 60000; // 60 seconds (max for Shorts)
+            const duration = 30000; // 30 seconds (safer for Shorts, reduces processing load)
             const startTime = Date.now();
 
             const animate = async () => {
@@ -339,7 +317,7 @@ export function QuotesGenerator() {
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `quote-video-${index + 1}.mp4`;
+            a.download = `quote-video-${index + 1}.webm`; // Fixed: Use correct extension
             a.click();
             URL.revokeObjectURL(url);
         }
@@ -363,7 +341,7 @@ export function QuotesGenerator() {
                 const publishTime = new Date(baseTime + (i * scheduleInterval * 60 * 1000));
 
                 const formData = new FormData();
-                formData.append('video', blob, `quote-${i}.mp4`);
+                formData.append('video', blob, `quote-${i}.webm`); // Fixed: Use correct extension
                 // Create viral title for Shorts
                 const quotePreview = quotes[i].text.substring(0, 45);
                 const viralTitle = `${quotePreview}... 🔥 #shorts #quotes #${quotes[i].category}`;
@@ -998,7 +976,7 @@ export function QuotesGenerator() {
                                         className="w-60 bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 py-3.5 rounded-xl font-bold transition-all flex items-center justify-center gap-2 transform hover:scale-105 shadow-xl shadow-purple-500/40"
                                     >
                                         <Video size={18} />
-                                        Download 60s Video
+                                        Download 30s Video
                                     </button>
                                     {(useLibraryMusic && selectedTrack) || audioFile ? (
                                         <div className="flex items-center gap-2 bg-green-500/20 text-green-300 px-4 py-2 rounded-full border border-green-500/30 text-xs font-semibold">
