@@ -1,0 +1,128 @@
+{
+    "tracks": [
+        {
+            "id": "upbeat-1",
+            "name": "Energetic Vibes",
+            "artist": "Royalty Free Music",
+            "mood": "upbeat",
+            "duration": 180,
+            "filename": "energetic-vibes.mp3",
+            "description": "High-energy upbeat track perfect for motivational content"
+        },
+        {
+            "id": "upbeat-2",
+            "name": "Summer Dreams",
+            "artist": "Royalty Free Music",
+            "mood": "upbeat",
+            "duration": 165,
+            "filename": "summer-dreams.mp3",
+            "description": "Bright and cheerful summer vibes"
+        },
+        {
+            "id": "chill-1",
+            "name": "Peaceful Mind",
+            "artist": "Royalty Free Music",
+            "mood": "chill",
+            "duration": 200,
+            "filename": "peaceful-mind.mp3",
+            "description": "Calm and relaxing ambient music"
+        },
+        {
+            "id": "chill-2",
+            "name": "Lofi Sunset",
+            "artist": "Royalty Free Music",
+            "mood": "chill",
+            "duration": 190,
+            "filename": "lofi-sunset.mp3",
+            "description": "Smooth lofi beats for relaxation"
+        },
+        {
+            "id": "motivational-1",
+            "name": "Rise Up",
+            "artist": "Royalty Free Music",
+            "mood": "motivational",
+            "duration": 175,
+            "filename": "rise-up.mp3",
+            "description": "Inspiring and uplifting motivational track"
+        },
+        {
+            "id": "motivational-2",
+            "name": "Success Journey",
+            "artist": "Royalty Free Music",
+            "mood": "motivational",
+            "duration": 185,
+            "filename": "success-journey.mp3",
+            "description": "Epic motivational music for success quotes"
+        },
+        {
+            "id": "ambient-1",
+            "name": "Soft Clouds",
+            "artist": "Royalty Free Music",
+            "mood": "ambient",
+            "duration": 210,
+            "filename": "soft-clouds.mp3",
+            "description": "Gentle ambient background music"
+        },
+        {
+            "id": "ambient-2",
+            "name": "Meditation Flow",
+            "artist": "Royalty Free Music",
+            "mood": "ambient",
+            "duration": 195,
+            "filename": "meditation-flow.mp3",
+            "description": "Peaceful meditation music"
+        },
+        {
+            "id": "trending-1",
+            "name": "Viral Energy",
+            "artist": "Royalty Free Music",
+            "mood": "trending",
+            "duration": 160,
+            "filename": "viral-energy.mp3",
+            "description": "Trending style beat for viral content"
+        },
+        {
+            "id": "trending-2",
+            "name": "TikTok Vibes",
+            "artist": "Royalty Free Music",
+            "mood": "trending",
+            "duration": 155,
+            "filename": "tiktok-vibes.mp3",
+            "description": "Modern trending sound for shorts"
+        }
+    ],
+    "moods": [
+        {
+            "id": "upbeat",
+            "name": "Upbeat",
+            "description": "High-energy, cheerful music",
+            "icon": "⚡"
+        },
+        {
+            "id": "chill",
+            "name": "Chill",
+            "description": "Relaxing, calm vibes",
+            "icon": "🌊"
+        },
+        {
+            "id": "motivational",
+            "name": "Motivational",
+            "description": "Inspiring, uplifting tracks",
+            "icon": "🚀"
+        },
+        {
+            "id": "ambient",
+            "name": "Ambient",
+            "description": "Soft background music",
+            "icon": "☁️"
+        },
+        {
+            "id": "trending",
+            "name": "Trending",
+            "description": "Popular viral sounds",
+            "icon": "🔥"
+        }
+    ],
+    "attribution": "All tracks are royalty-free and safe for YouTube monetization. No attribution required.",
+    "source": "YouTube Audio Library & Free Music Archive"
+}

@@ -126,6 +126,26 @@ export async function POST(request: NextRequest) {
 
     } catch (error: any) {
         console.error('Upload error detail:', error);
+
+        // Check for quota exceeded error
+        if (error.code === 400 && error.message?.includes('exceeded the number of videos')) {
+            return NextResponse.json({
+                error: 'YouTube Daily Upload Limit Reached',
+                message: 'You have reached your daily upload quota. This limit resets at midnight Pacific Time.',
+                solutions: [
+                    'Wait 24 hours for quota to reset',
+                    'Verify your YouTube channel at youtube.com/verify to increase limit',
+                    'Download videos and upload manually through YouTube Studio',
+                    'Schedule uploads to spread them across multiple days'
+                ],
+                quotaInfo: {
+                    unverified: '6 videos per day',
+                    verified: '50-100 videos per day',
+                    resetTime: 'Midnight Pacific Time'
+                }
+            }, { status: 429 }); // 429 = Too Many Requests
+        }
+
         return NextResponse.json({
             error: error.message || 'Upload failed',
             details: error.response?.data || 'No details'

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { Sparkles, Download, Share2, RefreshCw, Smartphone, Monitor, Image as ImageIcon, Palette, Video, Music, Upload, Type, AlignLeft, AlignCenter, AlignRight, Minus, Plus, Calendar, Clock } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Sparkles, Download, Share2, RefreshCw, Smartphone, Monitor, Image as ImageIcon, Palette, Video, Music, Upload, Type, AlignLeft, AlignCenter, AlignRight, Minus, Plus, Calendar, Clock, Play, Pause } from "lucide-react";
+import { MusicLibrary, MusicTrack, getTrackUrl, fetchTrackAsBlob } from "@/lib/music-library";
 
 interface Quote {
     text: string;
@@ -23,6 +24,13 @@ export function QuotesGenerator() {
     const [color2, setColor2] = useState('#764ba2');
     const [audioFile, setAudioFile] = useState<File | null>(null);
 
+    // Music Library State
+    const [musicLibrary, setMusicLibrary] = useState<MusicLibrary | null>(null);
+    const [selectedMood, setSelectedMood] = useState<string>('motivational');
+    const [selectedTrack, setSelectedTrack] = useState<MusicTrack | null>(null);
+    const [useLibraryMusic, setUseLibraryMusic] = useState(true);
+    const [isPlayingPreview, setIsPlayingPreview] = useState(false);
+
     // Text Customization State
     const [textColor, setTextColor] = useState('#ffffff');
     const [textAlign, setTextAlign] = useState<'left' | 'center' | 'right'>('center');
@@ -38,6 +46,26 @@ export function QuotesGenerator() {
     // Refs
     const fileInputRef = useRef<HTMLInputElement>(null);
     const audioInputRef = useRef<HTMLInputElement>(null);
+    const audioPreviewRef = useRef<HTMLAudioElement>(null);
+
+    // Load music library on mount
+    useEffect(() => {
+        async function loadMusicLibrary() {
+            try {
+                const response = await fetch('/api/music/list');
+                const data = await response.json();
+                setMusicLibrary(data);
+                // Set default track (first motivational track)
+                const defaultTrack = data.tracks.find((t: MusicTrack) => t.mood === 'motivational');
+                if (defaultTrack) {
+                    setSelectedTrack(defaultTrack);
+                }
+            } catch (error) {
+                console.error('Failed to load music library:', error);
+            }
+        }
+        loadMusicLibrary();
+    }, []);
 
     const handleGenerate = async () => {
         if (!topic) return;
@@ -72,6 +100,29 @@ export function QuotesGenerator() {
         const file = e.target.files?.[0];
         if (file) {
             setAudioFile(file);
+            setUseLibraryMusic(false);
+        }
+    };
+
+    const togglePreview = () => {
+        if (!audioPreviewRef.current || !selectedTrack) return;
+
+        if (isPlayingPreview) {
+            audioPreviewRef.current.pause();
+            setIsPlayingPreview(false);
+        } else {
+            audioPreviewRef.current.play();
+            setIsPlayingPreview(true);
+        }
+    };
+
+    const handleTrackSelect = (track: MusicTrack) => {
+        setSelectedTrack(track);
+        setUseLibraryMusic(true);
+        setIsPlayingPreview(false);
+        if (audioPreviewRef.current) {
+            audioPreviewRef.current.pause();
+            audioPreviewRef.current.currentTime = 0;
         }
     };
 
@@ -221,9 +272,19 @@ export function QuotesGenerator() {
             const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
             const dest = audioContext.createMediaStreamDestination();
 
-            if (audioFile) {
+            // Use library music if selected, otherwise use uploaded file
+            let audioSource: File | Blob | null = null;
+
+            if (useLibraryMusic && selectedTrack) {
+                // Fetch the royalty-free track
+                audioSource = await fetchTrackAsBlob(selectedTrack.filename);
+            } else if (audioFile) {
+                audioSource = audioFile;
+            }
+
+            if (audioSource) {
                 try {
-                    const arrayBuffer = await audioFile.arrayBuffer();
+                    const arrayBuffer = await audioSource.arrayBuffer();
                     const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
                     const source = audioContext.createBufferSource();
                     source.buffer = audioBuffer;
@@ -421,8 +482,8 @@ export function QuotesGenerator() {
                                             key={s}
                                             onClick={() => setStyle(s)}
                                             className={`py-3 px-4 rounded-xl font-semibold text-sm transition-all ${style === s
-                                                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/30'
-                                                    : 'bg-black/40 text-gray-400 border border-[#333] hover:border-[#444] hover:text-gray-300'
+                                                ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/30'
+                                                : 'bg-black/40 text-gray-400 border border-[#333] hover:border-[#444] hover:text-gray-300'
                                                 }`}
                                         >
                                             {s.charAt(0).toUpperCase() + s.slice(1)}
@@ -527,8 +588,8 @@ export function QuotesGenerator() {
                                 <button
                                     onClick={() => setAspectRatio('square')}
                                     className={`flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-semibold transition-all ${aspectRatio === 'square'
-                                            ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg'
-                                            : 'text-gray-400 hover:text-white'
+                                        ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg'
+                                        : 'text-gray-400 hover:text-white'
                                         }`}
                                 >
                                     <Monitor size={16} /> Square
@@ -536,8 +597,8 @@ export function QuotesGenerator() {
                                 <button
                                     onClick={() => setAspectRatio('story')}
                                     className={`flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-semibold transition-all ${aspectRatio === 'story'
-                                            ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg'
-                                            : 'text-gray-400 hover:text-white'
+                                        ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg'
+                                        : 'text-gray-400 hover:text-white'
                                         }`}
                                 >
                                     <Smartphone size={16} /> Reels
@@ -561,8 +622,8 @@ export function QuotesGenerator() {
                                 <button
                                     onClick={() => setBackgroundType('gradient')}
                                     className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl border-2 transition-all text-sm font-semibold ${backgroundType === 'gradient'
-                                            ? 'border-pink-500 bg-pink-500/20 text-pink-300'
-                                            : 'border-[#333] bg-black/40 text-gray-400 hover:border-[#444]'
+                                        ? 'border-pink-500 bg-pink-500/20 text-pink-300'
+                                        : 'border-[#333] bg-black/40 text-gray-400 hover:border-[#444]'
                                         }`}
                                 >
                                     <Palette size={16} /> Gradient
@@ -570,8 +631,8 @@ export function QuotesGenerator() {
                                 <button
                                     onClick={() => fileInputRef.current?.click()}
                                     className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl border-2 transition-all text-sm font-semibold ${backgroundType === 'image'
-                                            ? 'border-pink-500 bg-pink-500/20 text-pink-300'
-                                            : 'border-[#333] bg-black/40 text-gray-400 hover:border-[#444]'
+                                        ? 'border-pink-500 bg-pink-500/20 text-pink-300'
+                                        : 'border-[#333] bg-black/40 text-gray-400 hover:border-[#444]'
                                         }`}
                                 >
                                     <ImageIcon size={16} /> Image
@@ -652,8 +713,8 @@ export function QuotesGenerator() {
                                             key={id}
                                             onClick={() => setTextAlign(id as any)}
                                             className={`flex flex-col items-center gap-1 py-2 rounded-lg transition-all ${textAlign === id
-                                                    ? 'bg-cyan-500/20 text-cyan-300 border-2 border-cyan-500'
-                                                    : 'bg-black/40 text-gray-500 border-2 border-transparent hover:text-gray-300'
+                                                ? 'bg-cyan-500/20 text-cyan-300 border-2 border-cyan-500'
+                                                : 'bg-black/40 text-gray-500 border-2 border-transparent hover:text-gray-300'
                                                 }`}
                                         >
                                             <Icon size={18} />
@@ -693,26 +754,130 @@ export function QuotesGenerator() {
                         </div>
                     </div>
 
-                    {/* Audio */}
+                    {/* Audio / Music Selection */}
                     <div className="bg-gradient-to-br from-[#1a1a1a] to-[#111] backdrop-blur-xl p-6 rounded-2xl border border-[#333] shadow-xl">
                         <div className="flex items-center gap-2 mb-4">
                             <Music className="text-green-400" size={20} />
-                            <h2 className="text-lg font-bold text-white">Audio</h2>
+                            <h2 className="text-lg font-bold text-white">Music</h2>
                         </div>
 
-                        <button
-                            onClick={() => audioInputRef.current?.click()}
-                            className={`w-full flex items-center justify-between px-4 py-4 rounded-xl border-2 transition-all group ${audioFile
+                        {/* Music Source Toggle */}
+                        <div className="grid grid-cols-2 gap-2 mb-4 bg-black/40 rounded-xl p-1.5 border border-[#333]">
+                            <button
+                                onClick={() => setUseLibraryMusic(true)}
+                                className={`flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all ${useLibraryMusic
+                                    ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg'
+                                    : 'text-gray-400 hover:text-white'
+                                    }`}
+                            >
+                                <Music size={16} /> Library
+                            </button>
+                            <button
+                                onClick={() => setUseLibraryMusic(false)}
+                                className={`flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all ${!useLibraryMusic
+                                    ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg'
+                                    : 'text-gray-400 hover:text-white'
+                                    }`}
+                            >
+                                <Upload size={16} /> Upload
+                            </button>
+                        </div>
+
+                        {useLibraryMusic ? (
+                            <>
+                                {/* Mood Filter */}
+                                {musicLibrary && (
+                                    <div className="space-y-3">
+                                        <label className="text-xs font-bold text-gray-400 uppercase">Mood</label>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            {musicLibrary.moods.map((mood) => (
+                                                <button
+                                                    key={mood.id}
+                                                    onClick={() => setSelectedMood(mood.id)}
+                                                    className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm font-medium transition-all ${selectedMood === mood.id
+                                                        ? 'bg-green-500/20 text-green-300 border-2 border-green-500'
+                                                        : 'bg-black/40 text-gray-400 border-2 border-transparent hover:text-gray-300'
+                                                        }`}
+                                                >
+                                                    <span>{mood.icon}</span>
+                                                    <span>{mood.name}</span>
+                                                </button>
+                                            ))}
+                                        </div>
+
+                                        {/* Track Selection */}
+                                        <div className="mt-4">
+                                            <label className="text-xs font-bold text-gray-400 uppercase mb-2 block">Select Track</label>
+                                            <div className="space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
+                                                {musicLibrary.tracks
+                                                    .filter(track => track.mood === selectedMood)
+                                                    .map((track) => (
+                                                        <button
+                                                            key={track.id}
+                                                            onClick={() => handleTrackSelect(track)}
+                                                            className={`w-full text-left p-3 rounded-lg transition-all ${selectedTrack?.id === track.id
+                                                                ? 'bg-green-500/20 border-2 border-green-500'
+                                                                : 'bg-black/40 border-2 border-[#333] hover:border-[#444]'
+                                                                }`}
+                                                        >
+                                                            <div className="flex items-center justify-between">
+                                                                <div className="flex-1">
+                                                                    <div className={`text-sm font-semibold ${selectedTrack?.id === track.id ? 'text-green-300' : 'text-white'
+                                                                        }`}>
+                                                                        {track.name}
+                                                                    </div>
+                                                                    <div className="text-xs text-gray-500 mt-1">{track.description}</div>
+                                                                </div>
+                                                                {selectedTrack?.id === track.id && (
+                                                                    <div className="ml-2 w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                                                )}
+                                                            </div>
+                                                        </button>
+                                                    ))}
+                                            </div>
+                                        </div>
+
+                                        {/* Audio Preview */}
+                                        {selectedTrack && (
+                                            <div className="mt-4 bg-black/40 p-3 rounded-xl border border-[#333]">
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <div className="flex-1">
+                                                        <div className="text-xs text-gray-400">Now Playing</div>
+                                                        <div className="text-sm font-semibold text-white">{selectedTrack.name}</div>
+                                                    </div>
+                                                    <button
+                                                        onClick={togglePreview}
+                                                        className="p-2 bg-green-500 hover:bg-green-600 text-white rounded-full transition-all"
+                                                    >
+                                                        {isPlayingPreview ? <Pause size={16} /> : <Play size={16} />}
+                                                    </button>
+                                                </div>
+                                                <audio
+                                                    ref={audioPreviewRef}
+                                                    src={getTrackUrl(selectedTrack.filename)}
+                                                    onEnded={() => setIsPlayingPreview(false)}
+                                                    className="hidden"
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </>
+                        ) : (
+                            <button
+                                onClick={() => audioInputRef.current?.click()}
+                                className={`w-full flex items-center justify-between px-4 py-4 rounded-xl border-2 transition-all group ${audioFile
                                     ? 'border-green-500 bg-green-500/20 text-green-300'
                                     : 'border-[#333] bg-black/40 text-gray-400 hover:border-[#444]'
-                                }`}
-                        >
-                            <span className="flex items-center gap-3 text-sm font-semibold">
-                                <Music size={18} className={audioFile ? "text-green-400" : "text-gray-500"} />
-                                {audioFile ? audioFile.name : 'Upload Background Music'}
-                            </span>
-                            {!audioFile && <Upload size={16} className="opacity-50 group-hover:opacity-100" />}
-                        </button>
+                                    }`}
+                            >
+                                <span className="flex items-center gap-3 text-sm font-semibold">
+                                    <Music size={18} className={audioFile ? "text-green-400" : "text-gray-500"} />
+                                    {audioFile ? audioFile.name : 'Upload Background Music'}
+                                </span>
+                                {!audioFile && <Upload size={16} className="opacity-50 group-hover:opacity-100" />}
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>
@@ -835,11 +1000,12 @@ export function QuotesGenerator() {
                                         <Video size={18} />
                                         Download 60s Video
                                     </button>
-                                    {audioFile && (
+                                    {(useLibraryMusic && selectedTrack) || audioFile ? (
                                         <div className="flex items-center gap-2 bg-green-500/20 text-green-300 px-4 py-2 rounded-full border border-green-500/30 text-xs font-semibold">
-                                            <Music size={14} /> Audio Included
+                                            <Music size={14} />
+                                            {useLibraryMusic && selectedTrack ? selectedTrack.name : 'Custom Audio'}
                                         </div>
-                                    )}
+                                    ) : null}
                                 </div>
 
                                 {/* Quote Number Badge */}
