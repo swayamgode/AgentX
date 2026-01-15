@@ -16,6 +16,26 @@ export default function SettingsPage() {
 
     useEffect(() => {
         fetchApiKeyStatus();
+
+        // Check for URL parameters for notifications
+        const params = new URLSearchParams(window.location.search);
+        const success = params.get('success');
+        const error = params.get('error');
+
+        if (success === 'youtube_connected') {
+            setMessage({ type: 'success', text: 'YouTube account connected successfully!' });
+            // Clear URL params
+            window.history.replaceState({}, '', '/settings');
+        } else if (error) {
+            const errorMap: Record<string, string> = {
+                'youtube_auth_denied': 'YouTube authentication was denied.',
+                'no_code': 'No authentication code received.',
+                'no_channel': 'No YouTube channel found on this account.',
+                'auth_failed': 'Failed to connect YouTube account.',
+            };
+            setMessage({ type: 'error', text: errorMap[error] || 'An unknown error occurred.' });
+            window.history.replaceState({}, '', '/settings');
+        }
     }, []);
 
     const fetchApiKeyStatus = async () => {
