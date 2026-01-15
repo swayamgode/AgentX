@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Sparkles, Download, Share2, RefreshCw, Smartphone, Monitor, Image as ImageIcon, Palette, Video, Music, Upload, Type, AlignLeft, AlignCenter, AlignRight, Minus, Plus, Calendar, Clock, Play, Pause } from "lucide-react";
+import { Sparkles, Download, Share2, RefreshCw, Smartphone, Monitor, Image as ImageIcon, Palette, Video, Music, Upload, Type, AlignLeft, AlignCenter, AlignRight, Minus, Plus, Calendar, Clock, Play, Pause, Youtube } from "lucide-react";
 import { MusicLibrary, MusicTrack, getTrackUrl, fetchTrackAsBlob } from "@/lib/music-library";
 
 interface Quote {
@@ -43,12 +43,16 @@ export function QuotesGenerator() {
     const [scheduleTime, setScheduleTime] = useState('');
     const [scheduleInterval, setScheduleInterval] = useState(60); // minutes
 
+    // YouTube Account State
+    const [youtubeAccounts, setYoutubeAccounts] = useState<any[]>([]);
+    const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
+
     // Refs
     const fileInputRef = useRef<HTMLInputElement>(null);
     const audioInputRef = useRef<HTMLInputElement>(null);
     const audioPreviewRef = useRef<HTMLAudioElement>(null);
 
-    // Load music library on mount
+    // Load music library and YouTube accounts on mount
     useEffect(() => {
         async function loadMusicLibrary() {
             try {
@@ -64,7 +68,24 @@ export function QuotesGenerator() {
                 console.error('Failed to load music library:', error);
             }
         }
+
+        async function loadYouTubeAccounts() {
+            try {
+                const response = await fetch('/api/youtube/accounts');
+                const data = await response.json();
+                setYoutubeAccounts(data.accounts || []);
+                // Set active account as default
+                const activeAccount = data.accounts?.find((acc: any) => acc.isActive);
+                if (activeAccount) {
+                    setSelectedAccountId(activeAccount.id);
+                }
+            } catch (error) {
+                console.error('Failed to load YouTube accounts:', error);
+            }
+        }
+
         loadMusicLibrary();
+        loadYouTubeAccounts();
     }, []);
 
     const handleGenerate = async () => {
@@ -237,10 +258,12 @@ export function QuotesGenerator() {
         ctx.fillText(`- ${quote.author}`, width / 2, startY + totalHeight + 40 + floatY);
 
         // 5. Draw Watermark/Brand
+        const selectedAccount = youtubeAccounts.find(acc => acc.id === selectedAccountId);
+        const watermarkText = selectedAccount?.watermark || 'AgentX';
         ctx.font = `500 24px "Inter", sans-serif`;
         ctx.fillStyle = 'rgba(255,255,255,0.5)';
         ctx.shadowBlur = 0; // Remove shadow for watermark
-        ctx.fillText('AgentX Quotes', width / 2, height - 80);
+        ctx.fillText(watermarkText, width / 2, height - 80);
     };
 
     const downloadImage = async (quote: Quote, index: number) => {
@@ -377,6 +400,9 @@ export function QuotesGenerator() {
                 formData.append('description', viralDescription);
                 formData.append('tags', JSON.stringify(viralTags));
                 formData.append('publishAt', publishTime.toISOString());
+                if (selectedAccountId) {
+                    formData.append('accountId', selectedAccountId);
+                }
 
                 const res = await fetch('/api/youtube/upload-video', {
                     method: 'POST',
@@ -871,6 +897,37 @@ export function QuotesGenerator() {
                             <h2 className="text-2xl font-bold text-white">Schedule Posting</h2>
                             <p className="text-blue-200 text-sm mt-1">Automate your YouTube Shorts uploads</p>
                         </div>
+                    </div>
+
+                    {/* YouTube Account Selector */}
+                    <div>
+                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2.5 block">
+                            YouTube Account
+                        </label>
+                        {youtubeAccounts.length > 0 ? (
+                            <select
+                                value={selectedAccountId || ''}
+                                onChange={(e) => setSelectedAccountId(e.target.value)}
+                                className="w-full bg-black/40 border border-[#333] rounded-xl px-4 py-3.5 text-white focus:border-red-500 focus:ring-2 focus:ring-red-500/20 outline-none transition-all"
+                            >
+                                {youtubeAccounts.map((account) => (
+                                    <option key={account.id} value={account.id}>
+                                        {account.channelName} {account.isActive ? '(Active)' : ''}
+                                    </option>
+                                ))}
+                            </select>
+                        ) : (
+                            <div className="bg-black/40 border border-[#333] rounded-xl px-4 py-3.5 flex items-center gap-3">
+                                <Youtube className="text-red-500" size={20} />
+                                <span className="text-gray-400 text-sm">No YouTube accounts connected</span>
+                                <a
+                                    href="/settings"
+                                    className="ml-auto text-red-500 hover:text-red-400 text-sm font-semibold"
+                                >
+                                    Connect
+                                </a>
+                            </div>
+                        )}
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

@@ -5,6 +5,7 @@ import { Key, Save, Check, AlertCircle, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { LeftSidebar } from "@/components/LeftSidebar";
 import { SocialMediaConnect } from "@/components/SocialMediaConnect";
+import { YouTubeAccountManager } from "@/components/YouTubeAccountManager";
 
 export default function SettingsPage() {
     const [apiKey, setApiKey] = useState("");
@@ -144,6 +145,13 @@ export default function SettingsPage() {
                     <div className="space-y-4">
                         <div className="bg-black border border-[#333] rounded-2xl overflow-hidden p-6">
                             <SocialMediaConnect />
+                        </div>
+                    </div>
+
+                    {/* YouTube Account Manager */}
+                    <div className="space-y-4">
+                        <div className="bg-black border border-[#333] rounded-2xl overflow-hidden p-6">
+                            <YouTubeAccountManager />
                         </div>
                     </div>
 

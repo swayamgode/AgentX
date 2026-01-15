@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { google } from 'googleapis';
-import { tokenStorage } from '@/lib/token-storage';
+import { tokenStorage, multiAccountStorage } from '@/lib/token-storage';
 import { Readable } from 'stream';
 
 export async function POST(request: NextRequest) {
@@ -10,12 +10,28 @@ export async function POST(request: NextRequest) {
         const title = formData.get('title') as string;
         const description = formData.get('description') as string;
         const tags = JSON.parse(formData.get('tags') as string || '[]');
+        const accountId = formData.get('accountId') as string | null;
 
         if (!videoFile) {
             return NextResponse.json({ error: 'Video file is required' }, { status: 400 });
         }
 
-        let tokens = tokenStorage.load();
+        // Load account-specific tokens
+        let account;
+        if (accountId) {
+            account = multiAccountStorage.getAccount(accountId);
+            if (!account) {
+                return NextResponse.json({ error: 'Account not found' }, { status: 404 });
+            }
+        } else {
+            // Use active account if no accountId specified
+            account = multiAccountStorage.getActiveAccount();
+            if (!account) {
+                return NextResponse.json({ error: 'No YouTube account connected' }, { status: 401 });
+            }
+        }
+
+        let tokens = account.tokens;
         if (!tokens || !tokens.access_token) {
             return NextResponse.json({ error: 'Not connected to YouTube' }, { status: 401 });
         }
@@ -32,7 +48,7 @@ export async function POST(request: NextRequest) {
         if (tokens.expiry_date && tokens.expiry_date < Date.now() && tokens.refresh_token) {
             try {
                 const { credentials } = await oauth2Client.refreshAccessToken();
-                tokenStorage.save({
+                multiAccountStorage.updateTokens(account.id, {
                     access_token: credentials.access_token!,
                     refresh_token: credentials.refresh_token || tokens.refresh_token,
                     expiry_date: credentials.expiry_date || undefined
@@ -99,8 +115,8 @@ export async function POST(request: NextRequest) {
                 try {
                     const { credentials } = await oauth2Client.refreshAccessToken();
 
-                    // Update tokens in storage
-                    tokenStorage.save({
+                    // Update tokens in account storage
+                    multiAccountStorage.updateTokens(account.id, {
                         access_token: credentials.access_token!,
                         refresh_token: credentials.refresh_token || tokens.refresh_token,
                         expiry_date: credentials.expiry_date || undefined
