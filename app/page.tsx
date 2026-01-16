@@ -8,7 +8,7 @@ import ApprovalModal from "@/components/ApprovalModal";
 import { Image, Smile, Calendar, MapPin, Layers, Globe, Sparkles, Video, Play, Youtube } from "lucide-react";
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<"post" | "bulk">("post");
+  const [activeTab, setActiveTab] = useState<"post" | "bulk" | "video">("post");
 
   // Single Post State
   const [postContent, setPostContent] = useState("");
@@ -179,168 +179,235 @@ export default function Home() {
   };
 
   return (
-    <div className="flex justify-center min-h-screen bg-black text-[#e7e9ea]">
+    <div className="flex justify-center min-h-screen bg-black text-[#e7e9ea] font-sans selection:bg-[#7D2AE8] selection:text-white">
       <div className="flex w-full max-w-[1265px]">
 
         <LeftSidebar />
 
-        <main className="flex-1 max-w-[600px] border-x border-[#333] min-h-screen flex flex-col">
-          <div className="sticky top-0 bg-black/80 backdrop-blur-md z-10 border-b border-[#333] flex">
-            <button
-              onClick={() => setActiveTab("post")}
-              className={`flex-1 p-4 text-center font-bold relative hover:bg-[#1a1a1a] transition-colors ${activeTab === 'post' ? 'text-white' : 'text-[#71767b]'}`}
-            >
-              Post
-              {activeTab === 'post' && <div className="absolute bottom-0 h-1 w-14 bg-white rounded-full left-1/2 -translate-x-1/2"></div>}
-            </button>
-            <button
-              onClick={() => setActiveTab("bulk")}
-              className={`flex-1 p-4 text-center font-bold relative hover:bg-[#1a1a1a] transition-colors ${activeTab === 'bulk' ? 'text-white' : 'text-[#71767b]'}`}
-            >
-              Bulk Campaign
-              {activeTab === 'bulk' && <div className="absolute bottom-0 h-1 w-24 bg-white rounded-full left-1/2 -translate-x-1/2"></div>}
-            </button>
+        <main className="flex-1 max-w-[600px] border-x border-[#2f3336] min-h-screen flex flex-col relative">
+
+          {/* Glassy Header with Modern Tabs */}
+          <div className="sticky top-0 bg-black/60 backdrop-blur-xl z-20 border-b border-[#2f3336]">
+            <div className="flex px-4 pt-4 pb-0">
+              <button
+                onClick={() => setActiveTab("post")}
+                className={`flex-1 pb-4 text-center font-bold text-sm transition-all relative ${activeTab === 'post' ? 'text-white' : 'text-[#71767b] hover:text-[#e7e9ea]'}`}
+              >
+                Post
+                {activeTab === 'post' && (
+                  <div className="absolute bottom-0 h-[4px] w-14 bg-[#1d9bf0] rounded-full left-1/2 -translate-x-1/2 shadow-[0_0_10px_rgba(29,155,240,0.5)]"></div>
+                )}
+              </button>
+              <button
+                onClick={() => setActiveTab("bulk")}
+                className={`flex-1 pb-4 text-center font-bold text-sm transition-all relative ${activeTab === 'bulk' ? 'text-white' : 'text-[#71767b] hover:text-[#e7e9ea]'}`}
+              >
+                Bulk Campaign
+                {activeTab === 'bulk' && (
+                  <div className="absolute bottom-0 h-[4px] w-14 bg-[#A970FF] rounded-full left-1/2 -translate-x-1/2 shadow-[0_0_10px_rgba(169,112,255,0.5)]"></div>
+                )}
+              </button>
+              <button
+                onClick={() => setActiveTab("video")}
+                className={`flex-1 pb-4 text-center font-bold text-sm transition-all relative ${activeTab === 'video' ? 'text-white' : 'text-[#71767b] hover:text-[#e7e9ea]'}`}
+              >
+                Video Studio
+                {activeTab === 'video' && (
+                  <div className="absolute bottom-0 h-[4px] w-14 bg-[#00BA7C] rounded-full left-1/2 -translate-x-1/2 shadow-[0_0_10px_rgba(0,186,124,0.5)]"></div>
+                )}
+              </button>
+            </div>
           </div>
 
-          {/* Composer */}
-          <div className="p-4 border-b border-[#333] flex gap-4">
+          {/* Main Content Area */}
+          <div className="p-4 border-b border-[#2f3336] flex gap-4">
             <div className="flex-shrink-0">
-              <div className="w-10 h-10 rounded-lg bg-[#333]"></div>
+              {/* User Avatar Placeholder with Gradient Ring */}
+              <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-[#1d9bf0] to-[#7D2AE8] p-[2px]">
+                <div className="w-full h-full rounded-full bg-black flex items-center justify-center overflow-hidden">
+                  <img src="https://api.dicebear.com/9.x/micah/svg?seed=AgentX" alt="User" />
+                </div>
+              </div>
             </div>
-            <div className="flex-1">
+
+            <div className="flex-1 flex flex-col gap-3">
               {activeTab === 'post' ? (
                 <>
                   <textarea
                     value={postContent}
                     onChange={(e) => setPostContent(e.target.value)}
-                    placeholder="What is happening?"
-                    className="w-full bg-transparent text-xl placeholder-[#52525b] outline-none resize-none min-h-[50px] mt-2 text-white"
+                    placeholder="What is happening?!"
+                    className="w-full bg-transparent text-xl placeholder-[#71767b] text-[#e7e9ea] outline-none resize-none min-h-[80px] mt-1 leading-relaxed"
                   />
-                  {!postContent && <div className="pb-2 text-white font-bold text-sm flex items-center gap-1"><Globe size={14} /> Everyone can reply</div>}
+                  {!postContent && (
+                    <div className="border-b border-[#2f3336] pb-3 mb-1">
+                      <span className="text-[#1d9bf0] font-bold text-xs flex items-center gap-1 cursor-pointer hover:bg-[#1d9bf0]/10 w-fit px-2 py-1 rounded-full transition-colors">
+                        <Globe size={14} /> Everyone can reply
+                      </span>
+                    </div>
+                  )}
                 </>
               ) : activeTab === 'bulk' ? (
-                <div className="space-y-3">
-                  <div className="bg-[#1a1a1a] border border-[#333] rounded-xl p-3 flex gap-3 text-[#e7e9ea]">
-                    <Sparkles className="text-white flex-shrink-0" size={20} />
-                    <div className="text-sm">
-                      <p className="font-bold mb-1">AI Campaign Mode</p>
-                      <p className="text-[#a1a1aa]">Enter a topic, and AgentX will generate and schedule 30 days of content automatically.</p>
+                <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                  <div className="relative group overflow-hidden rounded-2xl border border-[#333] bg-[#16181c]">
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#A970FF]/10 to-[#7D2AE8]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div className="p-4 flex gap-4">
+                      <div className="w-10 h-10 rounded-full bg-[#A970FF]/20 flex items-center justify-center text-[#A970FF]">
+                        <Sparkles size={20} />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-white text-base">AI Campaign Mode</h3>
+                        <p className="text-[#71767b] text-sm mt-1">Generate 30 days of high-performing content in seconds.</p>
+                      </div>
                     </div>
                   </div>
-                  <textarea
-                    value={bulkTopic}
-                    onChange={(e) => setBulkTopic(e.target.value)}
-                    placeholder="Enter campaign topic (e.g., 'Future of Fintech')..."
-                    className="w-full bg-transparent text-xl placeholder-[#52525b] outline-none resize-none min-h-[50px] text-white"
-                  />
+
+                  <div className="bg-[#16181c] rounded-2xl p-2 border border-[#333] focus-within:border-[#A970FF] focus-within:ring-1 focus-within:ring-[#A970FF] transition-all">
+                    <textarea
+                      value={bulkTopic}
+                      onChange={(e) => setBulkTopic(e.target.value)}
+                      placeholder="Enter campaign topic (e.g., 'Future of Fintech')..."
+                      className="w-full bg-transparent text-lg placeholder-[#71767b] text-white outline-none resize-none min-h-[60px] p-2"
+                    />
+                  </div>
                 </div>
               ) : (
                 // Video Tab Content
-                <div className="space-y-3">
-                  <div className="flex gap-2 mb-2 p-1 bg-[#1a1a1a] rounded-lg border border-[#333]">
-                    <button onClick={() => setVideoMode("ai")} className={`flex-1 py-1 text-xs font-bold rounded-md transition-colors ${videoMode === "ai" ? "bg-[#333] text-white" : "text-[#71767b] hover:text-white"}`}>AI Generator</button>
-                    <button onClick={() => setVideoMode("canva")} className={`flex-1 py-1 text-xs font-bold rounded-md transition-colors ${videoMode === "canva" ? "bg-[#5631eb] text-white" : "text-[#71767b] hover:text-white"}`}>Canva Studio</button>
+                <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                  {/* Toggle */}
+                  <div className="flex bg-[#16181c] p-1 rounded-full border border-[#333]">
+                    <button
+                      onClick={() => setVideoMode("ai")}
+                      className={`flex-1 py-1.5 text-xs font-bold rounded-full transition-all duration-300 ${videoMode === "ai" ? "bg-[#333] text-white shadow-md" : "text-[#71767b] hover:text-white"}`}
+                    >
+                      AI Generator
+                    </button>
+                    <button
+                      onClick={() => setVideoMode("canva")}
+                      className={`flex-1 py-1.5 text-xs font-bold rounded-full transition-all duration-300 ${videoMode === "canva" ? "bg-gradient-to-r from-[#5631eb] to-[#7D2AE8] text-white shadow-md" : "text-[#71767b] hover:text-white"}`}
+                    >
+                      Canva Studio
+                    </button>
                   </div>
 
                   {videoMode === "ai" ? (
                     <>
-                      <div className="bg-[#1a1a1a] border border-[#333] rounded-xl p-3 flex gap-3 text-[#e7e9ea]">
-                        <Video className="text-white flex-shrink-0" size={20} />
-                        <div className="text-sm">
-                          <p className="font-bold mb-1">AI Video Creator</p>
-                          <p className="text-[#a1a1aa]">Generate viral Reel/TikTok concepts with scripts and visual planning.</p>
+                      <div className="bg-[#16181c] border border-[#333] rounded-2xl p-4 flex gap-4 items-center">
+                        <div className="w-10 h-10 rounded-full bg-[#00BA7C]/20 flex items-center justify-center text-[#00BA7C]">
+                          <Video size={18} />
+                        </div>
+                        <div>
+                          <p className="font-bold text-white">Viral Reel Generator</p>
+                          <p className="text-xs text-[#71767b]">Create engaging short-form videos automatically.</p>
                         </div>
                       </div>
-                      <textarea
-                        value={videoTopic}
-                        onChange={(e) => setVideoTopic(e.target.value)}
-                        placeholder="Video topic (e.g. '3 Tips for Productivity')..."
-                        className="w-full bg-transparent text-xl placeholder-[#52525b] outline-none resize-none min-h-[50px] text-white"
-                      />
+                      <div className="bg-[#16181c] rounded-2xl p-2 border border-[#333] focus-within:border-[#00BA7C] transition-all">
+                        <textarea
+                          value={videoTopic}
+                          onChange={(e) => setVideoTopic(e.target.value)}
+                          placeholder="Video idea (e.g. '3 Tips for Productivity')..."
+                          className="w-full bg-transparent text-lg placeholder-[#71767b] text-white outline-none resize-none min-h-[60px] p-2"
+                        />
+                      </div>
                     </>
                   ) : (
-                    <div className="flex flex-col gap-4 items-center justify-center p-8 border border-[#333] border-dashed rounded-xl">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#00C4CC] to-[#7D2AE8] flex items-center justify-center mb-2">
-                        <span className="font-bold text-xl italic text-white">C</span>
+                    <div className="flex flex-col gap-4 items-center justify-center p-8 border border-[#333] border-dashed rounded-2xl bg-[#16181c]/50 hover:bg-[#16181c] transition-colors group">
+                      <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-[#00C4CC] to-[#7D2AE8] flex items-center justify-center mb-1 group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-purple-900/20">
+                        <span className="font-bold text-2xl italic text-white font-serif">C</span>
                       </div>
                       <div className="text-center">
-                        <h3 className="font-bold text-lg text-white">Connect to Canva</h3>
-                        <p className="text-sm text-[#71767b] mt-1 max-w-xs">Create professional designs using Canva's templates directly from AgentX.</p>
+                        <h3 className="font-bold text-lg text-white">Canva Integration</h3>
+                        <p className="text-sm text-[#71767b] mt-1 max-w-xs">Design professional graphics with AgentX templates.</p>
                       </div>
                       <a
                         href="/api/canva/auth"
-                        className="bg-[#7D2AE8] hover:bg-[#5631eb] text-white font-bold px-6 py-2 rounded-full transition-all shadow-lg text-sm flex items-center gap-2"
+                        className="bg-white text-black hover:scale-105 font-bold px-6 py-2 rounded-full transition-all shadow-lg text-sm flex items-center gap-2"
                       >
-                        Connect Account
+                        <Sparkles size={14} className="text-[#7D2AE8]" /> Connect Account
                       </a>
-                      <p className="text-[10px] text-[#555] mt-2">Requires Canva Developer Credentials</p>
                     </div>
                   )}
                 </div>
               )}
-            </div>
-          </div>
 
-          <div className="flex flex-col gap-2">
-            <div className="flex justify-between items-center mt-3 border-t border-[#333] pt-3">
-              <div className="flex gap-1 text-white">
-                <button className="p-2 hover:bg-white/10 rounded-full transition-colors"><Image size={20} /></button>
-                <button className="p-2 hover:bg-white/10 rounded-full transition-colors"><Layers size={20} /></button>
-                <button className="p-2 hover:bg-white/10 rounded-full transition-colors"><Smile size={20} /></button>
-                <button className="p-2 hover:bg-white/10 rounded-full transition-colors"><Calendar size={20} /></button>
+              {/* Footer Actions */}
+              <div className="flex justify-between items-center mt-2 pt-2">
+                <div className="flex gap-2">
+                  <button className="p-2 text-[#1d9bf0] hover:bg-[#1d9bf0]/10 rounded-full transition-colors"><Image size={20} /></button>
+                  <button className="p-2 text-[#1d9bf0] hover:bg-[#1d9bf0]/10 rounded-full transition-colors"><Layers size={20} /></button>
+                  <button className="p-2 text-[#1d9bf0] hover:bg-[#1d9bf0]/10 rounded-full transition-colors"><Smile size={20} /></button>
+                  <button className="p-2 text-[#1d9bf0] hover:bg-[#1d9bf0]/10 rounded-full transition-colors"><Calendar size={20} /></button>
+                  <button className="p-2 text-[#1d9bf0] hover:bg-[#1d9bf0]/10 rounded-full transition-colors"><MapPin size={20} /></button>
+                </div>
 
-                {/* AI Enhance Button for Single Post */}
-                {activeTab === 'post' && (
+                {/* Dynamic Action Button */}
+                {activeTab === 'post' ? (
+                  <div className="flex items-center gap-3">
+                    {postContent && !isGenerating && (
+                      <button
+                        onClick={handleGenerate}
+                        className="text-[#1d9bf0] text-sm font-bold hover:underline flex items-center gap-1"
+                      >
+                        <Sparkles size={14} /> Enhance
+                      </button>
+                    )}
+                    <button
+                      onClick={handlePost}
+                      disabled={!postContent}
+                      className={`px-5 py-2 rounded-full font-bold text-sm transition-all shadow-lg ${postContent
+                        ? "bg-[#1d9bf0] hover:bg-[#1a8cd8] text-white shadow-[#1d9bf0]/20"
+                        : "bg-[#1d9bf0]/50 text-white/50 cursor-not-allowed"
+                        }`}
+                    >
+                      {isGenerating ? "Thinking..." : "Post"}
+                    </button>
+                  </div>
+                ) : activeTab === 'bulk' ? (
                   <button
-                    onClick={handleGenerate}
-                    disabled={!postContent || isGenerating}
-                    className="p-2 hover:bg-white/10 rounded-full transition-colors group relative"
-                    title="Enhance with AI"
+                    onClick={handleBulkGenerate}
+                    disabled={isBulkGenerating || !bulkTopic}
+                    className="bg-gradient-to-r from-[#A970FF] to-[#7D2AE8] hover:opacity-90 text-white font-bold px-6 py-2 rounded-full disabled:opacity-50 transition-all shadow-lg shadow-purple-900/30 flex items-center gap-2 text-sm"
                   >
-                    <Sparkles size={20} className={isGenerating ? "animate-pulse" : ""} />
-                    {isGenerating && <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-xs px-2 py-1 rounded border border-[#333]">Generating...</span>}
+                    {isBulkGenerating ? (
+                      <span className="flex items-center gap-2"><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> Generating...</span>
+                    ) : (
+                      <> <Sparkles size={16} /> <span>Launch Campaign</span> </>
+                    )}
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleVideoGenerate}
+                    disabled={isVideoGenerating || !videoTopic}
+                    className="bg-gradient-to-r from-[#00BA7C] to-[#009e69] hover:opacity-90 text-white font-bold px-6 py-2 rounded-full disabled:opacity-50 transition-all shadow-lg shadow-green-900/30 flex items-center gap-2 text-sm"
+                  >
+                    {isVideoGenerating ? "Creating..." : <><Play size={16} fill="white" /> <span>Generate Reel</span></>}
                   </button>
                 )}
               </div>
-
-              {activeTab === 'post' ? (
-                <button
-                  onClick={handlePost}
-                  disabled={!postContent}
-                  className="bg-white hover:bg-[#e5e5e5] text-black font-bold px-5 py-1.5 rounded-xl disabled:opacity-50 transition-colors"
-                >
-                  Post
-                </button>
-              ) : activeTab === 'bulk' ? (
-                <button
-                  onClick={handleBulkGenerate}
-                  disabled={isBulkGenerating || !bulkTopic}
-                  className="bg-white text-black hover:bg-[#e5e5e5] font-bold px-5 py-1.5 rounded-xl disabled:opacity-50 transition-colors flex items-center gap-2"
-                >
-                  {isBulkGenerating ? "Generating..." : <><Layers size={16} /><span>Launch Campaign</span></>}
-                </button>
-              ) : (
-                <button
-                  onClick={handleVideoGenerate}
-                  disabled={isVideoGenerating || !videoTopic}
-                  className="bg-white text-black hover:bg-[#e5e5e5] font-bold px-5 py-1.5 rounded-xl disabled:opacity-50 transition-colors flex items-center gap-2"
-                >
-                  {isVideoGenerating ? "Creating..." : <><Video size={16} /><span>Generate Reel</span></>}
-                </button>
-              )}
             </div>
           </div>
 
-
-
-
-
-
           <Feed refreshTrigger={refreshFeed} />
 
-        </main >
+        </main>
 
-      </div >
+        {/* Right Sidebar Placeholder - keeping layout balanced if you add one later */}
+        <div className="hidden lg:block w-[350px] ml-8 mt-4">
+          <div className="bg-[#16181c] rounded-2xl p-4 border border-[#333] sticky top-4">
+            <h2 className="font-bold text-xl mb-4 text-[#e7e9ea]">Trends for you</h2>
+            <div className="space-y-4">
+              {[1, 2, 3, 4, 5].map(i => (
+                <div key={i} className="hover:bg-[#1d1f23] -mx-4 px-4 py-2 transition-colors cursor-pointer">
+                  <p className="text-xs text-[#71767b]">Trending in Tech</p>
+                  <p className="font-bold text-[#e7e9ea]">#AgentsAI</p>
+                  <p className="text-xs text-[#71767b]">{12 + i}K posts</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+      </div>
 
       {showApprovalModal && (
         <ApprovalModal
@@ -349,8 +416,7 @@ export default function Home() {
           onApprove={handleApproveTweets}
           onReject={handleRejectTweets}
         />
-      )
-      }
-    </div >
+      )}
+    </div>
   );
 }
