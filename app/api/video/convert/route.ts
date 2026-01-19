@@ -1,19 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import { writeFile, unlink, readFile } from 'fs/promises';
+import { writeFile, unlink, readFile, readdir } from 'fs/promises';
 import path from 'path';
 import os from 'os';
+import fs from 'fs';
 
 const execAsync = promisify(exec);
 
 export async function POST(request: NextRequest) {
     let inputPath: string | null = null;
     let outputPath: string | null = null;
+    let tempAudioPath: string | null = null;
 
     try {
         const formData = await request.formData();
         const videoFile = formData.get('video') as File;
+        const requestedAudioId = formData.get('audioId') as string;
+
+        // Optional: Allow converting without adding music if "none" is passed
+        const useMusic = requestedAudioId !== 'none';
 
         if (!videoFile) {
             return NextResponse.json({ error: 'Video file is required' }, { status: 400 });
@@ -29,24 +35,68 @@ export async function POST(request: NextRequest) {
         const buffer = Buffer.from(await videoFile.arrayBuffer());
         await writeFile(inputPath, buffer);
 
-        // Convert using FFmpeg with audio
-        // -i: input video file
-        // -stream_loop -1: loop audio if shorter than video
-        // -i: input audio file
-        // -c:v libx264: use H.264 codec for video
-        // -preset fast: encoding speed preset
-        // -crf 23: quality (lower = better, 23 is good default)
-        // -c:a aac: use AAC codec for audio
-        // -b:a 128k: audio bitrate
-        // -shortest: end when shortest input ends
-        // -movflags +faststart: optimize for web streaming
+        // Determine audio source
+        let audioInput = '';
+        let audioFilter = '';
 
-        // Use a simple tone as background music (can be replaced with actual music file)
-        // Use a 10-second simple chord-like drone for background audio
-        // Using three sine waves to make a major chord (A major: 440, 554, 659)
-        const ffmpegCommand = `ffmpeg -i "${inputPath}" -f lavfi -i "sine=frequency=440:duration=10" -c:v libx264 -preset fast -crf 23 -c:a aac -b:a 128k -t 10 -movflags +faststart "${outputPath}"`;
+        if (useMusic) {
+            const musicDir = path.join(process.cwd(), 'public', 'music', 'royalty-free');
+            let selectedMusicFile = '';
 
-        console.log('Converting video to MP4 with audio...');
+            // Try to find specific requested file or random
+            if (fs.existsSync(musicDir)) {
+                const files = await readdir(musicDir);
+                const mp3Files = files.filter(f => f.endsWith('.mp3'));
+
+                if (mp3Files.length > 0) {
+                    if (requestedAudioId) {
+                        // Try to find match (assuming requestedAudioId is like 'rise-up')
+                        // Map ID to filename logic or just search
+                        // We might need to look up in metadata.json but simple matching is faster for now
+                        // If requestedAudioId matches a filename, use it
+                        const match = mp3Files.find(f => f.includes(requestedAudioId) || f === requestedAudioId);
+                        selectedMusicFile = match || mp3Files[Math.floor(Math.random() * mp3Files.length)];
+                    } else {
+                        // Pick random
+                        selectedMusicFile = mp3Files[Math.floor(Math.random() * mp3Files.length)];
+                    }
+                }
+            }
+
+            if (selectedMusicFile) {
+                const musicPath = path.join(musicDir, selectedMusicFile);
+                console.log('🎵 Using music track:', selectedMusicFile);
+                // -stream_loop -1 loops the audio input indefinitely (must be before -i)
+                // -shortest cuts the output to the shortest input (the video)
+                // Volume adjustment might be needed: af "volume=0.5"
+                audioInput = `-stream_loop -1 -i "${musicPath}"`;
+                // Mix audio? The video usually has no audio, so we map the music to output
+                // If video has audio, we might want to mix. For now assuming video is silent or we replace it.
+                audioFilter = '-map 0:v -map 1:a -shortest';
+            } else {
+                console.log('⚠️ No music files found, using silence.');
+                // Fallback to silent or generate tone if we really want
+                // audioInput = '-f lavfi -i anullsrc=channel_layout=stereo:sample_rate=44100';
+                // audioFilter = '-shortest';
+                // Actually, if no music found, just process video without audio if original had none, 
+                // or keep original audio.
+                // But the user expects music. Let's fallback to the sine wave but quieter as it was annoying?
+                // No, silence is better than a loud beep.
+            }
+        }
+
+        // FFMPEG Command Construction
+        let ffmpegCommand;
+
+        if (audioInput) {
+            ffmpegCommand = `ffmpeg -i "${inputPath}" ${audioInput} -c:v libx264 -preset fast -crf 23 -c:a aac -b:a 192k ${audioFilter} -movflags +faststart "${outputPath}"`;
+        } else {
+            // No music added, just convert
+            ffmpegCommand = `ffmpeg -i "${inputPath}" -c:v libx264 -preset fast -crf 23 -an -movflags +faststart "${outputPath}"`;
+        }
+
+        console.log('Converting video...');
+        // console.log('Command:', ffmpegCommand); 
         await execAsync(ffmpegCommand);
         console.log('Conversion complete!');
 
@@ -70,18 +120,10 @@ export async function POST(request: NextRequest) {
 
         // Clean up temp files on error
         try {
-            if (inputPath) await unlink(inputPath);
-            if (outputPath) await unlink(outputPath);
+            if (inputPath && fs.existsSync(inputPath)) await unlink(inputPath);
+            if (outputPath && fs.existsSync(outputPath)) await unlink(outputPath);
         } catch (cleanupError) {
             console.error('Cleanup error:', cleanupError);
-        }
-
-        // Check if FFmpeg is installed
-        if (error.message?.includes('ffmpeg')) {
-            return NextResponse.json({
-                error: 'FFmpeg not installed. Please install FFmpeg to enable video conversion.',
-                details: error.message
-            }, { status: 500 });
         }
 
         return NextResponse.json({

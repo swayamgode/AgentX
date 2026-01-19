@@ -1,4 +1,19 @@
 {
-  "accounts": [],
-  "activeAccountId": null
+  "accounts": [
+    {
+      "channelName": "quote spark",
+      "channelId": "UCAW3m2OGdPW9e37-iWNT3XQ",
+      "email": "unknown",
+      "watermark": "quote spark",
+      "thumbnailUrl": "https://yt3.ggpht.com/Qr2tj-p1Nvhg7EDw2N0BIMgFKz8mBioBTD6MDeA-DAL_yradkR3p1lWH_w1YSLh9lqSwG8LBOQ=s88-c-k-c0x00ffffff-no-rj",
+      "tokens": {
+        "access_token": "ya29.a0AUMWg_JPaG5Uo0NJ4_rQk_w1OtEaB5pXXF_sdaZmTwRFp4cmBq_JU8fjhVNkwpk0etTUDgtNMLqTnOu3wm2GQzIo5gTnJaP6_9uVoGu6MOHcBeEfRBgMXJjtzZE4gdGNoNmZB43kCrwTwbkNBdNO-MiaAoBSwdfmFuMUpsxRmGhKmNLSFp2wGT2lEFzfkbQxl6shvScaCgYKAcQSARYSFQHGX2MicEfeh-nwI4Zb7TbYTw_wEg0206",
+        "refresh_token": "1//0gwdAkHCX-7beCgYIARAAGBASNwF-L9IrlzNXWRwft3xvGXCBGLl-XEiaJPSEJaylvx0u7GrOfSmmYyBwWAuWoLwQ7b4-7WGHO6g",
+        "expiry_date": 1768845174484
+      },
+      "id": "yt-1768841576014-9jrzmpsrq",
+      "createdAt": "2026-01-19T16:52:56.014Z"
+    }
+  ],
+  "activeAccountId": "yt-1768841576014-9jrzmpsrq"
 }
