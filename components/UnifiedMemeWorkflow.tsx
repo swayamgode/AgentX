@@ -212,13 +212,37 @@ export function UnifiedMemeWorkflow() {
                         });
 
                         // Convert to video - WebM format (browsers don't support MP4 encoding)
-                        const videoBlob = await canvasToVideoBlob(canvas, {
+                        const rawVideoBlob = await canvasToVideoBlob(canvas, {
                             duration: 10, // Increased to 10s as requested
                             fps: 30,
                             format: 'webm'
                         });
 
-                        meme.videoBlob = videoBlob;
+                        // Immediately add audio via API
+                        const formData = new FormData();
+                        formData.append('video', rawVideoBlob, `meme-${meme.id}.webm`);
+                        // Randomly select 'energetic-vibes' or others if we had a selection UI,
+                        // for now let the backend pick random trending/upbeat track
+                        formData.append('audioId', 'random');
+
+                        try {
+                            const audioResponse = await fetch('/api/video/convert', {
+                                method: 'POST',
+                                body: formData
+                            });
+
+                            if (audioResponse.ok) {
+                                const mp4Blob = await audioResponse.blob();
+                                meme.videoBlob = mp4Blob; // Store the MP4 with audio
+                            } else {
+                                console.error('Audio mix failed, falling back to silent video');
+                                meme.videoBlob = rawVideoBlob;
+                            }
+                        } catch (err) {
+                            console.error('Audio mix error', err);
+                            meme.videoBlob = rawVideoBlob;
+                        }
+
                         meme.canvas = canvas;
                     }
                 }
@@ -257,32 +281,16 @@ export function UnifiedMemeWorkflow() {
                 console.log(`Processing video ${i + 1}/${selectedMemes.length}...`);
 
                 try {
-                    // Step 1: Convert WebM to MP4 with audio
-                    console.log(`Converting video ${i + 1} to MP4 with audio...`);
-                    const convertFormData = new FormData();
-                    convertFormData.append('video', meme.videoBlob!, `meme-${meme.id}.webm`);
-
-                    const convertResponse = await fetch('/api/video/convert', {
-                        method: 'POST',
-                        body: convertFormData
-                    });
-
-                    if (!convertResponse.ok) {
-                        const error = await convertResponse.json();
-                        throw new Error(`Conversion failed: ${error.error || 'Unknown error'}`);
-                    }
-
-                    // Get MP4 blob with audio
-                    const mp4Blob = await convertResponse.blob();
-                    console.log(`✓ Video ${i + 1} converted to MP4 with audio`);
+                    // Step 1: Video is already converted to MP4 with audio in previous step
+                    const mp4Blob = meme.videoBlob!; // Already has audio
 
                     // Step 2: Upload MP4 to YouTube
                     console.log(`Uploading video ${i + 1} to YouTube...`);
                     const uploadFormData = new FormData();
                     uploadFormData.append('video', mp4Blob, `meme-${meme.id}.mp4`);
                     uploadFormData.append('title', `${topic} Meme #${i + 1}`);
-                    uploadFormData.append('description', `Funny meme about ${topic}\n\nGenerated with AI Meme Studio`);
-                    uploadFormData.append('tags', JSON.stringify([topic, 'meme', 'funny', 'shorts']));
+                    uploadFormData.append('description', `Funny meme about ${topic}\n\nGenerated with AI Meme Studio #shorts #memes`);
+                    uploadFormData.append('tags', JSON.stringify([topic, 'meme', 'funny', 'shorts', 'viral']));
 
                     const uploadResponse = await fetch('/api/youtube/upload-video', {
                         method: 'POST',
@@ -536,7 +544,7 @@ export function UnifiedMemeWorkflow() {
                                                                 transform: `translate(${textPos.anchor === 'middle' ? '-50%' : textPos.anchor === 'right' ? '-100%' : '0'}, ${textPos.anchor === 'middle' ? '-50%' : textPos.anchor === 'bottom' ? '-100%' : '0'}) rotate(${textPos.rotation || 0}deg)`,
                                                                 color: textPos.color,
                                                                 width: `${textPos.maxWidth || 80}%`,
-                                                                // Use viewport-like units or calc based on parent container width if possible. 
+                                                                // Use viewport-like units or calc based on parent container width if possible.
                                                                 // Since parent is fluid, we use standard font mapping.
                                                                 // Template fontSize is ~ 1/12 of width for 80px on 1000px width.
                                                                 // We'll use a rough multiplier for preview.
@@ -644,7 +652,7 @@ export function UnifiedMemeWorkflow() {
                                                 className="w-full h-full object-contain"
                                                 controls
                                                 loop
-                                                muted
+
                                                 playsInline
                                             />
                                         </div>
@@ -659,7 +667,7 @@ export function UnifiedMemeWorkflow() {
                                             </div>
                                             <div className="flex items-center gap-2 text-xs text-green-400">
                                                 <CheckCircle size={12} />
-                                                Video Optimized
+                                                {meme.videoBlob?.type === 'video/mp4' ? 'Audio Added' : 'Video Ready'}
                                             </div>
                                         </div>
                                     </div>
