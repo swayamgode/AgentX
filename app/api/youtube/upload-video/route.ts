@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { google } from 'googleapis';
 import { tokenStorage, multiAccountStorage } from '@/lib/token-storage';
+import { analyticsStorage } from '@/lib/analytics-storage';
 import { Readable } from 'stream';
 
 export async function POST(request: NextRequest) {
@@ -11,6 +12,11 @@ export async function POST(request: NextRequest) {
         const description = formData.get('description') as string;
         const tags = JSON.parse(formData.get('tags') as string || '[]');
         const accountId = formData.get('accountId') as string | null;
+
+        // Extract metadata for analytics
+        const topic = formData.get('topic') as string;
+        const templateId = formData.get('templateId') as string;
+        const texts = JSON.parse(formData.get('texts') as string || '[]');
 
         if (!videoFile) {
             return NextResponse.json({ error: 'Video file is required' }, { status: 400 });
@@ -101,11 +107,28 @@ export async function POST(request: NextRequest) {
 
         try {
             const response = await uploadVideo(oauth2Client);
-            return NextResponse.json({
+            const jsonResponse = {
                 success: true,
                 videoId: response.data.id,
                 videoUrl: `https://www.youtube.com/watch?v=${response.data.id}`
-            });
+            };
+
+            // Track upload for analytics
+            if (response.data.id) {
+                try {
+                    analyticsStorage.addVideo({
+                        youtubeId: response.data.id,
+                        title,
+                        topic: topic || 'unknown',
+                        templateId: templateId || 'unknown',
+                        texts
+                    });
+                } catch (err) {
+                    console.error('Failed to save analytics data:', err);
+                }
+            }
+
+            return NextResponse.json(jsonResponse);
         } catch (error: any) {
             console.error('Initial upload failed:', error.message);
 
@@ -127,11 +150,28 @@ export async function POST(request: NextRequest) {
 
                     // Retry upload
                     const response = await uploadVideo(oauth2Client);
-                    return NextResponse.json({
+                    const jsonResponse = {
                         success: true,
                         videoId: response.data.id,
                         videoUrl: `https://www.youtube.com/watch?v=${response.data.id}`
-                    });
+                    };
+
+                    // Track upload for analytics (retry case)
+                    if (response.data.id) {
+                        try {
+                            analyticsStorage.addVideo({
+                                youtubeId: response.data.id,
+                                title,
+                                topic: topic || 'unknown',
+                                templateId: templateId || 'unknown',
+                                texts
+                            });
+                        } catch (err) {
+                            console.error('Failed to save analytics data:', err);
+                        }
+                    }
+
+                    return NextResponse.json(jsonResponse);
                 } catch (retryError: any) {
                     console.error('Retry failed:', retryError);
                     throw retryError; // Throw to outer catch

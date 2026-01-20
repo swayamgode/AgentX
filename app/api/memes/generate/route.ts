@@ -1,6 +1,7 @@
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { MEME_TEMPLATES } from "@/lib/memes";
+import { analyticsStorage } from "@/lib/analytics-storage";
 
 // Ensure API Key exists
 const apiKey = process.env.GOOGLE_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
@@ -18,10 +19,16 @@ export async function POST(req: Request) {
         const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
         // Select templates
-        const templatesToUse = [];
+        const templatesToUse: any[] = [];
         for (let i = 0; i < count; i++) {
             templatesToUse.push(MEME_TEMPLATES[i % MEME_TEMPLATES.length]);
         }
+
+        // Get high performing memes for context
+        const topMemes = analyticsStorage.getTopPerforming(3);
+        const performanceContext = topMemes.length > 0
+            ? `\n\n### SUCCESSFUL MEMES (Replicate their energy):\n${topMemes.map(m => `- Topic: ${m.topic} | Text: ${JSON.stringify(m.texts)}`).join('\n')}\n`
+            : "";
 
         const prompt = `
       You are a world-class meme creator for 2026. Your goal is to create viral, "Gen Z" style, and "Shorts-ready" memes.
@@ -29,6 +36,7 @@ export async function POST(req: Request) {
       Topic: "${topic}"
       Current Date: ${new Date().toLocaleDateString()}
       Trends to consider: "365 buttons", "delulu", "gym resolutions", "POV", "Me vs. Guy she tells you not to worry about".
+      ${performanceContext}
 
       Generate ${count} distinct meme ideas based on this topic.
       I will provide a list of Template IDs to use for each meme.

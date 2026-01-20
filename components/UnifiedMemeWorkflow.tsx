@@ -291,6 +291,10 @@ export function UnifiedMemeWorkflow() {
                     uploadFormData.append('title', `${topic} Meme #${i + 1}`);
                     uploadFormData.append('description', `Funny meme about ${topic}\n\nGenerated with AI Meme Studio #shorts #memes`);
                     uploadFormData.append('tags', JSON.stringify([topic, 'meme', 'funny', 'shorts', 'viral']));
+                    // Add metadata for analytics tracking
+                    uploadFormData.append('topic', topic);
+                    uploadFormData.append('templateId', meme.templateId);
+                    uploadFormData.append('texts', JSON.stringify(meme.texts));
 
                     const uploadResponse = await fetch('/api/youtube/upload-video', {
                         method: 'POST',
