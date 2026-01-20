@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { analyticsStorage } from '@/lib/analytics-storage';
 
 export async function POST(req: NextRequest) {
     let topic = '';
@@ -31,7 +32,16 @@ export async function POST(req: NextRequest) {
             success: 'success and achievement focused'
         };
 
+        // Get high performing videos for context (even if they are distinct from quotes, the "vibe" helps)
+        // Ideally we'd filter for "quotes" topic or similar if we differentiated strictly,
+        // but generally high performing content is good context.
+        const topContent = analyticsStorage.getTopPerforming(3);
+        const performanceContext = topContent.length > 0
+            ? `\n\n### VIRAL CONTENT EXAMPLES (Replicate their impact):\n${topContent.map(m => `- Topic: ${m.topic} | Text: ${JSON.stringify(m.texts)}`).join('\n')}\n`
+            : "";
+
         const prompt = `Generate ${count} ${stylePrompts[style as keyof typeof stylePrompts] || 'inspirational'} quotes about "${topic}".
+        ${performanceContext}
 
 Return ONLY a JSON array of objects with this exact structure:
 [

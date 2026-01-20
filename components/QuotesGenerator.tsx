@@ -400,6 +400,12 @@ export function QuotesGenerator() {
                 formData.append('description', viralDescription);
                 formData.append('tags', JSON.stringify(viralTags));
                 formData.append('publishAt', publishTime.toISOString());
+
+                // Add metadata for analytics tracking
+                formData.append('topic', topic);
+                formData.append('templateId', `quote-${style}`); // Use style as template identifier
+                formData.append('texts', JSON.stringify([quotes[i].text, quotes[i].author]));
+
                 if (selectedAccountId) {
                     formData.append('accountId', selectedAccountId);
                 }
