@@ -306,7 +306,7 @@ export function QuotesGenerator() {
 
             const mediaRecorder = new MediaRecorder(canvasStream, {
                 mimeType: mimeType,
-                videoBitsPerSecond: 5000000 // 5 Mbps for better quality
+                videoBitsPerSecond: 2500000 // 2.5 Mbps (Optimized for speed/quality balance)
             });
 
             const chunks: BlobPart[] = [];
@@ -318,7 +318,7 @@ export function QuotesGenerator() {
 
             mediaRecorder.start();
 
-            const duration = 30000; // 30 seconds (safer for Shorts, reduces processing load)
+            const duration = 12000; // 12 seconds (optimized for Shorts)
             const startTime = Date.now();
 
             const animate = async () => {
@@ -351,74 +351,73 @@ export function QuotesGenerator() {
         setIsScheduling(true);
         setScheduleProgress('Starting scheduling...');
 
+        // Store upload promises to track completion
+        const uploadPromises: Promise<void>[] = [];
+
         try {
             const baseTime = new Date(scheduleTime).getTime();
 
             for (let i = 0; i < quotes.length; i++) {
-                setScheduleProgress(`Generating video ${i + 1}/${quotes.length}...`);
+                setScheduleProgress(`Generating video ${i + 1}/${quotes.length} (Uploads running in background)...`);
+
+                // 1. Generate Video (Blocking - requires canvas access)
                 const blob = await generateVideoBlob(quotes[i]);
 
                 if (!blob) continue;
 
-                setScheduleProgress(`Uploading video ${i + 1}/${quotes.length}...`);
-                const publishTime = new Date(baseTime + (i * scheduleInterval * 60 * 1000));
+                // 2. Start Upload (Non-blocking / Pipelined)
+                const uploadTask = (async () => {
+                    try {
+                        const publishTime = new Date(baseTime + (i * scheduleInterval * 60 * 1000));
 
-                const formData = new FormData();
-                formData.append('video', blob, `quote-${i}.webm`); // Fixed: Use correct extension
-                // Create viral title for Shorts
-                const quotePreview = quotes[i].text.substring(0, 45);
-                const viralTitle = `${quotePreview}... 🔥 #shorts #quotes #${quotes[i].category}`;
+                        const formData = new FormData();
+                        formData.append('video', blob, `quote-${i}.webm`);
 
-                // Create trending description with viral hashtags
-                const viralDescription = `${quotes[i].text}\n\n- ${quotes[i].author}\n\n🔥 FOLLOW FOR MORE DAILY QUOTES! 🔥\n\n#shorts #quotes #motivation #inspiration #success #mindset #viral #trending #fyp #foryou #wisdom #dailyquotes #motivationalquotes #inspirationalquotes #${quotes[i].category} #shortsvideo #youtubeshorts #viralshorts #quotesoftheday #lifequotes`;
+                        const quotePreview = quotes[i].text.substring(0, 45);
+                        const viralTitle = `${quotePreview}... 🔥 #shorts #quotes #${quotes[i].category}`;
+                        const viralDescription = `${quotes[i].text}\n\n- ${quotes[i].author}\n\n🔥 FOLLOW FOR MORE DAILY QUOTES! 🔥\n\n#shorts #quotes #motivation #inspiration #success #mindset #viral #trending #fyp #foryou #wisdom #dailyquotes #motivationalquotes #inspirationalquotes #${quotes[i].category} #shortsvideo #youtubeshorts #viralshorts #quotesoftheday #lifequotes`;
 
-                // Viral tags for better discoverability
-                const viralTags = [
-                    'shorts',
-                    'quotes',
-                    'motivation',
-                    'inspiration',
-                    'success',
-                    'mindset',
-                    'viral',
-                    'trending',
-                    'fyp',
-                    'wisdom',
-                    'daily quotes',
-                    'motivational quotes',
-                    'inspirational quotes',
-                    quotes[i].category,
-                    'youtube shorts',
-                    'viral shorts',
-                    'quotes of the day',
-                    'life quotes',
-                    'positive vibes',
-                    'self improvement'
-                ];
+                        const viralTags = [
+                            'shorts', 'quotes', 'motivation', 'inspiration', 'success',
+                            'mindset', 'viral', 'trending', 'fyp', 'wisdom',
+                            'daily quotes', 'motivational quotes', 'inspirational quotes',
+                            quotes[i].category, 'youtube shorts', 'viral shorts',
+                            'quotes of the day', 'life quotes', 'positive vibes', 'self improvement'
+                        ];
 
-                formData.append('title', viralTitle);
-                formData.append('description', viralDescription);
-                formData.append('tags', JSON.stringify(viralTags));
-                formData.append('publishAt', publishTime.toISOString());
+                        formData.append('title', viralTitle);
+                        formData.append('description', viralDescription);
+                        formData.append('tags', JSON.stringify(viralTags));
+                        formData.append('publishAt', publishTime.toISOString());
 
-                // Add metadata for analytics tracking
-                formData.append('topic', topic);
-                formData.append('templateId', `quote-${style}`); // Use style as template identifier
-                formData.append('texts', JSON.stringify([quotes[i].text, quotes[i].author]));
+                        // Add metadata for analytics tracking
+                        formData.append('topic', topic);
+                        formData.append('templateId', `quote-${style}`);
+                        formData.append('texts', JSON.stringify([quotes[i].text, quotes[i].author]));
 
-                if (selectedAccountId) {
-                    formData.append('accountId', selectedAccountId);
-                }
+                        if (selectedAccountId) {
+                            formData.append('accountId', selectedAccountId);
+                        }
 
-                const res = await fetch('/api/youtube/upload-video', {
-                    method: 'POST',
-                    body: formData
-                });
+                        const res = await fetch('/api/youtube/upload-video', {
+                            method: 'POST',
+                            body: formData
+                        });
 
-                if (!res.ok) {
-                    console.error(`Failed to upload video ${i + 1}`);
-                }
+                        if (!res.ok) {
+                            console.error(`Failed to upload video ${i + 1}`);
+                        }
+                    } catch (err) {
+                        console.error(`Upload error for video ${i + 1}`, err);
+                    }
+                })();
+
+                uploadPromises.push(uploadTask);
             }
+
+            setScheduleProgress('Finishing final uploads...');
+            await Promise.all(uploadPromises);
+
             setScheduleProgress('All videos scheduled successfully!');
             setTimeout(() => setScheduleProgress(''), 3000);
         } catch (error) {

@@ -276,8 +276,8 @@ export function UnifiedMemeWorkflow() {
             let errors: string[] = [];
 
             // Convert and upload videos to YouTube
-            for (let i = 0; i < selectedMemes.length; i++) {
-                const meme = selectedMemes[i];
+            // Parallelize uploads for speed (limit to batches of 3 if needed, but Promise.all is fine for typically <10 items)
+            const uploadPromises = selectedMemes.map(async (meme, i) => {
                 console.log(`Processing video ${i + 1}/${selectedMemes.length}...`);
 
                 try {
@@ -314,7 +314,9 @@ export function UnifiedMemeWorkflow() {
                     console.error(`✗ Video ${i + 1} error:`, uploadError);
                     errors.push(`Video ${i + 1}: ${uploadError.message}`);
                 }
-            }
+            });
+
+            await Promise.all(uploadPromises);
 
             // Show results
             if (successCount > 0) {
