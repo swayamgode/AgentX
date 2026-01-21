@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Settings, MoreHorizontal, Smile, Calendar, Sparkles } from "lucide-react";
+import { Home, Settings, MoreHorizontal, Smile, Calendar, Sparkles, BarChart3 } from "lucide-react";
 
 export function LeftSidebar() {
     const pathname = usePathname();
@@ -11,6 +11,7 @@ export function LeftSidebar() {
         { icon: Home, label: "Twitter Agent", href: "/" },
         { icon: Sparkles, label: "Quotes", href: "/quotes" },
         { icon: Smile, label: "Meme Studio", href: "/memes" },
+        { icon: BarChart3, label: "Analytics", href: "/analytics" },
         { icon: Settings, label: "Settings", href: "/settings" },
     ];
 

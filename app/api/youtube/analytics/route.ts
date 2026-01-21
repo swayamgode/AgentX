@@ -38,7 +38,7 @@ export async function GET() {
         const videoIds = videos.map(v => v.youtubeId).filter(Boolean);
 
         if (videoIds.length === 0) {
-            return NextResponse.json({ message: 'No videos to check', stats: [] });
+            return NextResponse.json({ videos: [] });
         }
 
         // YouTube API allows up to 50 IDs per request
@@ -49,29 +49,50 @@ export async function GET() {
         for (let i = 0; i < videoIds.length; i += chunkSize) {
             const chunk = videoIds.slice(i, i + chunkSize);
             const response = await youtube.videos.list({
-                part: ['statistics'],
+                part: ['statistics', 'snippet'],
                 id: chunk
             });
 
             if (response.data.items) {
                 for (const item of response.data.items) {
-                    if (item.id && item.statistics) {
-                        analyticsStorage.updateStats(item.id, {
-                            viewCount: item.statistics.viewCount || '0',
-                            likeCount: item.statistics.likeCount || '0',
-                            commentCount: item.statistics.commentCount || '0',
-                            lastUpdated: new Date().toISOString()
-                        });
-                        updatedCount++;
+                    if (item.id) {
+                        const updates: any = {};
+
+                        // Update stats
+                        if (item.statistics) {
+                            updates.stats = {
+                                viewCount: item.statistics.viewCount || '0',
+                                likeCount: item.statistics.likeCount || '0',
+                                commentCount: item.statistics.commentCount || '0',
+                                lastUpdated: new Date().toISOString()
+                            };
+                        }
+
+                        // Update thumbnail
+                        if (item.snippet?.thumbnails?.high?.url) {
+                            updates.thumbnailUrl = item.snippet.thumbnails.high.url;
+                        } else if (item.snippet?.thumbnails?.medium?.url) {
+                            updates.thumbnailUrl = item.snippet.thumbnails.medium.url;
+                        } else if (item.snippet?.thumbnails?.default?.url) {
+                            updates.thumbnailUrl = item.snippet.thumbnails.default.url;
+                        }
+
+                        if (Object.keys(updates).length > 0) {
+                            analyticsStorage.updateData(item.id, updates);
+                            updatedCount++;
+                        }
                     }
                 }
             }
         }
 
+        // Return fresh data
+        const updatedVideos = analyticsStorage.getAll();
+
         return NextResponse.json({
             success: true,
             updated: updatedCount,
-            message: `Updated analytics for ${updatedCount} videos`
+            videos: updatedVideos
         });
 
     } catch (error: any) {

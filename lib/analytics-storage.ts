@@ -9,6 +9,7 @@ export interface VideoAnalyticsData {
     topic: string;
     templateId: string;
     texts: string[];
+    thumbnailUrl?: string;
     uploadedAt: string;
     stats?: {
         viewCount: string;
@@ -60,6 +61,15 @@ class AnalyticsStorage {
         const index = allData.findIndex(v => v.youtubeId === youtubeId);
         if (index !== -1) {
             allData[index].stats = stats;
+            this.saveData(allData);
+        }
+    }
+
+    updateData(youtubeId: string, updates: Partial<VideoAnalyticsData>): void {
+        const allData = this.loadData();
+        const index = allData.findIndex(v => v.youtubeId === youtubeId);
+        if (index !== -1) {
+            allData[index] = { ...allData[index], ...updates };
             this.saveData(allData);
         }
     }
