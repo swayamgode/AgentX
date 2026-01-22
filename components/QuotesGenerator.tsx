@@ -42,6 +42,8 @@ export function QuotesGenerator() {
     const [scheduleProgress, setScheduleProgress] = useState('');
     const [scheduleTime, setScheduleTime] = useState('');
     const [scheduleInterval, setScheduleInterval] = useState(60); // minutes
+    const [videoDuration, setVideoDuration] = useState(10); // seconds (5-15)
+    const [isSuggesting, setIsSuggesting] = useState(false);
 
     // YouTube Account State
     const [youtubeAccounts, setYoutubeAccounts] = useState<any[]>([]);
@@ -105,6 +107,25 @@ export function QuotesGenerator() {
             console.error(error);
         } finally {
             setIsGenerating(false);
+        }
+    };
+
+    const handleSuggestTopic = async () => {
+        setIsSuggesting(true);
+        try {
+            const res = await fetch("/api/quotes/suggest-trends", {
+                method: "POST"
+            });
+            const data = await res.json();
+            if (data.topics && data.topics.length > 0) {
+                // Pick a random topic from the suggestions
+                const randomTopic = data.topics[Math.floor(Math.random() * data.topics.length)];
+                setTopic(randomTopic);
+            }
+        } catch (error) {
+            console.error("Failed to suggest topic:", error);
+        } finally {
+            setIsSuggesting(false);
         }
     };
 
@@ -318,7 +339,7 @@ export function QuotesGenerator() {
 
             mediaRecorder.start();
 
-            const duration = 12000; // 12 seconds (optimized for Shorts)
+            const duration = videoDuration * 1000; // Use custom duration
             const startTime = Date.now();
 
             const animate = async () => {
@@ -473,7 +494,7 @@ export function QuotesGenerator() {
                         </div>
 
                         <div className="space-y-5">
-                            <div>
+                            <div className="relative">
                                 <label className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2.5 block">Topic</label>
                                 <input
                                     value={topic}
@@ -481,6 +502,18 @@ export function QuotesGenerator() {
                                     placeholder="e.g., Success, Mindset, Love..."
                                     className="w-full bg-black/40 border border-[#333] rounded-xl px-4 py-3.5 text-white placeholder-gray-600 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 outline-none transition-all"
                                 />
+                                <button
+                                    onClick={handleSuggestTopic}
+                                    disabled={isSuggesting}
+                                    className="absolute right-2 top-[38px] p-2 bg-purple-500/20 hover:bg-purple-500/40 text-purple-300 rounded-lg transition-all"
+                                    title="Suggest Trending Topic"
+                                >
+                                    {isSuggesting ? (
+                                        <RefreshCw className="animate-spin" size={16} />
+                                    ) : (
+                                        <Sparkles size={16} />
+                                    )}
+                                </button>
                             </div>
 
                             <div>
@@ -517,6 +550,30 @@ export function QuotesGenerator() {
                                             background: `linear-gradient(to right, rgb(168, 85, 247) 0%, rgb(168, 85, 247) ${(quoteCount / 50) * 100}%, rgb(51, 51, 51) ${(quoteCount / 50) * 100}%, rgb(51, 51, 51) 100%)`
                                         }}
                                     />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2.5 block">
+                                    Video Duration <span className="text-purple-400 font-mono ml-2">{videoDuration}s</span>
+                                </label>
+                                <div className="bg-black/40 border border-[#333] rounded-xl px-4 py-4">
+                                    <input
+                                        type="range"
+                                        min="5"
+                                        max="15"
+                                        step="1"
+                                        value={videoDuration}
+                                        onChange={(e) => setVideoDuration(parseInt(e.target.value))}
+                                        className="w-full accent-purple-500 h-2 bg-[#333] rounded-lg appearance-none cursor-pointer"
+                                        style={{
+                                            background: `linear-gradient(to right, rgb(168, 85, 247) 0%, rgb(168, 85, 247) ${((videoDuration - 5) / 10) * 100}%, rgb(51, 51, 51) ${((videoDuration - 5) / 10) * 100}%, rgb(51, 51, 51) 100%)`
+                                        }}
+                                    />
+                                    <div className="flex justify-between text-xs text-gray-500 mt-2 font-mono">
+                                        <span>5s</span>
+                                        <span>15s</span>
+                                    </div>
                                 </div>
                             </div>
 
