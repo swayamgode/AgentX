@@ -8,6 +8,8 @@ interface Quote {
     text: string;
     author: string;
     category: string;
+    decoration1?: string;
+    decoration2?: string;
 }
 
 export function QuotesGenerator() {
@@ -49,6 +51,10 @@ export function QuotesGenerator() {
     const [youtubeAccounts, setYoutubeAccounts] = useState<any[]>([]);
     const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
 
+    // Graphics Decorator State
+    const [availableGraphics, setAvailableGraphics] = useState<string[]>([]);
+
+
     // Refs
     const fileInputRef = useRef<HTMLInputElement>(null);
     const audioInputRef = useRef<HTMLInputElement>(null);
@@ -86,8 +92,21 @@ export function QuotesGenerator() {
             }
         }
 
+        async function loadGraphics() {
+            try {
+                const response = await fetch('/api/graphics/list');
+                const data = await response.json();
+                if (data.graphics) {
+                    setAvailableGraphics(data.graphics);
+                }
+            } catch (error) {
+                console.error('Failed to load graphics:', error);
+            }
+        }
+
         loadMusicLibrary();
         loadYouTubeAccounts();
+        loadGraphics();
     }, []);
 
     const handleGenerate = async () => {
@@ -101,7 +120,28 @@ export function QuotesGenerator() {
             });
             const data = await res.json();
             if (data.quotes) {
-                setQuotes(data.quotes);
+                // Enhance quotes with random decorations
+                const enhancedQuotes = data.quotes.map((q: Quote) => {
+                    // Pick two different random graphics
+                    let d1 = undefined;
+                    let d2 = undefined;
+                    if (availableGraphics.length > 0) {
+                        d1 = availableGraphics[Math.floor(Math.random() * availableGraphics.length)];
+                        // Try to pick a different one for d2
+                        let attempts = 0;
+                        do {
+                            d2 = availableGraphics[Math.floor(Math.random() * availableGraphics.length)];
+                            attempts++;
+                        } while (d2 === d1 && availableGraphics.length > 1 && attempts < 5);
+                    }
+
+                    return {
+                        ...q,
+                        decoration1: d1,
+                        decoration2: d2
+                    };
+                });
+                setQuotes(enhancedQuotes);
             }
         } catch (error) {
             console.error(error);
@@ -168,15 +208,45 @@ export function QuotesGenerator() {
         }
     };
 
+    const prepareDecoration = async (url: string): Promise<HTMLCanvasElement | null> => {
+        if (!url) return null;
+        try {
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            img.src = url;
+
+            if (!img.complete) {
+                await new Promise((resolve, reject) => {
+                    img.onload = resolve;
+                    img.onerror = resolve; // Continue on error to avoid hanging
+                });
+            }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d')!;
+
+            ctx.drawImage(img, 0, 0);
+            return canvas;
+        } catch (error) {
+            console.error('Failed to prepare decoration:', error);
+            return null;
+        }
+    };
+
+
     /**
      * Draws a single frame to the canvas.
      * @param canvas The canvas element
      * @param quote The quote to draw
      * @param time The current animation time in ms
+     * @param preparedDecorations Optional pre-loaded decoration canvases [d1, d2]
      */
-    const drawCanvas = async (canvas: HTMLCanvasElement, quote: Quote, time: number = 0) => {
+    const drawCanvas = async (canvas: HTMLCanvasElement, quote: Quote, time: number = 0, preparedDecorations: (HTMLCanvasElement | null)[] = []) => {
         const ctx = canvas.getContext('2d')!;
         const width = canvas.width;
+
         const height = canvas.height;
 
         ctx.clearRect(0, 0, width, height);
@@ -221,6 +291,54 @@ export function QuotesGenerator() {
             ctx.fillStyle = grad;
             ctx.fillRect(0, 0, width, height);
         }
+
+        // 1.5 Draw Decorations (Graphics)
+        const [d1Canvas, d2Canvas] = preparedDecorations.length === 2 ? preparedDecorations : [null, null];
+
+        // Decoration 1 (Bottom Right)
+        if (quote.decoration1) {
+            try {
+                let canvasToDraw = d1Canvas;
+                if (!canvasToDraw) {
+                    canvasToDraw = await prepareDecoration(quote.decoration1);
+                }
+
+                if (canvasToDraw) {
+                    const decoSize = width * 0.4;
+                    const decoX = width - decoSize - (width * 0.05); // 5% padding right
+                    const decoY = height - decoSize - (height * 0.15); // 15% padding bottom
+
+                    ctx.globalAlpha = 1.0; // Sharp visibility
+                    ctx.drawImage(canvasToDraw, decoX, decoY, decoSize, decoSize);
+                }
+            } catch (e) {
+                console.error("Failed to draw decoration 1", e);
+            }
+        }
+
+        // Decoration 2 (Top Left)
+        if (quote.decoration2) {
+            try {
+                let canvasToDraw = d2Canvas;
+                if (!canvasToDraw) {
+                    canvasToDraw = await prepareDecoration(quote.decoration2);
+                }
+
+                if (canvasToDraw) {
+                    const decoSize = width * 0.25; // Smaller
+                    const decoX = width * 0.05;
+                    const decoY = height * 0.05;
+
+                    ctx.globalAlpha = 1.0; // Sharp visibility
+                    ctx.drawImage(canvasToDraw, decoX, decoY, decoSize, decoSize);
+                }
+            } catch (e) {
+                console.error("Failed to draw decoration 2", e);
+            }
+        }
+
+        // Reset Alpha
+        ctx.globalAlpha = 1.0;
 
         // 2. Draw Text Configuration
         ctx.fillStyle = textColor;
@@ -292,7 +410,13 @@ export function QuotesGenerator() {
         canvas.width = 1080;
         canvas.height = aspectRatio === 'story' ? 1920 : 1080;
 
-        await drawCanvas(canvas, quote, 0);
+        canvas.height = aspectRatio === 'story' ? 1920 : 1080;
+
+        const d1 = quote.decoration1 ? await prepareDecoration(quote.decoration1) : null;
+        const d2 = quote.decoration2 ? await prepareDecoration(quote.decoration2) : null;
+
+        await drawCanvas(canvas, quote, 0, [d1, d2]);
+
 
         canvas.toBlob((blob) => {
             if (blob) {
@@ -342,10 +466,14 @@ export function QuotesGenerator() {
             const duration = videoDuration * 1000; // Use custom duration
             const startTime = Date.now();
 
+            const d1 = quote.decoration1 ? await prepareDecoration(quote.decoration1) : null;
+            const d2 = quote.decoration2 ? await prepareDecoration(quote.decoration2) : null;
+            const decorations = [d1, d2];
+
             const animate = async () => {
                 const elapsed = Date.now() - startTime;
                 if (elapsed < duration) {
-                    await drawCanvas(canvas, quote, elapsed);
+                    await drawCanvas(canvas, quote, elapsed, decorations);
                     requestAnimationFrame(animate);
                 } else {
                     mediaRecorder.stop();
@@ -1061,6 +1189,38 @@ export function QuotesGenerator() {
                                         />
                                     )}
                                 </div>
+
+                                {/* Decoration Overlays for Grid Item - PLACED BEHIND CONTENT */}
+                                {quote.decoration1 && (
+                                    /* Bottom Right */
+                                    <div
+                                        className="absolute bottom-[15%] right-[5%] pointer-events-none transition-transform duration-700 group-hover:scale-105 z-1"
+                                        style={{
+                                            width: '40%',
+                                            aspectRatio: '1',
+                                            backgroundImage: `url(${quote.decoration1})`,
+                                            backgroundSize: 'contain',
+                                            backgroundRepeat: 'no-repeat',
+                                            backgroundPosition: 'bottom right',
+                                            opacity: 1 // No tint/fade
+                                        }}
+                                    />
+                                )}
+                                {quote.decoration2 && (
+                                    /* Top Left (Smaller) */
+                                    <div
+                                        className="absolute top-[5%] left-[5%] pointer-events-none transition-transform duration-700 group-hover:scale-105 z-1"
+                                        style={{
+                                            width: '24%',
+                                            aspectRatio: '1',
+                                            backgroundImage: `url(${quote.decoration2})`,
+                                            backgroundSize: 'contain',
+                                            backgroundRepeat: 'no-repeat',
+                                            backgroundPosition: 'top left',
+                                            opacity: 1 // No tint/fade
+                                        }}
+                                    />
+                                )}
 
                                 {/* Content */}
                                 <div className="absolute inset-0 z-10 p-8 flex flex-col justify-center items-center text-center">
