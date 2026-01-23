@@ -4,17 +4,18 @@ import { useState, useRef, useEffect } from "react";
 import { Sparkles, Download, Share2, RefreshCw, Smartphone, Monitor, Image as ImageIcon, Palette, Video, Music, Upload, Type, AlignLeft, AlignCenter, AlignRight, Minus, Plus, Calendar, Clock, Play, Pause, Youtube } from "lucide-react";
 import { MusicLibrary, MusicTrack, getTrackUrl, fetchTrackAsBlob } from "@/lib/music-library";
 
+interface Decoration {
+    image: string;
+    x: number; // 0-1 range
+    y: number; // 0-1 range
+    size: number; // 0.15-0.5 range (relative to canvas width)
+}
+
 interface Quote {
     text: string;
     author: string;
     category: string;
-    decoration1?: string;
-    decoration2?: string;
-    // Random positions for decorations (0-1 range)
-    deco1X?: number;
-    deco1Y?: number;
-    deco2X?: number;
-    deco2Y?: number;
+    decorations: Decoration[]; // Array of decorations (0-5 items)
 }
 
 export function QuotesGenerator() {
@@ -127,36 +128,35 @@ export function QuotesGenerator() {
             if (data.quotes) {
                 // Enhance quotes with random decorations and positions
                 const enhancedQuotes = data.quotes.map((q: Quote) => {
-                    // Pick two different random graphics
-                    let d1 = undefined;
-                    let d2 = undefined;
+                    const decorations: Decoration[] = [];
+
                     if (availableGraphics.length > 0) {
-                        d1 = availableGraphics[Math.floor(Math.random() * availableGraphics.length)];
-                        // Try to pick a different one for d2
-                        let attempts = 0;
-                        do {
-                            d2 = availableGraphics[Math.floor(Math.random() * availableGraphics.length)];
-                            attempts++;
-                        } while (d2 === d1 && availableGraphics.length > 1 && attempts < 5);
+                        // Random number of decorations (0-5)
+                        const numDecorations = Math.floor(Math.random() * 6); // 0, 1, 2, 3, 4, or 5
+
+                        for (let i = 0; i < numDecorations; i++) {
+                            // Pick a random graphic
+                            const randomGraphic = availableGraphics[Math.floor(Math.random() * availableGraphics.length)];
+
+                            // Random position (anywhere on canvas)
+                            const x = Math.random(); // 0-1
+                            const y = Math.random(); // 0-1
+
+                            // Random size (15% to 50% of canvas width)
+                            const size = 0.15 + Math.random() * 0.35;
+
+                            decorations.push({
+                                image: randomGraphic,
+                                x,
+                                y,
+                                size
+                            });
+                        }
                     }
-
-                    // Generate random positions for decorations
-                    // Decoration 1: Bottom half, right side (with some variance)
-                    const deco1X = 0.5 + Math.random() * 0.45; // 50-95% from left
-                    const deco1Y = 0.5 + Math.random() * 0.45; // 50-95% from top
-
-                    // Decoration 2: Top half, left side (with some variance)
-                    const deco2X = Math.random() * 0.3; // 0-30% from left
-                    const deco2Y = Math.random() * 0.3; // 0-30% from top
 
                     return {
                         ...q,
-                        decoration1: d1,
-                        decoration2: d2,
-                        deco1X,
-                        deco1Y,
-                        deco2X,
-                        deco2Y
+                        decorations
                     };
                 });
                 setQuotes(enhancedQuotes);
@@ -310,54 +310,30 @@ export function QuotesGenerator() {
             ctx.fillRect(0, 0, width, height);
         }
 
-        // 1.5 Draw Decorations (Graphics)
-        const [d1Canvas, d2Canvas] = preparedDecorations.length === 2 ? preparedDecorations : [null, null];
+        // 1.5 Draw Decorations (Graphics) - Loop through all decorations
+        if (quote.decorations && quote.decorations.length > 0) {
+            for (let i = 0; i < quote.decorations.length; i++) {
+                const decoration = quote.decorations[i];
 
-        // Decoration 1 (Bottom Right area with random position)
-        if (quote.decoration1) {
-            try {
-                let canvasToDraw = d1Canvas;
-                if (!canvasToDraw) {
-                    canvasToDraw = await prepareDecoration(quote.decoration1);
+                try {
+                    // Check if we have a pre-prepared canvas for this decoration
+                    let canvasToDraw = preparedDecorations[i] || null;
+
+                    if (!canvasToDraw) {
+                        canvasToDraw = await prepareDecoration(decoration.image);
+                    }
+
+                    if (canvasToDraw) {
+                        const decoSize = width * decoration.size;
+                        const decoX = (width * decoration.x) - (decoSize / 2);
+                        const decoY = (height * decoration.y) - (decoSize / 2);
+
+                        ctx.globalAlpha = 1.0; // Sharp visibility
+                        ctx.drawImage(canvasToDraw, decoX, decoY, decoSize, decoSize);
+                    }
+                } catch (e) {
+                    console.error(`Failed to draw decoration ${i}`, e);
                 }
-
-                if (canvasToDraw) {
-                    const decoSize = width * 0.4;
-                    // Use random position from quote data, or fallback to default
-                    const posX = quote.deco1X !== undefined ? quote.deco1X : 0.85;
-                    const posY = quote.deco1Y !== undefined ? quote.deco1Y : 0.75;
-                    const decoX = (width * posX) - (decoSize / 2);
-                    const decoY = (height * posY) - (decoSize / 2);
-
-                    ctx.globalAlpha = 1.0; // Sharp visibility
-                    ctx.drawImage(canvasToDraw, decoX, decoY, decoSize, decoSize);
-                }
-            } catch (e) {
-                console.error("Failed to draw decoration 1", e);
-            }
-        }
-
-        // Decoration 2 (Top Left area with random position)
-        if (quote.decoration2) {
-            try {
-                let canvasToDraw = d2Canvas;
-                if (!canvasToDraw) {
-                    canvasToDraw = await prepareDecoration(quote.decoration2);
-                }
-
-                if (canvasToDraw) {
-                    const decoSize = width * 0.25; // Smaller
-                    // Use random position from quote data, or fallback to default
-                    const posX = quote.deco2X !== undefined ? quote.deco2X : 0.15;
-                    const posY = quote.deco2Y !== undefined ? quote.deco2Y : 0.15;
-                    const decoX = (width * posX) - (decoSize / 2);
-                    const decoY = (height * posY) - (decoSize / 2);
-
-                    ctx.globalAlpha = 1.0; // Sharp visibility
-                    ctx.drawImage(canvasToDraw, decoX, decoY, decoSize, decoSize);
-                }
-            } catch (e) {
-                console.error("Failed to draw decoration 2", e);
             }
         }
 
@@ -434,13 +410,16 @@ export function QuotesGenerator() {
         canvas.width = 1080;
         canvas.height = aspectRatio === 'story' ? 1920 : 1080;
 
-        canvas.height = aspectRatio === 'story' ? 1920 : 1080;
+        // Prepare all decorations
+        const preparedDecos: (HTMLCanvasElement | null)[] = [];
+        if (quote.decorations) {
+            for (const deco of quote.decorations) {
+                const prepared = await prepareDecoration(deco.image);
+                preparedDecos.push(prepared);
+            }
+        }
 
-        const d1 = quote.decoration1 ? await prepareDecoration(quote.decoration1) : null;
-        const d2 = quote.decoration2 ? await prepareDecoration(quote.decoration2) : null;
-
-        await drawCanvas(canvas, quote, 0, [d1, d2]);
-
+        await drawCanvas(canvas, quote, 0, preparedDecos);
 
         canvas.toBlob((blob) => {
             if (blob) {
@@ -490,9 +469,14 @@ export function QuotesGenerator() {
             const duration = videoDuration * 1000; // Use custom duration
             const startTime = Date.now();
 
-            const d1 = quote.decoration1 ? await prepareDecoration(quote.decoration1) : null;
-            const d2 = quote.decoration2 ? await prepareDecoration(quote.decoration2) : null;
-            const decorations = [d1, d2];
+            // Prepare all decorations
+            const decorations: (HTMLCanvasElement | null)[] = [];
+            if (quote.decorations) {
+                for (const deco of quote.decorations) {
+                    const prepared = await prepareDecoration(deco.image);
+                    decorations.push(prepared);
+                }
+            }
 
             const animate = async () => {
                 const elapsed = Date.now() - startTime;
@@ -1215,36 +1199,24 @@ export function QuotesGenerator() {
                                 </div>
 
                                 {/* Decoration Overlays for Grid Item - PLACED BEHIND CONTENT */}
-                                {quote.decoration1 && (
-                                    /* Bottom Right */
+                                {quote.decorations && quote.decorations.map((deco, decoIdx) => (
                                     <div
-                                        className="absolute bottom-[15%] right-[5%] pointer-events-none transition-transform duration-700 group-hover:scale-105 z-1"
+                                        key={decoIdx}
+                                        className="absolute pointer-events-none transition-transform duration-700 group-hover:scale-105 z-1"
                                         style={{
-                                            width: '40%',
+                                            left: `${deco.x * 100}%`,
+                                            top: `${deco.y * 100}%`,
+                                            width: `${deco.size * 100}%`,
                                             aspectRatio: '1',
-                                            backgroundImage: `url(${quote.decoration1})`,
+                                            transform: 'translate(-50%, -50%)',
+                                            backgroundImage: `url(${deco.image})`,
                                             backgroundSize: 'contain',
                                             backgroundRepeat: 'no-repeat',
-                                            backgroundPosition: 'bottom right',
-                                            opacity: 1 // No tint/fade
+                                            backgroundPosition: 'center',
+                                            opacity: 1
                                         }}
                                     />
-                                )}
-                                {quote.decoration2 && (
-                                    /* Top Left (Smaller) */
-                                    <div
-                                        className="absolute top-[5%] left-[5%] pointer-events-none transition-transform duration-700 group-hover:scale-105 z-1"
-                                        style={{
-                                            width: '24%',
-                                            aspectRatio: '1',
-                                            backgroundImage: `url(${quote.decoration2})`,
-                                            backgroundSize: 'contain',
-                                            backgroundRepeat: 'no-repeat',
-                                            backgroundPosition: 'top left',
-                                            opacity: 1 // No tint/fade
-                                        }}
-                                    />
-                                )}
+                                ))}
 
                                 {/* Content */}
                                 <div className="absolute inset-0 z-10 p-8 flex flex-col justify-center items-center text-center">
