@@ -10,6 +10,11 @@ interface Quote {
     category: string;
     decoration1?: string;
     decoration2?: string;
+    // Random positions for decorations (0-1 range)
+    deco1X?: number;
+    deco1Y?: number;
+    deco2X?: number;
+    deco2Y?: number;
 }
 
 export function QuotesGenerator() {
@@ -120,7 +125,7 @@ export function QuotesGenerator() {
             });
             const data = await res.json();
             if (data.quotes) {
-                // Enhance quotes with random decorations
+                // Enhance quotes with random decorations and positions
                 const enhancedQuotes = data.quotes.map((q: Quote) => {
                     // Pick two different random graphics
                     let d1 = undefined;
@@ -135,10 +140,23 @@ export function QuotesGenerator() {
                         } while (d2 === d1 && availableGraphics.length > 1 && attempts < 5);
                     }
 
+                    // Generate random positions for decorations
+                    // Decoration 1: Bottom half, right side (with some variance)
+                    const deco1X = 0.5 + Math.random() * 0.45; // 50-95% from left
+                    const deco1Y = 0.5 + Math.random() * 0.45; // 50-95% from top
+
+                    // Decoration 2: Top half, left side (with some variance)
+                    const deco2X = Math.random() * 0.3; // 0-30% from left
+                    const deco2Y = Math.random() * 0.3; // 0-30% from top
+
                     return {
                         ...q,
                         decoration1: d1,
-                        decoration2: d2
+                        decoration2: d2,
+                        deco1X,
+                        deco1Y,
+                        deco2X,
+                        deco2Y
                     };
                 });
                 setQuotes(enhancedQuotes);
@@ -295,7 +313,7 @@ export function QuotesGenerator() {
         // 1.5 Draw Decorations (Graphics)
         const [d1Canvas, d2Canvas] = preparedDecorations.length === 2 ? preparedDecorations : [null, null];
 
-        // Decoration 1 (Bottom Right)
+        // Decoration 1 (Bottom Right area with random position)
         if (quote.decoration1) {
             try {
                 let canvasToDraw = d1Canvas;
@@ -305,8 +323,11 @@ export function QuotesGenerator() {
 
                 if (canvasToDraw) {
                     const decoSize = width * 0.4;
-                    const decoX = width - decoSize - (width * 0.05); // 5% padding right
-                    const decoY = height - decoSize - (height * 0.15); // 15% padding bottom
+                    // Use random position from quote data, or fallback to default
+                    const posX = quote.deco1X !== undefined ? quote.deco1X : 0.85;
+                    const posY = quote.deco1Y !== undefined ? quote.deco1Y : 0.75;
+                    const decoX = (width * posX) - (decoSize / 2);
+                    const decoY = (height * posY) - (decoSize / 2);
 
                     ctx.globalAlpha = 1.0; // Sharp visibility
                     ctx.drawImage(canvasToDraw, decoX, decoY, decoSize, decoSize);
@@ -316,7 +337,7 @@ export function QuotesGenerator() {
             }
         }
 
-        // Decoration 2 (Top Left)
+        // Decoration 2 (Top Left area with random position)
         if (quote.decoration2) {
             try {
                 let canvasToDraw = d2Canvas;
@@ -326,8 +347,11 @@ export function QuotesGenerator() {
 
                 if (canvasToDraw) {
                     const decoSize = width * 0.25; // Smaller
-                    const decoX = width * 0.05;
-                    const decoY = height * 0.05;
+                    // Use random position from quote data, or fallback to default
+                    const posX = quote.deco2X !== undefined ? quote.deco2X : 0.15;
+                    const posY = quote.deco2Y !== undefined ? quote.deco2Y : 0.15;
+                    const decoX = (width * posX) - (decoSize / 2);
+                    const decoY = (height * posY) - (decoSize / 2);
 
                     ctx.globalAlpha = 1.0; // Sharp visibility
                     ctx.drawImage(canvasToDraw, decoX, decoY, decoSize, decoSize);
