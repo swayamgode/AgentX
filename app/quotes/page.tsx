@@ -26,29 +26,43 @@ export default function QuotesPage() {
     };
 
     return (
-        <div className="flex justify-center min-h-screen bg-black text-[#e7e9ea]">
-            <div className="flex w-full max-w-[1265px]">
-                <LeftSidebar />
+        <div className="flex min-h-screen bg-[#F5F5F7]">
+            <LeftSidebar />
 
-                <main className="flex-1 min-w-0 border-x border-[#333] min-h-screen flex flex-col">
-                    {/* Header */}
-                    <div className="flex items-center justify-between mb-6 sticky top-0 bg-black/80 backdrop-blur-md p-4 z-40 border-b border-[#333]">
-                        <h1 className="text-xl font-bold text-white">Quotes Studio</h1>
-                        <button
-                            onClick={refreshAnalytics}
-                            disabled={isRefreshing}
-                            className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs font-medium text-gray-400 transition-colors disabled:opacity-50"
-                        >
-                            <RefreshCw size={14} className={isRefreshing ? "animate-spin" : ""} />
-                            {isRefreshing ? "Updating..." : "Sync Analytics"}
-                        </button>
-                    </div>
+            <main className="flex-1 ml-0 md:ml-0">
+                {/* Top Header */}
+                <div className="sticky top-0 bg-white/80 backdrop-blur-xl z-20 border-b border-[#e5e5e7]">
+                    <div className="max-w-[1400px] mx-auto px-8 py-4 flex items-center justify-between">
+                        <div>
+                            <h1 className="text-2xl font-bold text-[#1d1d1f]">Quotes Studio</h1>
+                            <p className="text-sm text-[#86868b] mt-0.5">Create stunning videos in seconds.</p>
+                        </div>
 
-                    <div className="p-4">
-                        <QuotesGenerator />
+                        <div className="flex items-center gap-4">
+                            <button
+                                onClick={refreshAnalytics}
+                                disabled={isRefreshing}
+                                className="flex items-center gap-2 px-4 py-2 bg-white border border-[#e5e5e7] hover:bg-[#f5f5f7] rounded-full text-sm font-bold text-[#1d1d1f] transition-colors disabled:opacity-50"
+                            >
+                                <RefreshCw size={14} className={isRefreshing ? "animate-spin" : ""} />
+                                {isRefreshing ? "Syncing..." : "Sync Analytics"}
+                            </button>
+
+                            {/* Profile (Consistent with Home) */}
+                            <div className="flex items-center gap-2 cursor-pointer hover:bg-[#f5f5f7] px-3 py-2 rounded-lg transition-colors">
+                                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#000] to-[#333] flex items-center justify-center">
+                                    <span className="text-white font-bold text-sm">J</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </main>
-            </div>
+                </div>
+
+                {/* Main Content */}
+                <div className="max-w-[1400px] mx-auto px-8 py-8">
+                    <QuotesGenerator />
+                </div>
+            </main>
         </div>
     );
 }

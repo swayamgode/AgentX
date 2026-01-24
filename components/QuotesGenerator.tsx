@@ -602,20 +602,19 @@ export function QuotesGenerator() {
                 accept="audio/*"
             />
 
-            {/* Hero Section */}
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-purple-600/20 via-pink-600/20 to-blue-600/20 border border-purple-500/30 p-8">
-                <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDE2YzAtMi4yMSAxLjc5LTQgNC00czQgMS43OSA0IDQtMS43OSA0LTQgNC00LTEuNzktNC00em0wIDI0YzAtMi4yMSAxLjc5LTQgNC00czQgMS43OSA0IDQtMS43OSA0LTQgNC00LTEuNzktNC00ek0xMiAxNmMwLTIuMjEgMS43OS00IDQtNHM0IDEuNzkgNCA0LTEuNzkgNC00IDQtNC0xLjc5LTQtNHptMCAyNGMwLTIuMjEgMS43OS00IDQtNHM0IDEuNzkgNCA0LTEuNzkgNC00IDQtNC0xLjc5LTQtNHoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-40"></div>
-                <div className="relative z-10">
-                    <div className="flex items-center gap-3 mb-3">
-                        <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl shadow-lg shadow-purple-500/30">
-                            <Sparkles className="text-white" size={28} />
-                        </div>
-                        <div>
-                            <h1 className="text-3xl font-bold text-white tracking-tight">Quotes Studio</h1>
-                            <p className="text-purple-200 text-sm mt-1">Create stunning quote videos in seconds</p>
-                        </div>
+            {/* Hero Section - Simplified/Removed since page header exists, or just a clean sub-banner */}
+            <div className="bg-white rounded-3xl p-8 border border-[#e5e5e7] shadow-sm relative overflow-hidden">
+                <div className="relative z-10 flex items-center justify-between">
+                    <div>
+                        <h2 className="text-xl font-bold text-[#1d1d1f]">Create New Quote</h2>
+                        <p className="text-[#86868b] mt-1">Generate viral quote videos optimized for Shorts & Reels.</p>
+                    </div>
+                    <div className="p-3 bg-[#F5F5F7] rounded-full">
+                        <Sparkles className="text-black" size={24} />
                     </div>
                 </div>
+                {/* Subtle background detail */}
+                <div className="absolute right-0 top-0 w-64 h-64 bg-gradient-to-br from-gray-50 to-gray-100 rounded-bl-full -mr-16 -mt-16 -z-0"></div>
             </div>
 
             {/* Main Control Panel */}
@@ -623,25 +622,25 @@ export function QuotesGenerator() {
 
                 {/* Left Column: Quote Generation */}
                 <div className="lg:col-span-1 space-y-6">
-                    <div className="bg-gradient-to-br from-[#1a1a1a] to-[#111] backdrop-blur-xl p-6 rounded-2xl border border-[#333] shadow-xl">
+                    <div className="bg-white p-6 rounded-2xl border border-[#e5e5e7] hover:shadow-lg transition-shadow">
                         <div className="flex items-center gap-2 mb-5">
-                            <Sparkles className="text-purple-400" size={20} />
-                            <h2 className="text-lg font-bold text-white">Content</h2>
+                            <Sparkles className="text-black" size={20} />
+                            <h2 className="text-lg font-bold text-[#1d1d1f]">Content</h2>
                         </div>
 
                         <div className="space-y-5">
                             <div className="relative">
-                                <label className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2.5 block">Topic</label>
+                                <label className="text-xs font-bold text-[#86868b] uppercase tracking-wider mb-2 block">Topic</label>
                                 <input
                                     value={topic}
                                     onChange={(e) => setTopic(e.target.value)}
                                     placeholder="e.g., Success, Mindset, Love..."
-                                    className="w-full bg-black/40 border border-[#333] rounded-xl px-4 py-3.5 text-white placeholder-gray-600 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 outline-none transition-all"
+                                    className="w-full bg-[#F5F5F7] border border-transparent rounded-xl px-4 py-3 text-[#1d1d1f] placeholder-[#86868b] focus:bg-white focus:border-[#000] focus:ring-0 outline-none transition-all"
                                 />
                                 <button
                                     onClick={handleSuggestTopic}
                                     disabled={isSuggesting}
-                                    className="absolute right-2 top-[38px] p-2 bg-purple-500/20 hover:bg-purple-500/40 text-purple-300 rounded-lg transition-all"
+                                    className="absolute right-2 top-[34px] p-2 hover:bg-gray-200 text-[#1d1d1f] rounded-lg transition-all"
                                     title="Suggest Trending Topic"
                                 >
                                     {isSuggesting ? (
@@ -653,15 +652,15 @@ export function QuotesGenerator() {
                             </div>
 
                             <div>
-                                <label className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2.5 block">Vibe</label>
+                                <label className="text-xs font-bold text-[#86868b] uppercase tracking-wider mb-2 block">Vibe</label>
                                 <div className="grid grid-cols-2 gap-2">
                                     {(['inspirational', 'funny', 'wisdom', 'success'] as const).map(s => (
                                         <button
                                             key={s}
                                             onClick={() => setStyle(s)}
-                                            className={`py-3 px-4 rounded-xl font-semibold text-sm transition-all ${style === s
-                                                ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/30'
-                                                : 'bg-black/40 text-gray-400 border border-[#333] hover:border-[#444] hover:text-gray-300'
+                                            className={`py-3 px-4 rounded-xl font-semibold text-sm transition-all border ${style === s
+                                                ? 'bg-black text-white border-black shadow-lg'
+                                                : 'bg-[#F5F5F7] text-[#86868b] border-transparent hover:bg-[#e5e5e7] hover:text-[#1d1d1f]'
                                                 }`}
                                         >
                                             {s.charAt(0).toUpperCase() + s.slice(1)}
@@ -671,29 +670,29 @@ export function QuotesGenerator() {
                             </div>
 
                             <div>
-                                <label className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2.5 block">
-                                    Quantity <span className="text-purple-400 font-mono ml-2">{quoteCount}</span>
+                                <label className="text-xs font-bold text-[#86868b] uppercase tracking-wider mb-2 block">
+                                    Quantity <span className="text-black font-mono ml-2">{quoteCount}</span>
                                 </label>
-                                <div className="bg-black/40 border border-[#333] rounded-xl px-4 py-4">
+                                <div className="bg-[#F5F5F7] rounded-xl px-4 py-4">
                                     <input
                                         type="range"
                                         min="1"
                                         max="50"
                                         value={quoteCount}
                                         onChange={(e) => setQuoteCount(parseInt(e.target.value))}
-                                        className="w-full accent-purple-500 h-2 bg-[#333] rounded-lg appearance-none cursor-pointer"
+                                        className="w-full accent-black h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer"
                                         style={{
-                                            background: `linear-gradient(to right, rgb(168, 85, 247) 0%, rgb(168, 85, 247) ${(quoteCount / 50) * 100}%, rgb(51, 51, 51) ${(quoteCount / 50) * 100}%, rgb(51, 51, 51) 100%)`
+                                            background: `linear-gradient(to right, rgb(0, 0, 0) 0%, rgb(0, 0, 0) ${(quoteCount / 50) * 100}%, rgb(229, 231, 235) ${(quoteCount / 50) * 100}%, rgb(229, 231, 235) 100%)`
                                         }}
                                     />
                                 </div>
                             </div>
 
                             <div>
-                                <label className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2.5 block">
-                                    Video Duration <span className="text-purple-400 font-mono ml-2">{videoDuration}s</span>
+                                <label className="text-xs font-bold text-[#86868b] uppercase tracking-wider mb-2 block">
+                                    Video Duration <span className="text-black font-mono ml-2">{videoDuration}s</span>
                                 </label>
-                                <div className="bg-black/40 border border-[#333] rounded-xl px-4 py-4">
+                                <div className="bg-[#F5F5F7] rounded-xl px-4 py-4">
                                     <input
                                         type="range"
                                         min="5"
@@ -701,12 +700,12 @@ export function QuotesGenerator() {
                                         step="1"
                                         value={videoDuration}
                                         onChange={(e) => setVideoDuration(parseInt(e.target.value))}
-                                        className="w-full accent-purple-500 h-2 bg-[#333] rounded-lg appearance-none cursor-pointer"
+                                        className="w-full accent-black h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer"
                                         style={{
-                                            background: `linear-gradient(to right, rgb(168, 85, 247) 0%, rgb(168, 85, 247) ${((videoDuration - 5) / 10) * 100}%, rgb(51, 51, 51) ${((videoDuration - 5) / 10) * 100}%, rgb(51, 51, 51) 100%)`
+                                            background: `linear-gradient(to right, rgb(0, 0, 0) 0%, rgb(0, 0, 0) ${((videoDuration - 5) / 10) * 100}%, rgb(229, 231, 235) ${((videoDuration - 5) / 10) * 100}%, rgb(229, 231, 235) 100%)`
                                         }}
                                     />
-                                    <div className="flex justify-between text-xs text-gray-500 mt-2 font-mono">
+                                    <div className="flex justify-between text-xs text-[#86868b] mt-2 font-mono">
                                         <span>5s</span>
                                         <span>15s</span>
                                     </div>
@@ -716,7 +715,7 @@ export function QuotesGenerator() {
                             <button
                                 onClick={handleGenerate}
                                 disabled={isGenerating || !topic}
-                                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-purple-500/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 transform hover:scale-[1.02] active:scale-[0.98]"
+                                className="w-full bg-black hover:bg-[#333] text-white font-bold py-4 rounded-xl transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 transform hover:scale-[1.02] active:scale-[0.98]"
                             >
                                 {isGenerating ? (
                                     <>
@@ -730,16 +729,17 @@ export function QuotesGenerator() {
                                     </>
                                 )}
                             </button>
+
                         </div>
                     </div>
                 </div>
 
                 {/* Middle Column: Preview */}
                 <div className="lg:col-span-1 space-y-6">
-                    <div className="bg-gradient-to-br from-[#1a1a1a] to-[#111] backdrop-blur-xl p-6 rounded-2xl border border-[#333] shadow-xl">
+                    <div className="bg-white p-6 rounded-2xl border border-[#e5e5e7] hover:shadow-lg transition-shadow">
                         <div className="flex items-center gap-2 mb-5">
-                            <Monitor className="text-blue-400" size={20} />
-                            <h2 className="text-lg font-bold text-white">Live Preview</h2>
+                            <Monitor className="text-black" size={20} />
+                            <h2 className="text-lg font-bold text-[#1d1d1f]">Live Preview</h2>
                         </div>
 
                         <div className="flex justify-center">
@@ -785,13 +785,13 @@ export function QuotesGenerator() {
 
                         {/* Format Selection */}
                         <div className="mt-6">
-                            <label className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2.5 block">Format</label>
-                            <div className="grid grid-cols-2 gap-2 bg-black/40 rounded-xl p-1.5 border border-[#333]">
+                            <label className="text-xs font-bold text-[#86868b] uppercase tracking-wider mb-2 block">Format</label>
+                            <div className="grid grid-cols-2 gap-2 bg-[#F5F5F7] rounded-xl p-1.5 border border-[#e5e5e7]">
                                 <button
                                     onClick={() => setAspectRatio('square')}
                                     className={`flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-semibold transition-all ${aspectRatio === 'square'
-                                        ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg'
-                                        : 'text-gray-400 hover:text-white'
+                                        ? 'bg-white text-black shadow-md'
+                                        : 'text-[#86868b] hover:text-[#1d1d1f]'
                                         }`}
                                 >
                                     <Monitor size={16} /> Square
@@ -813,28 +813,28 @@ export function QuotesGenerator() {
                 {/* Right Column: Customization */}
                 <div className="lg:col-span-1 space-y-6">
                     {/* Background Settings */}
-                    <div className="bg-gradient-to-br from-[#1a1a1a] to-[#111] backdrop-blur-xl p-6 rounded-2xl border border-[#333] shadow-xl">
+                    <div className="bg-white p-6 rounded-2xl border border-[#e5e5e7] hover:shadow-lg transition-shadow">
                         <div className="flex items-center gap-2 mb-5">
-                            <Palette className="text-pink-400" size={20} />
-                            <h2 className="text-lg font-bold text-white">Background</h2>
+                            <Palette className="text-black" size={20} />
+                            <h2 className="text-lg font-bold text-[#1d1d1f]">Background</h2>
                         </div>
 
                         <div className="space-y-4">
                             <div className="grid grid-cols-2 gap-2">
                                 <button
                                     onClick={() => setBackgroundType('gradient')}
-                                    className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl border-2 transition-all text-sm font-semibold ${backgroundType === 'gradient'
-                                        ? 'border-pink-500 bg-pink-500/20 text-pink-300'
-                                        : 'border-[#333] bg-black/40 text-gray-400 hover:border-[#444]'
+                                    className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl border transition-all text-sm font-semibold ${backgroundType === 'gradient'
+                                        ? 'bg-black text-white border-black'
+                                        : 'bg-[#F5F5F7] text-[#86868b] border-transparent hover:text-[#1d1d1f]'
                                         }`}
                                 >
                                     <Palette size={16} /> Gradient
                                 </button>
                                 <button
                                     onClick={() => fileInputRef.current?.click()}
-                                    className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl border-2 transition-all text-sm font-semibold ${backgroundType === 'image'
-                                        ? 'border-pink-500 bg-pink-500/20 text-pink-300'
-                                        : 'border-[#333] bg-black/40 text-gray-400 hover:border-[#444]'
+                                    className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl border transition-all text-sm font-semibold ${backgroundType === 'image'
+                                        ? 'bg-black text-white border-black'
+                                        : 'bg-[#F5F5F7] text-[#86868b] border-transparent hover:text-[#1d1d1f]'
                                         }`}
                                 >
                                     <ImageIcon size={16} /> Image
@@ -843,36 +843,36 @@ export function QuotesGenerator() {
 
                             {backgroundType === 'gradient' && (
                                 <div className="space-y-3 animate-in fade-in slide-in-from-top-2">
-                                    <div className="bg-black/40 p-3 rounded-xl border border-[#333] flex items-center gap-3">
+                                    <div className="bg-[#F5F5F7] p-3 rounded-xl border border-transparent flex items-center gap-3">
                                         <input
                                             type="color"
                                             value={color1}
                                             onChange={(e) => setColor1(e.target.value)}
-                                            className="w-10 h-10 rounded-lg cursor-pointer border-2 border-[#444]"
+                                            className="w-10 h-10 rounded-lg cursor-pointer border-2 border-white shadow-sm"
                                         />
                                         <div className="flex-1">
-                                            <div className="text-xs text-gray-500 mb-1">Color 1</div>
-                                            <div className="text-sm text-white font-mono">{color1}</div>
+                                            <div className="text-xs text-[#86868b] mb-1">Color 1</div>
+                                            <div className="text-sm text-[#1d1d1f] font-mono">{color1}</div>
                                         </div>
                                     </div>
-                                    <div className="bg-black/40 p-3 rounded-xl border border-[#333] flex items-center gap-3">
+                                    <div className="bg-[#F5F5F7] p-3 rounded-xl border border-transparent flex items-center gap-3">
                                         <input
                                             type="color"
                                             value={color2}
                                             onChange={(e) => setColor2(e.target.value)}
-                                            className="w-10 h-10 rounded-lg cursor-pointer border-2 border-[#444]"
+                                            className="w-10 h-10 rounded-lg cursor-pointer border-2 border-white shadow-sm"
                                         />
                                         <div className="flex-1">
-                                            <div className="text-xs text-gray-500 mb-1">Color 2</div>
-                                            <div className="text-sm text-white font-mono">{color2}</div>
+                                            <div className="text-xs text-[#86868b] mb-1">Color 2</div>
+                                            <div className="text-sm text-[#1d1d1f] font-mono">{color2}</div>
                                         </div>
                                     </div>
                                 </div>
                             )}
 
                             {backgroundType === 'image' && backgroundImage && (
-                                <div className="bg-black/40 p-3 rounded-xl border border-[#333] text-center">
-                                    <p className="text-sm text-green-400 flex items-center justify-center gap-2">
+                                <div className="bg-[#F5F5F7] p-3 rounded-xl border border-transparent text-center">
+                                    <p className="text-sm text-green-600 flex items-center justify-center gap-2 font-medium">
                                         <ImageIcon size={14} /> Image uploaded
                                     </p>
                                 </div>
@@ -881,30 +881,30 @@ export function QuotesGenerator() {
                     </div>
 
                     {/* Text Styling */}
-                    <div className="bg-gradient-to-br from-[#1a1a1a] to-[#111] backdrop-blur-xl p-6 rounded-2xl border border-[#333] shadow-xl">
+                    <div className="bg-white p-6 rounded-2xl border border-[#e5e5e7] hover:shadow-lg transition-shadow">
                         <div className="flex items-center gap-2 mb-5">
-                            <Type className="text-cyan-400" size={20} />
-                            <h2 className="text-lg font-bold text-white">Text Style</h2>
+                            <Type className="text-black" size={20} />
+                            <h2 className="text-lg font-bold text-[#1d1d1f]">Text Style</h2>
                         </div>
 
                         <div className="space-y-4">
                             {/* Color */}
-                            <div className="bg-black/40 p-3 rounded-xl border border-[#333]">
+                            <div className="bg-[#F5F5F7] p-3 rounded-xl border border-transparent">
                                 <div className="flex items-center justify-between mb-2">
-                                    <span className="text-xs font-bold text-gray-400 uppercase">Color</span>
-                                    <span className="text-xs font-mono text-gray-500">{textColor}</span>
+                                    <span className="text-xs font-bold text-[#86868b] uppercase">Color</span>
+                                    <span className="text-xs font-mono text-[#1d1d1f]">{textColor}</span>
                                 </div>
                                 <input
                                     type="color"
                                     value={textColor}
                                     onChange={(e) => setTextColor(e.target.value)}
-                                    className="w-full h-10 rounded-lg cursor-pointer border-2 border-[#444]"
+                                    className="w-full h-10 rounded-lg cursor-pointer border-2 border-white shadow-sm"
                                 />
                             </div>
 
                             {/* Alignment */}
-                            <div className="bg-black/40 p-3 rounded-xl border border-[#333]">
-                                <div className="text-xs font-bold text-gray-400 uppercase mb-3">Alignment</div>
+                            <div className="bg-[#F5F5F7] p-3 rounded-xl border border-transparent">
+                                <div className="text-xs font-bold text-[#86868b] uppercase mb-3">Alignment</div>
                                 <div className="grid grid-cols-3 gap-2">
                                     {[
                                         { id: 'left', icon: AlignLeft, label: 'Left' },
@@ -915,8 +915,8 @@ export function QuotesGenerator() {
                                             key={id}
                                             onClick={() => setTextAlign(id as any)}
                                             className={`flex flex-col items-center gap-1 py-2 rounded-lg transition-all ${textAlign === id
-                                                ? 'bg-cyan-500/20 text-cyan-300 border-2 border-cyan-500'
-                                                : 'bg-black/40 text-gray-500 border-2 border-transparent hover:text-gray-300'
+                                                ? 'bg-white text-black shadow-md'
+                                                : 'text-[#86868b] hover:text-[#1d1d1f]'
                                                 }`}
                                         >
                                             <Icon size={18} />
@@ -927,27 +927,27 @@ export function QuotesGenerator() {
                             </div>
 
                             {/* Size */}
-                            <div className="bg-black/40 p-3 rounded-xl border border-[#333]">
+                            <div className="bg-[#F5F5F7] p-3 rounded-xl border border-transparent">
                                 <div className="flex items-center justify-between mb-3">
-                                    <span className="text-xs font-bold text-gray-400 uppercase">Size</span>
-                                    <span className="text-sm font-mono text-white bg-black/60 px-3 py-1 rounded-lg">{Math.round(fontSizeScale * 100)}%</span>
+                                    <span className="text-xs font-bold text-[#86868b] uppercase">Size</span>
+                                    <span className="text-sm font-mono text-black bg-white px-3 py-1 rounded-lg border border-[#e5e5e7]">{Math.round(fontSizeScale * 100)}%</span>
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <button
                                         onClick={() => setFontSizeScale(prev => Math.max(0.6, prev - 0.1))}
-                                        className="p-2 bg-black/60 hover:bg-black/80 text-gray-400 hover:text-white rounded-lg transition-all border border-[#444]"
+                                        className="p-2 bg-white hover:bg-[#e5e5e7] text-[#1d1d1f] rounded-lg transition-all border border-[#e5e5e7]"
                                     >
                                         <Minus size={16} />
                                     </button>
-                                    <div className="flex-1 h-2 bg-[#333] rounded-full overflow-hidden">
+                                    <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
                                         <div
-                                            className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-300"
+                                            className="h-full bg-black transition-all duration-300"
                                             style={{ width: `${((fontSizeScale - 0.6) / (2.0 - 0.6)) * 100}%` }}
                                         />
                                     </div>
                                     <button
                                         onClick={() => setFontSizeScale(prev => Math.min(2.0, prev + 0.1))}
-                                        className="p-2 bg-black/60 hover:bg-black/80 text-gray-400 hover:text-white rounded-lg transition-all border border-[#444]"
+                                        className="p-2 bg-white hover:bg-[#e5e5e7] text-[#1d1d1f] rounded-lg transition-all border border-[#e5e5e7]"
                                     >
                                         <Plus size={16} />
                                     </button>
@@ -957,19 +957,19 @@ export function QuotesGenerator() {
                     </div>
 
                     {/* Audio / Music Selection */}
-                    <div className="bg-gradient-to-br from-[#1a1a1a] to-[#111] backdrop-blur-xl p-6 rounded-2xl border border-[#333] shadow-xl">
+                    <div className="bg-white p-6 rounded-2xl border border-[#e5e5e7] hover:shadow-lg transition-shadow">
                         <div className="flex items-center gap-2 mb-4">
-                            <Music className="text-green-400" size={20} />
-                            <h2 className="text-lg font-bold text-white">Music</h2>
+                            <Music className="text-black" size={20} />
+                            <h2 className="text-lg font-bold text-[#1d1d1f]">Music</h2>
                         </div>
 
                         {/* Music Source Toggle */}
-                        <div className="grid grid-cols-2 gap-2 mb-4 bg-black/40 rounded-xl p-1.5 border border-[#333]">
+                        <div className="grid grid-cols-2 gap-2 mb-4 bg-[#F5F5F7] rounded-xl p-1.5 border border-[#e5e5e7]">
                             <button
                                 onClick={() => setUseLibraryMusic(true)}
                                 className={`flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all ${useLibraryMusic
-                                    ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg'
-                                    : 'text-gray-400 hover:text-white'
+                                    ? 'bg-white text-black shadow-md'
+                                    : 'text-[#86868b] hover:text-[#1d1d1f]'
                                     }`}
                             >
                                 <Music size={16} /> Library
@@ -977,8 +977,8 @@ export function QuotesGenerator() {
                             <button
                                 onClick={() => setUseLibraryMusic(false)}
                                 className={`flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all ${!useLibraryMusic
-                                    ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg'
-                                    : 'text-gray-400 hover:text-white'
+                                    ? 'bg-white text-black shadow-md'
+                                    : 'text-[#86868b] hover:text-[#1d1d1f]'
                                     }`}
                             >
                                 <Upload size={16} /> Upload
@@ -990,15 +990,15 @@ export function QuotesGenerator() {
                                 {/* Mood Filter */}
                                 {musicLibrary && (
                                     <div className="space-y-3">
-                                        <label className="text-xs font-bold text-gray-400 uppercase">Mood</label>
+                                        <label className="text-xs font-bold text-[#86868b] uppercase">Mood</label>
                                         <div className="grid grid-cols-2 gap-2">
                                             {musicLibrary.moods.map((mood) => (
                                                 <button
                                                     key={mood.id}
                                                     onClick={() => setSelectedMood(mood.id)}
                                                     className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm font-medium transition-all ${selectedMood === mood.id
-                                                        ? 'bg-green-500/20 text-green-300 border-2 border-green-500'
-                                                        : 'bg-black/40 text-gray-400 border-2 border-transparent hover:text-gray-300'
+                                                        ? 'bg-black text-white'
+                                                        : 'bg-[#F5F5F7] text-[#86868b] hover:text-[#1d1d1f]'
                                                         }`}
                                                 >
                                                     <span>{mood.icon}</span>
@@ -1009,7 +1009,7 @@ export function QuotesGenerator() {
 
                                         {/* Track Selection */}
                                         <div className="mt-4">
-                                            <label className="text-xs font-bold text-gray-400 uppercase mb-2 block">Select Track</label>
+                                            <label className="text-xs font-bold text-[#86868b] uppercase mb-2 block">Select Track</label>
                                             <div className="space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
                                                 {musicLibrary.tracks
                                                     .filter(track => track.mood === selectedMood)
@@ -1017,21 +1017,21 @@ export function QuotesGenerator() {
                                                         <button
                                                             key={track.id}
                                                             onClick={() => handleTrackSelect(track)}
-                                                            className={`w-full text-left p-3 rounded-lg transition-all ${selectedTrack?.id === track.id
-                                                                ? 'bg-green-500/20 border-2 border-green-500'
-                                                                : 'bg-black/40 border-2 border-[#333] hover:border-[#444]'
+                                                            className={`w-full text-left p-3 rounded-lg transition-all border ${selectedTrack?.id === track.id
+                                                                ? 'bg-[#F5F5F7] border-black'
+                                                                : 'bg-white border-[#e5e5e7] hover:border-[#86868b]'
                                                                 }`}
                                                         >
                                                             <div className="flex items-center justify-between">
                                                                 <div className="flex-1">
-                                                                    <div className={`text-sm font-semibold ${selectedTrack?.id === track.id ? 'text-green-300' : 'text-white'
+                                                                    <div className={`text-sm font-semibold ${selectedTrack?.id === track.id ? 'text-[#1d1d1f]' : 'text-[#86868b]'
                                                                         }`}>
                                                                         {track.name}
                                                                     </div>
-                                                                    <div className="text-xs text-gray-500 mt-1">{track.description}</div>
+                                                                    <div className="text-xs text-[#86868b] mt-1">{track.description}</div>
                                                                 </div>
                                                                 {selectedTrack?.id === track.id && (
-                                                                    <div className="ml-2 w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                                                    <div className="ml-2 w-2 h-2 bg-black rounded-full" />
                                                                 )}
                                                             </div>
                                                         </button>
@@ -1041,15 +1041,15 @@ export function QuotesGenerator() {
 
                                         {/* Audio Preview */}
                                         {selectedTrack && (
-                                            <div className="mt-4 bg-black/40 p-3 rounded-xl border border-[#333]">
+                                            <div className="mt-4 bg-[#F5F5F7] p-3 rounded-xl border border-transparent">
                                                 <div className="flex items-center justify-between mb-2">
                                                     <div className="flex-1">
-                                                        <div className="text-xs text-gray-400">Now Playing</div>
-                                                        <div className="text-sm font-semibold text-white">{selectedTrack.name}</div>
+                                                        <div className="text-xs text-[#86868b]">Now Playing</div>
+                                                        <div className="text-sm font-semibold text-[#1d1d1f]">{selectedTrack.name}</div>
                                                     </div>
                                                     <button
                                                         onClick={togglePreview}
-                                                        className="p-2 bg-green-500 hover:bg-green-600 text-white rounded-full transition-all"
+                                                        className="p-2 bg-black hover:bg-[#333] text-white rounded-full transition-all"
                                                     >
                                                         {isPlayingPreview ? <Pause size={16} /> : <Play size={16} />}
                                                     </button>
@@ -1068,13 +1068,13 @@ export function QuotesGenerator() {
                         ) : (
                             <button
                                 onClick={() => audioInputRef.current?.click()}
-                                className={`w-full flex items-center justify-between px-4 py-4 rounded-xl border-2 transition-all group ${audioFile
-                                    ? 'border-green-500 bg-green-500/20 text-green-300'
-                                    : 'border-[#333] bg-black/40 text-gray-400 hover:border-[#444]'
+                                className={`w-full flex items-center justify-between px-4 py-4 rounded-xl border transition-all group ${audioFile
+                                    ? 'border-black bg-black text-white'
+                                    : 'border-[#e5e5e7] bg-[#F5F5F7] text-[#86868b] hover:border-[#86868b]'
                                     }`}
                             >
                                 <span className="flex items-center gap-3 text-sm font-semibold">
-                                    <Music size={18} className={audioFile ? "text-green-400" : "text-gray-500"} />
+                                    <Music size={18} className={audioFile ? "text-white" : "text-[#86868b]"} />
                                     {audioFile ? audioFile.name : 'Upload Background Music'}
                                 </span>
                                 {!audioFile && <Upload size={16} className="opacity-50 group-hover:opacity-100" />}
@@ -1082,194 +1082,198 @@ export function QuotesGenerator() {
                         )}
                     </div>
                 </div>
-            </div>
+            </div >
 
             {/* Scheduling Section */}
-            {quotes.length > 0 && (
-                <div className="bg-gradient-to-br from-blue-600/10 via-cyan-600/10 to-purple-600/10 backdrop-blur-xl p-8 rounded-2xl border border-blue-500/30 shadow-xl animate-in fade-in slide-in-from-bottom-4">
-                    <div className="flex items-center gap-3 mb-6">
-                        <div className="p-3 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl shadow-lg shadow-cyan-500/30">
-                            <Calendar className="text-white" size={24} />
-                        </div>
-                        <div>
-                            <h2 className="text-2xl font-bold text-white">Schedule Posting</h2>
-                            <p className="text-blue-200 text-sm mt-1">Automate your YouTube Shorts uploads</p>
-                        </div>
-                    </div>
-
-                    {/* YouTube Account Selector */}
-                    <div>
-                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2.5 block">
-                            YouTube Account
-                        </label>
-                        {youtubeAccounts.length > 0 ? (
-                            <select
-                                value={selectedAccountId || ''}
-                                onChange={(e) => setSelectedAccountId(e.target.value)}
-                                className="w-full bg-black/40 border border-[#333] rounded-xl px-4 py-3.5 text-white focus:border-red-500 focus:ring-2 focus:ring-red-500/20 outline-none transition-all"
-                            >
-                                {youtubeAccounts.map((account) => (
-                                    <option key={account.id} value={account.id}>
-                                        {account.channelName} {account.isActive ? '(Active)' : ''}
-                                    </option>
-                                ))}
-                            </select>
-                        ) : (
-                            <div className="bg-black/40 border border-[#333] rounded-xl px-4 py-3.5 flex items-center gap-3">
-                                <Youtube className="text-red-500" size={20} />
-                                <span className="text-gray-400 text-sm">No YouTube accounts connected</span>
-                                <a
-                                    href="/settings"
-                                    className="ml-auto text-red-500 hover:text-red-400 text-sm font-semibold"
-                                >
-                                    Connect
-                                </a>
+            {
+                quotes.length > 0 && (
+                    <div className="bg-white p-8 rounded-2xl border border-[#e5e5e7] shadow-lg animate-in fade-in slide-in-from-bottom-4">
+                        <div className="flex items-center gap-3 mb-6">
+                            <div className="p-3 bg-[#e5e5e7] rounded-full">
+                                <Calendar className="text-black" size={24} />
                             </div>
-                        )}
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <label className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2.5 block">Start Time</label>
-                            <input
-                                type="datetime-local"
-                                value={scheduleTime}
-                                onChange={(e) => setScheduleTime(e.target.value)}
-                                className="w-full bg-black/40 border border-[#333] rounded-xl px-4 py-3.5 text-white focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 outline-none transition-all"
-                            />
+                            <div>
+                                <h2 className="text-2xl font-bold text-[#1d1d1f]">Schedule Posting</h2>
+                                <p className="text-[#86868b] text-sm mt-1">Automate your YouTube Shorts uploads</p>
+                            </div>
                         </div>
 
+                        {/* YouTube Account Selector */}
                         <div>
-                            <label className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2.5 block">Interval (Minutes)</label>
-                            <div className="flex items-center gap-3 bg-black/40 border border-[#333] rounded-xl px-4 py-3.5">
-                                <Clock size={18} className="text-gray-500" />
+                            <label className="text-xs font-bold text-[#86868b] uppercase tracking-wider mb-2 block">
+                                YouTube Account
+                            </label>
+                            {youtubeAccounts.length > 0 ? (
+                                <select
+                                    value={selectedAccountId || ''}
+                                    onChange={(e) => setSelectedAccountId(e.target.value)}
+                                    className="w-full bg-[#F5F5F7] border border-transparent rounded-xl px-4 py-3 text-[#1d1d1f] focus:bg-white focus:border-black focus:ring-0 outline-none transition-all"
+                                >
+                                    {youtubeAccounts.map((account) => (
+                                        <option key={account.id} value={account.id}>
+                                            {account.channelName} {account.isActive ? '(Active)' : ''}
+                                        </option>
+                                    ))}
+                                </select>
+                            ) : (
+                                <div className="bg-[#F5F5F7] border border-transparent rounded-xl px-4 py-3 flex items-center gap-3">
+                                    <Youtube className="text-red-500" size={20} />
+                                    <span className="text-[#86868b] text-sm">No YouTube accounts connected</span>
+                                    <a
+                                        href="/settings"
+                                        className="ml-auto text-[#1d1d1f] hover:underline text-sm font-semibold"
+                                    >
+                                        Connect
+                                    </a>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                            <div>
+                                <label className="text-xs font-bold text-[#86868b] uppercase tracking-wider mb-2 block">Start Time</label>
                                 <input
-                                    type="number"
-                                    min="1"
-                                    value={scheduleInterval}
-                                    onChange={(e) => setScheduleInterval(parseInt(e.target.value))}
-                                    className="w-full bg-transparent text-white outline-none"
+                                    type="datetime-local"
+                                    value={scheduleTime}
+                                    onChange={(e) => setScheduleTime(e.target.value)}
+                                    className="w-full bg-[#F5F5F7] border border-transparent rounded-xl px-4 py-3 text-[#1d1d1f] focus:bg-white focus:border-black focus:ring-0 outline-none transition-all"
                                 />
                             </div>
-                        </div>
 
-                        <div className="flex items-end">
-                            <button
-                                onClick={handleSchedule}
-                                disabled={isScheduling || !scheduleTime}
-                                className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-cyan-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] active:scale-[0.98]"
-                            >
-                                {isScheduling ? scheduleProgress : `Schedule ${quotes.length} Video${quotes.length > 1 ? 's' : ''}`}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Quotes Grid Output */}
-            {quotes.length > 0 && (
-                <>
-                    <div className="flex items-center justify-between pt-8">
-                        <div>
-                            <h2 className="text-2xl font-bold text-white">Generated Quotes</h2>
-                            <p className="text-gray-400 text-sm mt-1">{quotes.length} quote{quotes.length > 1 ? 's' : ''} ready to download</p>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-8 duration-700">
-                        {quotes.map((quote, index) => (
-                            <div
-                                key={index}
-                                className={`relative group overflow-hidden rounded-2xl border-2 border-[#333] transition-all duration-300 hover:border-purple-500/50 hover:shadow-2xl hover:shadow-purple-500/20 hover:scale-[1.02] ${aspectRatio === 'story' ? 'aspect-[9/16]' : 'aspect-square'
-                                    }`}
-                            >
-                                {/* Preview Background */}
-                                <div className="absolute inset-0 z-0 transition-transform duration-700 group-hover:scale-110">
-                                    {backgroundType === 'image' && backgroundImage ? (
-                                        <>
-                                            <img src={backgroundImage} alt="bg" className="w-full h-full object-cover" />
-                                            <div className="absolute inset-0 bg-black/60" />
-                                        </>
-                                    ) : (
-                                        <div
-                                            className="w-full h-full"
-                                            style={{ background: `linear-gradient(135deg, ${color1}, ${color2})` }}
-                                        />
-                                    )}
-                                </div>
-
-                                {/* Decoration Overlays for Grid Item - PLACED BEHIND CONTENT */}
-                                {quote.decorations && quote.decorations.map((deco, decoIdx) => (
-                                    <div
-                                        key={decoIdx}
-                                        className="absolute pointer-events-none transition-transform duration-700 group-hover:scale-105 z-1"
-                                        style={{
-                                            left: `${deco.x * 100}%`,
-                                            top: `${deco.y * 100}%`,
-                                            width: `${deco.size * 100}%`,
-                                            aspectRatio: '1',
-                                            transform: 'translate(-50%, -50%)',
-                                            backgroundImage: `url(${deco.image})`,
-                                            backgroundSize: 'contain',
-                                            backgroundRepeat: 'no-repeat',
-                                            backgroundPosition: 'center',
-                                            opacity: 1
-                                        }}
+                            <div>
+                                <label className="text-xs font-bold text-[#86868b] uppercase tracking-wider mb-2 block">Interval (Minutes)</label>
+                                <div className="flex items-center gap-3 bg-[#F5F5F7] border border-transparent rounded-xl px-4 py-3">
+                                    <Clock size={18} className="text-[#86868b]" />
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        value={scheduleInterval}
+                                        onChange={(e) => setScheduleInterval(parseInt(e.target.value))}
+                                        className="w-full bg-transparent text-[#1d1d1f] outline-none"
                                     />
-                                ))}
-
-                                {/* Content */}
-                                <div className="absolute inset-0 z-10 p-8 flex flex-col justify-center items-center text-center">
-                                    <Sparkles className="text-white/30 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500" size={24} />
-                                    <p
-                                        className="text-white font-bold leading-relaxed mb-6 drop-shadow-2xl"
-                                        style={{
-                                            color: textColor,
-                                            textAlign: textAlign,
-                                            fontSize: `${(aspectRatio === 'story' ? 1.5 : 1.25) * fontSizeScale}rem`
-                                        }}
-                                    >
-                                        "{quote.text}"
-                                    </p>
-                                    <div className="h-0.5 w-12 bg-white/30 mb-6 rounded-full" />
-                                    <p className="text-white/90 text-sm md:text-base font-medium italic drop-shadow-lg">
-                                        - {quote.author}
-                                    </p>
-                                </div>
-
-                                {/* Actions Overlay */}
-                                <div className="absolute inset-0 z-20 bg-gradient-to-br from-black/90 via-purple-900/40 to-black/90 flex flex-col justify-center items-center gap-3 opacity-0 group-hover:opacity-100 transition-all duration-300 backdrop-blur-sm">
-                                    <button
-                                        onClick={() => downloadImage(quote, index)}
-                                        className="w-60 bg-white text-black hover:bg-gray-100 py-3.5 rounded-xl font-bold transition-all flex items-center justify-center gap-2 transform hover:scale-105 shadow-xl"
-                                    >
-                                        <Download size={18} />
-                                        Download Image
-                                    </button>
-                                    <button
-                                        onClick={() => downloadVideo(quote, index)}
-                                        className="w-60 bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 py-3.5 rounded-xl font-bold transition-all flex items-center justify-center gap-2 transform hover:scale-105 shadow-xl shadow-purple-500/40"
-                                    >
-                                        <Video size={18} />
-                                        Download 30s Video
-                                    </button>
-                                    {(useLibraryMusic && selectedTrack) || audioFile ? (
-                                        <div className="flex items-center gap-2 bg-green-500/20 text-green-300 px-4 py-2 rounded-full border border-green-500/30 text-xs font-semibold">
-                                            <Music size={14} />
-                                            {useLibraryMusic && selectedTrack ? selectedTrack.name : 'Custom Audio'}
-                                        </div>
-                                    ) : null}
-                                </div>
-
-                                {/* Quote Number Badge */}
-                                <div className="absolute top-3 right-3 z-30 bg-black/60 backdrop-blur-sm text-white text-xs font-bold px-3 py-1.5 rounded-full border border-white/20">
-                                    #{index + 1}
                                 </div>
                             </div>
-                        ))}
+
+                            <div className="flex items-end">
+                                <button
+                                    onClick={handleSchedule}
+                                    disabled={isScheduling || !scheduleTime}
+                                    className="w-full bg-black hover:bg-[#333] text-white font-bold py-3 rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+                                >
+                                    {isScheduling ? scheduleProgress : `Schedule ${quotes.length} Video${quotes.length > 1 ? 's' : ''}`}
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                </>
-            )}
-        </div>
+                )
+            }
+
+
+            {
+                quotes.length > 0 && (
+                    <>
+                        <div className="flex items-center justify-between pt-8">
+                            <div>
+                                <h2 className="text-2xl font-bold text-[#1d1d1f]">Generated Quotes</h2>
+                                <p className="text-[#86868b] text-sm mt-1">{quotes.length} quote{quotes.length > 1 ? 's' : ''} ready to download</p>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 animate-in fade-in slide-in-from-bottom-8 duration-700">
+                            {quotes.map((quote, index) => (
+                                <div
+                                    key={index}
+                                    className={`relative group overflow-hidden rounded-2xl border border-[#e5e5e7] transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] ${aspectRatio === 'story' ? 'aspect-[9/16]' : 'aspect-square'
+                                        }`}
+                                >
+                                    {/* Preview Background */}
+                                    <div className="absolute inset-0 z-0 transition-transform duration-700 group-hover:scale-110">
+                                        {backgroundType === 'image' && backgroundImage ? (
+                                            <>
+                                                <img src={backgroundImage} alt="bg" className="w-full h-full object-cover" />
+                                                <div className="absolute inset-0 bg-black/60" />
+                                            </>
+                                        ) : (
+                                            <div
+                                                className="w-full h-full"
+                                                style={{ background: `linear-gradient(135deg, ${color1}, ${color2})` }}
+                                            />
+                                        )}
+                                    </div>
+
+                                    {/* Decoration Overlays for Grid Item - PLACED BEHIND CONTENT */}
+                                    {quote.decorations && quote.decorations.map((deco, decoIdx) => (
+                                        <div
+                                            key={decoIdx}
+                                            className="absolute pointer-events-none transition-transform duration-700 group-hover:scale-105 z-1"
+                                            style={{
+                                                left: `${deco.x * 100}%`,
+                                                top: `${deco.y * 100}%`,
+                                                width: `${deco.size * 100}%`,
+                                                aspectRatio: '1',
+                                                transform: 'translate(-50%, -50%)',
+                                                backgroundImage: `url(${deco.image})`,
+                                                backgroundSize: 'contain',
+                                                backgroundRepeat: 'no-repeat',
+                                                backgroundPosition: 'center',
+                                                opacity: 1
+                                            }}
+                                        />
+                                    ))}
+
+                                    {/* Content */}
+                                    <div className="absolute inset-0 z-10 p-8 flex flex-col justify-center items-center text-center">
+                                        <Sparkles className="text-white/30 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500" size={24} />
+                                        <p
+                                            className="text-white font-bold leading-relaxed mb-6 drop-shadow-2xl"
+                                            style={{
+                                                color: textColor,
+                                                textAlign: textAlign,
+                                                fontSize: `${(aspectRatio === 'story' ? 0.85 : 0.8) * fontSizeScale}rem`
+                                            }}
+                                        >
+                                            "{quote.text}"
+                                        </p>
+                                        <div className="h-0.5 w-12 bg-white/30 mb-6 rounded-full" />
+                                        <p className="text-white/90 text-sm md:text-base font-medium italic drop-shadow-lg">
+                                            - {quote.author}
+                                        </p>
+                                    </div>
+
+                                    {/* Actions Overlay */}
+                                    <div className="absolute inset-0 z-20 bg-black/80 flex flex-col justify-center items-center gap-3 opacity-0 group-hover:opacity-100 transition-all duration-300 backdrop-blur-sm">
+                                        <button
+                                            onClick={() => downloadImage(quote, index)}
+                                            className="w-60 bg-white text-black hover:bg-gray-200 py-3.5 rounded-xl font-bold transition-all flex items-center justify-center gap-2 transform hover:scale-105 shadow-xl"
+                                        >
+                                            <Download size={18} />
+                                            Download Image
+                                        </button>
+                                        <button
+                                            onClick={() => downloadVideo(quote, index)}
+                                            className="w-60 bg-[#1d1d1f] text-white hover:bg-black py-3.5 rounded-xl font-bold transition-all flex items-center justify-center gap-2 transform hover:scale-105 shadow-xl border border-[#333]"
+                                        >
+                                            <Video size={18} />
+                                            Download 30s Video
+                                        </button>
+                                        {(useLibraryMusic && selectedTrack) || audioFile ? (
+                                            <div className="flex items-center gap-2 bg-white/10 text-white px-4 py-2 rounded-full border border-white/20 text-xs font-semibold">
+                                                <Music size={14} />
+                                                {useLibraryMusic && selectedTrack ? selectedTrack.name : 'Custom Audio'}
+                                            </div>
+                                        ) : null}
+                                    </div>
+
+                                    {/* Quote Number Badge */}
+                                    <div className="absolute top-3 right-3 z-30 bg-black/60 backdrop-blur-sm text-white text-xs font-bold px-3 py-1.5 rounded-full border border-white/20">
+                                        #{index + 1}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </>
+                )
+            }
+        </div >
     );
 }
