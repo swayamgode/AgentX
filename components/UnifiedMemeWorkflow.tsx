@@ -629,14 +629,17 @@ export function UnifiedMemeWorkflow() {
                                             {/* Save Default Button */}
                                             <button
                                                 onClick={(e) => saveAsDefault(meme.templateId, e)}
-                                                className="absolute top-3 left-3 bg-black/50 hover:bg-yellow-500/80 backdrop-blur-md rounded-full p-2 shadow-lg transition-all z-20 group/star opacity-0 group-hover:opacity-100"
-                                                title="Save as Default Design"
+                                                className={`
+                                                    absolute top-3 left-3 backdrop-blur-md rounded-full p-2 shadow-lg transition-all z-20 
+                                                    ${defaultDesign?.templateId === meme.templateId
+                                                        ? 'bg-yellow-500 text-black opacity-100 scale-110'
+                                                        : 'bg-black/50 text-white hover:bg-yellow-500/80 hover:text-white opacity-70 hover:opacity-100'}
+                                                `}
+                                                title={defaultDesign?.templateId === meme.templateId ? "Current Default Design" : "Set as Default Design"}
                                             >
                                                 <Star
                                                     size={16}
-                                                    className={`
-                                                        ${defaultDesign?.templateId === meme.templateId ? 'text-yellow-400 fill-yellow-400' : 'text-white group-hover/star:text-white'}
-                                                    `}
+                                                    className={defaultDesign?.templateId === meme.templateId ? 'fill-black' : ''}
                                                 />
                                             </button>
                                         </div>
