@@ -14,14 +14,30 @@ export async function POST(req: Request) {
             return new Response(JSON.stringify({ error: "Server configuration error: Missing API Key" }), { status: 500 });
         }
 
-        const { topic, count = 10 } = await req.json();
+        const { topic, count = 10, templateId } = await req.json();
 
         const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
         // Select templates
         const templatesToUse: any[] = [];
-        for (let i = 0; i < count; i++) {
-            templatesToUse.push(MEME_TEMPLATES[i % MEME_TEMPLATES.length]);
+        if (templateId) {
+            const selectedTemplate = MEME_TEMPLATES.find(t => t.id === templateId);
+            if (selectedTemplate) {
+                // Use the selected template for all items
+                for (let i = 0; i < count; i++) {
+                    templatesToUse.push(selectedTemplate);
+                }
+            } else {
+                // Fallback if template not found
+                for (let i = 0; i < count; i++) {
+                    templatesToUse.push(MEME_TEMPLATES[i % MEME_TEMPLATES.length]);
+                }
+            }
+        } else {
+            // Default cyclic behavior
+            for (let i = 0; i < count; i++) {
+                templatesToUse.push(MEME_TEMPLATES[i % MEME_TEMPLATES.length]);
+            }
         }
 
         // Get high performing memes for context

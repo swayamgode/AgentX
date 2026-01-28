@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Sparkles, Video, Calendar, CheckCircle, Loader2, Play, Edit2, AlertCircle, Wand2, X, Music, Share2, Download, Trash2 } from "lucide-react";
+import { Sparkles, Video, Calendar, CheckCircle, Loader2, Play, Edit2, AlertCircle, Wand2, X, Music, Share2, Download, Trash2, Zap, Star } from "lucide-react";
 import { MEME_TEMPLATES, MemeTemplate } from "@/lib/memes";
 import { canvasToVideoBlob } from "@/lib/video-converter";
 import { useSocialConnection } from "@/hooks/useSocialConnection";
@@ -29,16 +29,43 @@ export function UnifiedMemeWorkflow() {
     const [conversionProgress, setConversionProgress] = useState(0);
     const [isScheduling, setIsScheduling] = useState(false);
     const [previewMeme, setPreviewMeme] = useState<GeneratedMeme | null>(null);
+    const [defaultDesign, setDefaultDesign] = useState<{ templateId: string } | null>(null);
+
+    // Load default design from local storage
+    useEffect(() => {
+        const saved = localStorage.getItem('memeDefaultDesign');
+        if (saved) {
+            try {
+                setDefaultDesign(JSON.parse(saved));
+            } catch (e) {
+                console.error("Failed to parse saved design");
+            }
+        }
+    }, []);
+
+    const saveAsDefault = (templateId: string, e: React.MouseEvent) => {
+        e.stopPropagation(); // Prevent card selection
+        const design = { templateId };
+        setDefaultDesign(design);
+        localStorage.setItem('memeDefaultDesign', JSON.stringify(design));
+        alert("Design saved as default! You can now use the Quick Generate button.");
+    };
 
     // Step 1: Generate Memes
-    const handleGenerate = async () => {
+    const handleGenerate = async (useDefault: boolean = false) => {
         if (!topic) return;
         setIsGenerating(true);
         try {
+            const payload: any = { topic, count: quantity };
+
+            if (useDefault && defaultDesign) {
+                payload.templateId = defaultDesign.templateId;
+            }
+
             const res = await fetch("/api/memes/generate", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ topic, count: quantity })
+                body: JSON.stringify(payload)
             });
             const data = await res.json();
 
@@ -426,7 +453,7 @@ export function UnifiedMemeWorkflow() {
                                             onChange={(e) => setTopic(e.target.value)}
                                             placeholder="What's trending? e.g., 'POV: Senior Dev fixing bugs'..."
                                             className="relative w-full bg-[#050505] border border-white/10 rounded-xl px-6 py-6 text-xl text-white placeholder:text-gray-600 focus:outline-none focus:border-transparent focus:ring-0 transition-all shadow-inner"
-                                            onKeyDown={(e) => e.key === 'Enter' && topic && !isGenerating && handleGenerate()}
+                                            onKeyDown={(e) => e.key === 'Enter' && topic && !isGenerating && handleGenerate(false)}
                                         />
                                     </div>
                                 </div>
@@ -455,9 +482,9 @@ export function UnifiedMemeWorkflow() {
                                     </div>
                                 </div>
 
-                                <div className="pt-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
                                     <button
-                                        onClick={handleGenerate}
+                                        onClick={() => handleGenerate(false)}
                                         disabled={isGenerating || !topic}
                                         className="w-full group/gen relative overflow-hidden bg-white text-black p-1 rounded-2xl transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed shadow-[0_0_40px_rgba(255,255,255,0.1)]"
                                     >
@@ -466,15 +493,34 @@ export function UnifiedMemeWorkflow() {
                                                 {isGenerating ? (
                                                     <>
                                                         <Loader2 className="animate-spin" size={28} />
-                                                        <span>COOKING M AGIC...</span>
+                                                        <span>COOKING...</span>
                                                     </>
                                                 ) : (
                                                     <>
                                                         <Sparkles className="group-hover/gen:rotate-12 transition-transform" size={28} />
-                                                        <span>GENERATE MAGIC MEMES</span>
+                                                        <span>GENERATE FRESH</span>
                                                     </>
                                                 )}
                                             </div>
+                                        </div>
+                                    </button>
+
+                                    <button
+                                        onClick={() => handleGenerate(true)}
+                                        disabled={isGenerating || !topic || !defaultDesign}
+                                        className={`
+                                            w-full group/zap relative overflow-hidden p-1 rounded-2xl transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed
+                                            ${!defaultDesign ? 'opacity-50 grayscale' : 'shadow-[0_0_40px_rgba(234,179,8,0.2)]'}
+                                        `}
+                                    >
+                                        <div className="relative bg-[#0F0F0F] border border-yellow-500/30 rounded-xl px-8 py-6 transition-all group-hover/zap:bg-[#151515] h-full flex flex-col justify-center">
+                                            <div className="flex items-center justify-center gap-3 text-yellow-500 font-black text-xl tracking-wide">
+                                                <Zap className={`fill-current ${isGenerating ? 'animate-pulse' : ''}`} size={28} />
+                                                <span>USE SAVED DESIGN</span>
+                                            </div>
+                                            {!defaultDesign && (
+                                                <p className="text-gray-500 text-xs text-center mt-2">Save a design from results first</p>
+                                            )}
                                         </div>
                                     </button>
                                 </div>
@@ -579,6 +625,20 @@ export function UnifiedMemeWorkflow() {
                                                     <CheckCircle size={16} className="text-white" />
                                                 </div>
                                             )}
+
+                                            {/* Save Default Button */}
+                                            <button
+                                                onClick={(e) => saveAsDefault(meme.templateId, e)}
+                                                className="absolute top-3 left-3 bg-black/50 hover:bg-yellow-500/80 backdrop-blur-md rounded-full p-2 shadow-lg transition-all z-20 group/star opacity-0 group-hover:opacity-100"
+                                                title="Save as Default Design"
+                                            >
+                                                <Star
+                                                    size={16}
+                                                    className={`
+                                                        ${defaultDesign?.templateId === meme.templateId ? 'text-yellow-400 fill-yellow-400' : 'text-white group-hover/star:text-white'}
+                                                    `}
+                                                />
+                                            </button>
                                         </div>
                                     </div>
                                 );
@@ -720,6 +780,6 @@ export function UnifiedMemeWorkflow() {
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     );
 }
