@@ -64,13 +64,13 @@ export function SocialMediaConnect() {
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between">
-                <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                    <ExternalLink size={20} className="text-purple-500" />
+                <h3 className="text-lg font-bold text-[#1d1d1f] flex items-center gap-2">
+                    <ExternalLink size={20} className="text-purple-600" />
                     Social Media Connections
                 </h3>
                 <button
                     onClick={handleManualRefresh}
-                    className={`text-[#71767b] hover:text-white transition-colors ${isRefreshing ? 'animate-spin' : ''}`}
+                    className={`text-[#86868b] hover:text-[#1d1d1f] transition-colors ${isRefreshing ? 'animate-spin' : ''}`}
                     title="Refresh connections"
                 >
                     <RefreshCw size={16} />
@@ -81,20 +81,20 @@ export function SocialMediaConnect() {
                 {accounts.map((account) => (
                     <div
                         key={account.platform}
-                        className="bg-[#16181c] border border-[#333] rounded-xl p-4 flex items-center justify-between"
+                        className="bg-[#f5f5f7] rounded-xl p-4 flex items-center justify-between group"
                     >
                         <div className="flex items-center gap-3">
                             {account.platform === 'youtube' ? (
-                                <Youtube className="text-red-500" size={24} />
+                                <Youtube className="text-red-600" size={24} />
                             ) : (
-                                <Instagram className="text-pink-500" size={24} />
+                                <Instagram className="text-pink-600" size={24} />
                             )}
                             <div>
-                                <p className="font-bold text-white capitalize">{account.platform}</p>
+                                <p className="font-bold text-[#1d1d1f] capitalize">{account.platform}</p>
                                 {account.connected ? (
-                                    <p className="text-sm text-green-500">Connected</p>
+                                    <p className="text-sm text-green-600">Connected</p>
                                 ) : (
-                                    <p className="text-sm text-[#71767b]">Not connected</p>
+                                    <p className="text-sm text-[#86868b]">Not connected</p>
                                 )}
                             </div>
                         </div>
@@ -102,10 +102,10 @@ export function SocialMediaConnect() {
                         <div className="flex items-center gap-2">
                             {account.connected ? (
                                 <>
-                                    <CheckCircle className="text-green-500" size={20} />
+                                    <CheckCircle className="text-green-600" size={20} />
                                     <button
                                         onClick={() => handleDisconnect(account.platform as 'youtube' | 'instagram')}
-                                        className="px-4 py-2 bg-[#333] hover:bg-[#444] text-white rounded-lg text-sm font-semibold transition-colors"
+                                        className="px-4 py-2 bg-white hover:bg-[#e5e5e7] border border-[#e5e5e7] text-[#1d1d1f] rounded-lg text-sm font-semibold transition-colors"
                                     >
                                         Disconnect
                                     </button>
@@ -113,7 +113,7 @@ export function SocialMediaConnect() {
                             ) : (
                                 <button
                                     onClick={() => handleConnect(account.platform as 'youtube' | 'instagram')}
-                                    className="px-4 py-2 bg-white hover:bg-[#e5e5e5] text-black rounded-lg text-sm font-semibold transition-colors"
+                                    className="px-4 py-2 bg-black hover:bg-[#333] text-white rounded-lg text-sm font-semibold transition-colors"
                                 >
                                     Connect
                                 </button>
@@ -123,11 +123,11 @@ export function SocialMediaConnect() {
                 ))}
             </div>
 
-            <div className="bg-[#16181c] border border-[#333] rounded-xl p-4">
+            <div className="bg-[#f5f5f7] border border-transparent rounded-xl p-4">
                 <div className="flex items-start gap-2">
-                    <AlertCircle className="text-yellow-500 mt-0.5" size={18} />
-                    <div className="text-sm text-[#71767b]">
-                        <p className="font-semibold text-white mb-1">Important Notes:</p>
+                    <AlertCircle className="text-yellow-600 mt-0.5" size={18} />
+                    <div className="text-sm text-[#86868b]">
+                        <p className="font-semibold text-[#1d1d1f] mb-1">Important Notes:</p>
                         <ul className="list-disc list-inside space-y-1">
                             <li>YouTube requires a Google account with an active channel</li>
                             <li>Instagram requires a Business or Creator account linked to a Facebook Page</li>

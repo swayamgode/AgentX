@@ -85,19 +85,19 @@ export default function SettingsPage() {
     };
 
     return (
-        <div className="min-h-screen bg-black text-[#e7e9ea] flex justify-center">
+        <div className="min-h-screen bg-[#F5F5F7] text-[#1d1d1f] flex justify-center">
 
             <LeftSidebar />
 
-            <main className="flex flex-col w-full max-w-[600px] ml-[275px] border-l border-r border-[#333] min-h-screen">
+            <main className="flex flex-col w-full max-w-[600px] ml-[275px] border-l border-r border-[#e5e5e7] min-h-screen bg-white">
                 {/* Header */}
-                <div className="sticky top-0 bg-black/80 backdrop-blur-md z-10 border-b border-[#333] px-4 py-3 flex items-center gap-4">
-                    <Link href="/" className="p-2 -ml-2 hover:bg-[#181818] rounded-full transition-colors">
-                        <ArrowLeft size={20} className="text-white" />
+                <div className="sticky top-0 bg-white/80 backdrop-blur-md z-10 border-b border-[#e5e5e7] px-4 py-3 flex items-center gap-4">
+                    <Link href="/" className="p-2 -ml-2 hover:bg-[#f5f5f7] rounded-full transition-colors">
+                        <ArrowLeft size={20} className="text-[#1d1d1f]" />
                     </Link>
                     <div>
-                        <h2 className="text-xl font-bold text-white">Settings</h2>
-                        <p className="text-xs text-[#71767b]">@agentx_ai</p>
+                        <h2 className="text-xl font-bold text-[#1d1d1f]">Settings</h2>
+                        <p className="text-xs text-[#86868b]">@agentx_ai</p>
                     </div>
                 </div>
 
@@ -105,25 +105,25 @@ export default function SettingsPage() {
 
                     {/* API Key Card */}
                     <div className="space-y-4">
-                        <h3 className="font-bold text-xl px-2 text-white">API Configuration</h3>
+                        <h3 className="font-bold text-xl px-2 text-[#1d1d1f]">API Configuration</h3>
 
-                        <div className="bg-black border border-[#333] rounded-2xl overflow-hidden hover:bg-[#080808] transition-colors relative group">
+                        <div className="bg-white border border-[#e5e5e7] rounded-2xl overflow-hidden hover:bg-[#fafafa] transition-colors relative group shadow-sm">
                             <div className="p-4 flex gap-4">
-                                <div className="p-3 bg-[#333]/50 rounded-xl h-max">
-                                    <Key size={24} className="text-white" />
+                                <div className="p-3 bg-[#f5f5f7] rounded-xl h-max">
+                                    <Key size={24} className="text-[#1d1d1f]" />
                                 </div>
                                 <div className="flex-1 space-y-4">
                                     <div>
-                                        <h4 className="font-bold text-lg text-white">Gemini API Key</h4>
-                                        <p className="text-[#a1a1aa] text-sm leading-relaxed">
+                                        <h4 className="font-bold text-lg text-[#1d1d1f]">Gemini API Key</h4>
+                                        <p className="text-[#86868b] text-sm leading-relaxed">
                                             Required for all AI generation features.
-                                            Get yours from <a href="https://aistudio.google.com/app/apikey" target="_blank" className="text-white underline hover:no-underline">Google AI Studio</a>.
+                                            Get yours from <a href="https://aistudio.google.com/app/apikey" target="_blank" className="text-black underline hover:no-underline">Google AI Studio</a>.
                                         </p>
                                     </div>
 
                                     {/* Status Indicator */}
                                     {isConfigured && (
-                                        <div className="flex items-center gap-2 text-green-500 bg-green-500/10 px-3 py-1.5 rounded-lg w-max text-sm font-bold">
+                                        <div className="flex items-center gap-2 text-green-600 bg-green-50 px-3 py-1.5 rounded-lg w-max text-sm font-bold border border-green-200">
                                             <Check size={16} strokeWidth={3} />
                                             <span>Active: {maskedKey}</span>
                                         </div>
@@ -136,12 +136,12 @@ export default function SettingsPage() {
                                             value={apiKey}
                                             onChange={(e) => setApiKey(e.target.value)}
                                             placeholder={isConfigured ? "Enter new key to update" : "Paste API Key here"}
-                                            className="w-full bg-black border border-[#333] rounded-xl px-4 py-3 text-[#e7e9ea] focus:border-white focus:ring-1 focus:ring-white outline-none transition-all placeholder-[#52525b]"
+                                            className="w-full bg-[#f5f5f7] border border-transparent focus:border-[#000] rounded-xl px-4 py-3 text-[#1d1d1f] focus:ring-0 outline-none transition-all placeholder-[#86868b]"
                                         />
                                     </div>
 
                                     {message && (
-                                        <div className={`text-sm flex items-center gap-2 font-bold ${message.type === 'error' ? 'text-red-500' : 'text-green-500'}`}>
+                                        <div className={`text-sm flex items-center gap-2 font-bold ${message.type === 'error' ? 'text-red-500' : 'text-green-600'}`}>
                                             {message.type === 'error' ? <AlertCircle size={16} /> : <Check size={16} />}
                                             {message.text}
                                         </div>
@@ -151,7 +151,7 @@ export default function SettingsPage() {
                                         <button
                                             onClick={handleSave}
                                             disabled={loading || !apiKey.trim()}
-                                            className="bg-white hover:bg-[#e5e5e5] text-black font-bold px-6 py-2.5 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                            className="bg-black hover:bg-[#333] text-white font-bold px-6 py-2.5 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                         >
                                             {loading ? "Saving..." : "Save Key"}
                                         </button>
@@ -163,19 +163,19 @@ export default function SettingsPage() {
 
                     {/* Social Media Connections */}
                     <div className="space-y-4">
-                        <div className="bg-black border border-[#333] rounded-2xl overflow-hidden p-6">
+                        <div className="bg-white border border-[#e5e5e7] rounded-2xl overflow-hidden p-6 shadow-sm">
                             <SocialMediaConnect />
                         </div>
                     </div>
 
                     {/* YouTube Account Manager */}
                     <div className="space-y-4">
-                        <div className="bg-black border border-[#333] rounded-2xl overflow-hidden p-6">
+                        <div className="bg-white border border-[#e5e5e7] rounded-2xl overflow-hidden p-6 shadow-sm">
                             <YouTubeAccountManager />
                         </div>
                     </div>
 
-                    <div className="px-2 text-[#71767b] text-sm">
+                    <div className="px-2 text-[#86868b] text-sm">
                         <p>More settings coming soon.</p>
                     </div>
 
