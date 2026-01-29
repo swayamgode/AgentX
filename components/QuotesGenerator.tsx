@@ -28,8 +28,8 @@ export function QuotesGenerator() {
     const [aspectRatio, setAspectRatio] = useState<'square' | 'story'>('story'); // Default to story (9:16)
     const [backgroundType, setBackgroundType] = useState<'gradient' | 'image'>('gradient');
     const [backgroundImage, setBackgroundImage] = useState<string | null>(null);
-    const [color1, setColor1] = useState('#667eea');
-    const [color2, setColor2] = useState('#764ba2');
+    const [color1, setColor1] = useState('#000000');
+    const [color2, setColor2] = useState('#000000');
     const [audioFile, setAudioFile] = useState<File | null>(null);
 
     // Music Library State
@@ -42,7 +42,7 @@ export function QuotesGenerator() {
     // Text Customization State
     const [textColor, setTextColor] = useState('#ffffff');
     const [textAlign, setTextAlign] = useState<'left' | 'center' | 'right'>('center');
-    const [fontSizeScale, setFontSizeScale] = useState(1); // 0.8 to 1.5
+    const [fontSizeScale, setFontSizeScale] = useState(0.6); // 0.8 to 1.5
 
     // Scheduling & Batch State
     const [quoteCount, setQuoteCount] = useState(1);
@@ -392,7 +392,7 @@ export function QuotesGenerator() {
         });
 
         // 4. Draw Author
-        ctx.font = `italic ${fontSize * 0.6}px "Inter", Arial, sans-serif`;
+        ctx.font = `italic ${fontSize * 0.4}px "Inter", Arial, sans-serif`;
         ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
         ctx.fillText(`- ${quote.author}`, width / 2, startY + totalHeight + 40 + floatY);
 
@@ -776,7 +776,7 @@ export function QuotesGenerator() {
                                         "Your amazing quote will appear here."
                                     </p>
                                     <div className="h-0.5 w-8 bg-white/30 mb-3 rounded-full" />
-                                    <p className="text-white/90 text-sm font-medium italic drop-shadow-lg">
+                                    <p className="text-white/90 text-xs font-medium italic drop-shadow-lg" style={{ fontSize: `${(aspectRatio === 'story' ? 0.9 : 1.0) * fontSizeScale * 0.6}rem` }}>
                                         - Preview Author
                                     </p>
                                 </div>
