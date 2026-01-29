@@ -22,8 +22,27 @@ export async function POST(req: NextRequest) {
 
         const { GoogleGenerativeAI } = await import('@google/generative-ai');
         const genAI = new GoogleGenerativeAI(apiKey);
-        // Using gemini-2.5-flash as requested
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        // Using gemini-2.0-flash as it handles large context windows (like our CSV data) very well
+        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+        // --- 1. Prepare Analytics Data (The "XL File") ---
+        const allVideos = analyticsStorage.getAll();
+
+        // Filter for meaningful data and limit to recent 50 to avoid token overload
+        const relevantData = allVideos
+            .filter(v => v.stats && parseInt(v.stats.viewCount) > 0)
+            .sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime())
+            .slice(0, 50);
+
+        // Convert to CSV format for the AI to "read"
+        // Headers: Topic, Views, Likes, Content
+        const csvData = [
+            "Topic,Views,Likes,Content_Snippet",
+            ...relevantData.map(v => {
+                const text = v.texts?.[0]?.substring(0, 50).replace(/,/g, ' ') || "No text";
+                return `${v.topic},${v.stats?.viewCount || 0},${v.stats?.likeCount || 0},"${text}"`;
+            })
+        ].join('\n');
 
         const stylePrompts = {
             inspirational: 'inspirational and motivational',
@@ -32,33 +51,45 @@ export async function POST(req: NextRequest) {
             success: 'success and achievement focused'
         };
 
-        // Get high performing videos for context (even if they are distinct from quotes, the "vibe" helps)
-        // Ideally we'd filter for "quotes" topic or similar if we differentiated strictly,
-        // but generally high performing content is good context.
-        const topContent = analyticsStorage.getTopPerforming(3);
-        const performanceContext = topContent.length > 0
-            ? `\n\n### VIRAL CONTENT EXAMPLES (Replicate their impact):\n${topContent.map(m => `- Topic: ${m.topic} | Text: ${JSON.stringify(m.texts)}`).join('\n')}\n`
-            : "";
+        const prompt = `
+Role: You are an expert Social Media Content Strategist and Data Analyst.
+Task: Generate ${count} viral quotes about the topic "${topic}".
 
-        const prompt = `Generate ${count} ${stylePrompts[style as keyof typeof stylePrompts] || 'inspirational'} quotes about "${topic}".
-        ${performanceContext}
+Data Source:
+I have provided a CSV export of our past video performance below. This is your "Excel File" of analytics.
+Use this data to understand what actually works for our audience.
 
+### PERFORMANCE DATA (CSV)
+${csvData}
+### END DATA
+
+Analysis Instructions:
+1. Scan the CSV data. Identify the top performing videos (Highest Views).
+2. Look for patterns in the successful content: What tone do they use? How short are they? What keywords appear?
+3. Identify low performers: What should be avoided?
+
+Generation Strategy:
+- **70% Proven Winners**: Generate quotes that strictly follow the patterns of our highest-performing past content (similar tone, structure, or length).
+- **30% Blue Ocean Experiments**: Try something new and "like that" but slightly different. If we usually do serious quotes, try one with a twist. If we usually do short ones, try a slightly longer, rhythmic one.
+
+Topic Focus: ${topic}
+Style: ${stylePrompts[style as keyof typeof stylePrompts] || 'inspirational'}
+
+Output Requirements:
 Return ONLY a JSON array of objects with this exact structure:
 [
   {
     "text": "The quote text",
     "author": "Author name or 'Anonymous'",
-    "category": "Category like 'Motivation', 'Success', 'Life', etc."
+    "category": "Specific category (e.g. 'Deep Motivation', 'Dark Psychology', 'Stoic Wisdom')"
   }
 ]
 
 Make the quotes:
 - Concise (under 150 characters)
-- Impactful and memorable
-- Relevant to the topic
-- Varied in perspective
-
-Return ONLY the JSON array, no other text.`;
+- Impactful
+- Optimized for viral retention (hooks early)
+`;
 
         const result = await model.generateContent(prompt);
         const responseText = result.response.text();
