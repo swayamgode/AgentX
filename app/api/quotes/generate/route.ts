@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
         const { GoogleGenerativeAI } = await import('@google/generative-ai');
         const genAI = new GoogleGenerativeAI(apiKey);
         // Using gemini-2.0-flash as it handles large context windows (like our CSV data) very well
-        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
         // --- 1. Prepare Analytics Data (The "XL File") ---
         const allVideos = analyticsStorage.getAll();

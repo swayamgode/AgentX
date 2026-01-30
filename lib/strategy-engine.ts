@@ -85,14 +85,15 @@ export class StrategyEngine {
      * Uses the LLM + Local Insights to generate suggestions.
      * This effectively "RAGs" the analytics data into the prompt.
      */
-    async generateSuggestions(): Promise<VideoSuggestion[]> {
+    async generateSuggestions(competitorVideos: any[] = []): Promise<VideoSuggestion[]> {
         const allData = analyticsStorage.getAll();
 
-        if (allData.length === 0) {
+        // Ensure we have some data sources
+        if (allData.length === 0 && competitorVideos.length === 0) {
             throw new Error("No analytics data available to train on.");
         }
 
-        // 1. Run local "training"
+        // 1. Run local "training" on own data
         const insights = this.analyzePatterns(allData);
 
         // 2. Identify top 5 videos for context
@@ -101,21 +102,27 @@ export class StrategyEngine {
             .slice(0, 5)
             .map(v => `"${v.title}" (${v.topic}) - ${v.stats?.viewCount} views`);
 
-        // 3. Construct the Prompt
+        // 3. Format Competitor Data
+        const competitorContext = competitorVideos.length > 0
+            ? competitorVideos.slice(0, 5).map(v => `"${v.title}" - ${v.viewCount} views (Channel: ${v.channelTitle})`).join('\n')
+            : "No competitor data provided.";
+
+        // 4. Construct the Prompt
         const prompt = `
-            Act as a YouTube Strategy AI. I have analyzed my channel's performance and here are the insights:
+            Act as a YouTube Strategy AI. I have analyzed my channel's performance and external market data.
 
-            STATISTICAL INSIGHTS:
+            MY CHANNEL INSIGHTS:
             - Best performing topics: ${insights.topTopics.join(', ')}
-            - Best performing keywords: ${insights.bestPerformingKeywords.join(', ')}
             - Average Title Length: ${insights.optimalTitleLength} chars
-
-            TOP 5 VIDEOS (Historical Data):
+            - Top Videos:
             ${topVideos.join('\n')}
 
+            MARKET TRENDS (Competitor / Inspiration Data):
+            ${competitorContext}
+
             TASK:
-            Based on this "training" data, generate 5 specific video ideas that are statistically likely to perform well.
-            For each idea, provide the Title, Topic, and a brief Reasoning explaining why it fits the winning pattern.
+            Generate 5 video ideas. Combine my winning patterns with the external trending topics.
+            If my channel is new, rely more on the Market Trends.
             
             Return the response in raw JSON format (an array of objects with title, topic, reasoning, predictedPerformance).
             Do not include markdown formatting like \`\`\`json.

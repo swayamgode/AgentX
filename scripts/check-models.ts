@@ -21,7 +21,7 @@ async function listModels() {
     const genAI = new GoogleGenerativeAI(apiKey);
 
     const modelsToTest = [
-        "gemini-2.0-flash-exp",
+        "gemini-2.5-flash",
         "gemini-1.5-flash",
         "gemini-1.5-flash-001",
         "gemini-1.5-flash-latest",

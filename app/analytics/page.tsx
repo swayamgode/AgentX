@@ -490,11 +490,18 @@ interface VideoSuggestion {
 function StrategyGenerator() {
     const [suggestions, setSuggestions] = useState<VideoSuggestion[]>([]);
     const [loading, setLoading] = useState(false);
+    const [competitorInput, setCompetitorInput] = useState("");
 
     const generate = async () => {
         setLoading(true);
         try {
-            const res = await fetch('/api/analytics/strategy', { method: 'POST' });
+            const res = await fetch('/api/analytics/strategy', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    competitorHandle: competitorInput.trim() ? competitorInput.trim() : undefined
+                })
+            });
             const data = await res.json();
             if (data.suggestions) {
                 setSuggestions(data.suggestions);
@@ -509,19 +516,44 @@ function StrategyGenerator() {
     return (
         <div className="space-y-6">
             {!suggestions.length && !loading && (
-                <button
-                    onClick={generate}
-                    className="px-6 py-3 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.5)]"
-                >
-                    <Zap className="w-5 h-5 fill-black" />
-                    Train Model & Generate Ideas
-                </button>
+                <div className="space-y-4">
+                    <div>
+                        <label className="text-xs font-semibold text-[#71767b] uppercase tracking-wider mb-2 block">
+                            Market Analysis (Optional)
+                        </label>
+                        <div className="flex gap-2">
+                            <input
+                                type="text"
+                                value={competitorInput}
+                                onChange={(e) => setCompetitorInput(e.target.value)}
+                                placeholder="Enter competitor channel (e.g. @MrBeast, @Veritasium)"
+                                className="flex-1 bg-black/40 border border-[#333] rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-purple-500/50 transition-all font-mono text-sm"
+                            />
+                        </div>
+                        <p className="text-xs text-[#555] mt-2">
+                            Leave empty to train on your data only. Enter a handle to combine insights.
+                        </p>
+                    </div>
+
+                    <button
+                        onClick={generate}
+                        className="w-full sm:w-auto px-6 py-3 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.5)]"
+                    >
+                        <Zap className="w-5 h-5 fill-black" />
+                        {competitorInput ? 'Analyze Market & Generate Strategy' : 'Train Model & Generate Ideas'}
+                    </button>
+                </div>
             )}
 
             {loading && (
-                <div className="flex items-center gap-4 text-purple-300">
-                    <Loader2 className="animate-spin w-5 h-5" />
-                    <span className="animate-pulse">Analyzing 3,000+ data points for patterns...</span>
+                <div className="flex flex-col items-center justify-center py-10 gap-4 text-purple-300">
+                    <Loader2 className="animate-spin w-8 h-8" />
+                    <div className="text-center space-y-1">
+                        <span className="font-bold block animate-pulse">Analyzing Pattern Data...</span>
+                        <span className="text-sm text-purple-400/60 block">
+                            {competitorInput ? `Scraping public trends from ${competitorInput}...` : 'Processing 3,000+ data points...'}
+                        </span>
+                    </div>
                 </div>
             )}
 
@@ -551,7 +583,7 @@ function StrategyGenerator() {
                     ))}
                     <div className="flex items-center justify-center">
                         <button
-                            onClick={generate}
+                            onClick={() => { setSuggestions([]); generate(); }}
                             className="p-4 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-white transition-all group"
                             title="Regenerate"
                         >
