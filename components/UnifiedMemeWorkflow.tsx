@@ -288,7 +288,7 @@ export function UnifiedMemeWorkflow() {
     // Step 3: Schedule to YouTube
     const handleSchedule = async () => {
         // Check if YouTube is connected
-        if (!status.youtube) {
+        if (!status.youtube.connected) {
             alert('Please connect your YouTube account in Settings first!');
             return;
         }
@@ -296,29 +296,21 @@ export function UnifiedMemeWorkflow() {
         setIsScheduling(true);
 
         const selectedMemes = generatedMemes.filter(m => m.selected && m.videoBlob);
-        console.log(`Starting upload of ${selectedMemes.length} videos...`);
+        console.log(`Starting upload of ${selectedMemes.length} videos to YouTube...`);
 
         try {
             let successCount = 0;
             let errors: string[] = [];
 
-            // Convert and upload videos to YouTube
-            // Parallelize uploads for speed (limit to batches of 3 if needed, but Promise.all is fine for typically <10 items)
             const uploadPromises = selectedMemes.map(async (meme, i) => {
-                console.log(`Processing video ${i + 1}/${selectedMemes.length}...`);
-
                 try {
-                    // Step 1: Video is already converted to MP4 with audio in previous step
-                    const mp4Blob = meme.videoBlob!; // Already has audio
+                    const mp4Blob = meme.videoBlob!;
 
-                    // Step 2: Upload MP4 to YouTube
-                    console.log(`Uploading video ${i + 1} to YouTube...`);
                     const uploadFormData = new FormData();
                     uploadFormData.append('video', mp4Blob, `meme-${meme.id}.mp4`);
                     uploadFormData.append('title', `${topic} Meme #${i + 1}`);
                     uploadFormData.append('description', `Funny meme about ${topic}\n\nGenerated with AI Meme Studio #shorts #memes`);
                     uploadFormData.append('tags', JSON.stringify([topic, 'meme', 'funny', 'shorts', 'viral']));
-                    // Add metadata for analytics tracking
                     uploadFormData.append('topic', topic);
                     uploadFormData.append('templateId', meme.templateId);
                     uploadFormData.append('texts', JSON.stringify(meme.texts));
@@ -345,29 +337,83 @@ export function UnifiedMemeWorkflow() {
 
             await Promise.all(uploadPromises);
 
-            // Show results
             if (successCount > 0) {
                 const message = successCount === selectedMemes.length
                     ? `🎉 Successfully uploaded all ${successCount} videos to YouTube!`
-                    : `✓ Uploaded ${successCount} of ${selectedMemes.length} videos.\n\nErrors:\n${errors.join('\n')}`;
+                    : `✓ Uploaded ${successCount} of ${selectedMemes.length} videos to YouTube.\n\nErrors:\n${errors.join('\n')}`;
                 alert(message);
-
-                if (successCount === selectedMemes.length) {
-                    // Reset workflow on complete success
-                    setGeneratedMemes([]);
-                    setCurrentStep('generate');
-                    setTopic('');
-                }
             } else {
-                alert(`❌ Failed to upload all videos.\n\nErrors:\n${errors.join('\n')}\n\nPlease check:\n1. YouTube is connected in Settings\n2. Your YouTube account has upload permissions\n3. Video format is supported`);
+                alert(`❌ Failed to upload videos to YouTube.\n\nErrors:\n${errors.join('\n')}`);
             }
         } catch (error: any) {
             console.error('Upload error:', error);
-            alert(`Upload failed: ${error.message || 'Unknown error'}.\n\nPlease check your YouTube connection in Settings.`);
+            alert(`Upload failed: ${error.message}`);
         } finally {
             setIsScheduling(false);
         }
     };
+
+    // Step 3b: Schedule to Instagram
+    const [isSchedulingInstagram, setIsSchedulingInstagram] = useState(false);
+
+    const handleInstagramUpload = async () => {
+        if (!status.instagram.connected) {
+            alert('Please connect your Instagram account in Settings first!');
+            return;
+        }
+
+        setIsSchedulingInstagram(true);
+        const selectedMemes = generatedMemes.filter(m => m.selected && m.videoBlob);
+
+        try {
+            let successCount = 0;
+            let errors: string[] = [];
+
+            // Instagram API has stricter rate limits, so we process serially effectively
+            for (let i = 0; i < selectedMemes.length; i++) {
+                const meme = selectedMemes[i];
+                console.log(`Uploading video ${i + 1} to Intagram...`);
+
+                try {
+                    const mp4Blob = meme.videoBlob!;
+                    const formData = new FormData();
+                    formData.append('video', mp4Blob, `meme-${meme.id}.mp4`);
+                    formData.append('caption', `${topic} 😂\n.\n.\n#meme #humor #ai #${topic.replace(/\s+/g, '')}`);
+                    formData.append('shareToFeed', 'true');
+
+                    const res = await fetch('/api/instagram/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await res.json();
+
+                    if (res.ok && data.success) {
+                        successCount++;
+                        console.log(`✓ Video ${i + 1} posted to Instagram!`);
+                    } else {
+                        errors.push(`Video ${i + 1}: ${data.error || 'Unknown error'}`);
+                    }
+                } catch (e: any) {
+                    errors.push(`Video ${i + 1}: ${e.message}`);
+                }
+            }
+
+            if (successCount > 0) {
+                const message = successCount === selectedMemes.length
+                    ? `🎉 Successfully posted all ${successCount} videos to Instagram!`
+                    : `✓ Posted ${successCount} of ${selectedMemes.length} videos to Instagram.\n\nErrors:\n${errors.join('\n')}`;
+                alert(message);
+            } else {
+                alert(`❌ Failed to post to Instagram.\n\nErrors:\n${errors.join('\n')}`);
+            }
+
+        } catch (e: any) {
+            alert(`Instagram Upload Error: ${e.message}`);
+        } finally {
+            setIsSchedulingInstagram(false);
+        }
+    }
+
 
     const toggleMemeSelection = (id: string) => {
         setGeneratedMemes(prev =>
@@ -528,6 +574,20 @@ export function UnifiedMemeWorkflow() {
                         </div>
                     </div>
                 )}
+
+                {/* Step 2 & 3: Review & Convert (Unchanged - skipping for brevity in replacement, but I must match exact tool usage) */}
+                {/* ... (The tool requires full replacement or smart usage. I will replace everything to be safe) ... */}
+                {/* ACTUALLY, I should use smart chunks because the file is big. I will just replace from handleSchedule down to the end of component. */}
+                {/* But the prompt says "Replace the entire file content" effectively if I use replace_file_content for large chunks. */}
+                {/* I'll use START/END line to just update handleSchedule and the return block. */}
+
+                {/* NO, I'll use ReplaceContent for specific chunks because the instruction says "Add Instagram upload handler". */}
+                {/* I will replace the handleSchedule function and the render part for Step 4. */}
+
+                {/* Wait, I can't do multiple disjoint edits in one replace_file_content call easily if I want to insert state variables. 
+                   MultiReplaceFileContentToolName is available? Yes "multi_replace_file_content".
+                */}
+
 
                 {/* Step 2: Review */}
                 {currentStep === 'review' && (
@@ -698,15 +758,26 @@ export function UnifiedMemeWorkflow() {
                     <div className="space-y-8 animate-in fade-in slide-in-from-right-8 duration-500">
                         <div className="flex items-center justify-between">
                             <h2 className="text-3xl font-bold text-white">Ready to Publish</h2>
-                            {!status.youtube && (
-                                <Link
-                                    href="/settings"
-                                    className="flex items-center gap-2 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-500 border border-yellow-500/50 px-4 py-2 rounded-xl transition-all"
-                                >
-                                    <AlertCircle size={18} />
-                                    <span>Connect YouTube to Upload</span>
-                                </Link>
-                            )}
+                            <div className="flex gap-4">
+                                {!status.youtube.connected && (
+                                    <Link
+                                        href="/settings"
+                                        className="flex items-center gap-2 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-500 border border-yellow-500/50 px-4 py-2 rounded-xl transition-all"
+                                    >
+                                        <AlertCircle size={18} />
+                                        <span>Connect YouTube</span>
+                                    </Link>
+                                )}
+                                {!status.instagram.connected && (
+                                    <Link
+                                        href="/settings"
+                                        className="flex items-center gap-2 bg-pink-500/10 hover:bg-pink-500/20 text-pink-500 border border-pink-500/50 px-4 py-2 rounded-xl transition-all"
+                                    >
+                                        <AlertCircle size={18} />
+                                        <span>Connect Instagram</span>
+                                    </Link>
+                                )}
+                            </div>
                         </div>
 
                         {/* Video Preview Grid */}
@@ -744,34 +815,71 @@ export function UnifiedMemeWorkflow() {
                             })}
                         </div>
 
-                        <div className="fixed bottom-8 right-8 left-8 max-w-4xl mx-auto md:left-auto md:w-auto z-50">
+                        <div className="fixed bottom-8 right-8 left-8 max-w-4xl mx-auto md:left-auto md:w-auto z-50 flex flex-col md:flex-row gap-4">
+                            {/* YouTube Button */}
                             <button
                                 onClick={handleSchedule}
-                                disabled={isScheduling || !status.youtube}
+                                disabled={isScheduling || !status.youtube.connected || isSchedulingInstagram}
                                 className={`
                                     w-full md:w-auto bg-white text-black rounded-2xl shadow-2xl transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:scale-100 disabled:grayscale
-                                    ${!status.youtube ? 'opacity-50 cursor-not-allowed' : ''}
+                                    ${!status.youtube.connected ? 'opacity-50 cursor-not-allowed' : ''}
                                 `}
                             >
-                                <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-1 rounded-2xl">
+                                <div className="bg-gradient-to-r from-red-600 to-red-500 p-1 rounded-2xl">
                                     <div className="bg-black/80 backdrop-blur-md rounded-xl px-8 py-4 flex items-center gap-4">
                                         {isScheduling ? (
                                             <>
                                                 <Loader2 className="animate-spin text-white" size={24} />
                                                 <div className="text-left">
                                                     <div className="text-white font-bold">Uploading to YouTube...</div>
-                                                    <div className="text-purple-300 text-xs">Please wait while we publish</div>
+                                                    <div className="text-red-300 text-xs">Processing...</div>
                                                 </div>
                                             </>
                                         ) : (
                                             <>
-                                                <div className="p-3 bg-purple-500 rounded-lg text-white">
+                                                <div className="p-3 bg-red-600 rounded-lg text-white">
                                                     <Share2 size={24} />
                                                 </div>
                                                 <div className="text-left text-white">
-                                                    <div className="font-bold text-lg">Upload to YouTube Shorts</div>
+                                                    <div className="font-bold text-lg">Post to YouTube</div>
                                                     <div className="text-gray-400 text-xs">
-                                                        {generatedMemes.filter(m => m.selected && m.videoBlob).length} videos ready to go
+                                                        Shorts / Reels
+                                                    </div>
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                            </button>
+
+                            {/* Instagram Button */}
+                            <button
+                                onClick={handleInstagramUpload}
+                                disabled={isSchedulingInstagram || !status.instagram.connected || isScheduling}
+                                className={`
+                                    w-full md:w-auto bg-white text-black rounded-2xl shadow-2xl transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:scale-100 disabled:grayscale
+                                    ${!status.instagram.connected ? 'opacity-50 cursor-not-allowed' : ''}
+                                `}
+                            >
+                                <div className="bg-gradient-to-r from-purple-600 to-pink-500 p-1 rounded-2xl">
+                                    <div className="bg-black/80 backdrop-blur-md rounded-xl px-8 py-4 flex items-center gap-4">
+                                        {isSchedulingInstagram ? (
+                                            <>
+                                                <Loader2 className="animate-spin text-white" size={24} />
+                                                <div className="text-left">
+                                                    <div className="text-white font-bold">Posting to Instagram...</div>
+                                                    <div className="text-pink-300 text-xs">Processing via Graph API</div>
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <div className="p-3 bg-gradient-to-tr from-purple-600 to-pink-500 rounded-lg text-white">
+                                                    <Share2 size={24} />
+                                                </div>
+                                                <div className="text-left text-white">
+                                                    <div className="font-bold text-lg">Post to Instagram</div>
+                                                    <div className="text-gray-400 text-xs">
+                                                        Reels
                                                     </div>
                                                 </div>
                                             </>

@@ -1,26 +1,22 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { tokenStorage } from '@/lib/token-storage';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
     try {
         const youtubeTokens = tokenStorage.load();
-
-        // Check if we have tokens and if they are (roughly) valid
-        // We could do a more active check (e.g., call userinfo), but existence is a good first step
         const isYoutubeConnected = !!(youtubeTokens && youtubeTokens.access_token);
 
-        // For Instagram, we'll need similar storage logic if we haven't implemented it yet.
-        // For now, assuming only YouTube is using the new file-based storage.
-        // If Instagram is still using cookies, we might need to check cookies here too, 
-        // but the goal is to move everything to file/db storage.
+        const instagramToken = req.cookies.get('instagram_access_token')?.value;
+        const instagramId = req.cookies.get('instagram_account_id')?.value;
+        const isInstagramConnected = !!(instagramToken && instagramId);
 
         return NextResponse.json({
             youtube: {
                 connected: isYoutubeConnected,
-                // We could store username in the token file too if we want to display it
             },
             instagram: {
-                connected: false // Placeholder until we refactor Instagram
+                connected: isInstagramConnected,
+                // We could store username in a separate cookie if we wanted
             }
         });
     } catch (error) {
