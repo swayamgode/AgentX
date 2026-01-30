@@ -375,6 +375,27 @@ export default function AnalyticsPage() {
                             </div>
                         </div>
 
+
+                        {/* AI Strategy Engine */}
+                        <div className="bg-gradient-to-br from-purple-900/10 to-blue-900/10 border border-purple-500/20 rounded-2xl p-6 relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-3 opacity-20">
+                                <Zap className="w-24 h-24 text-purple-500" />
+                            </div>
+
+                            <div className="relative z-10">
+                                <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-3">
+                                    <span className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">AI Strategy Engine</span>
+                                    <span className="text-xs px-2 py-1 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">BETA</span>
+                                </h2>
+                                <p className="text-stone-400 max-w-2xl mb-6">
+                                    This model "trains" on your historical analytics data to identify winning patterns.
+                                    It analyzes correlation between topics, keywords, and view velocity to suggest high-probability video ideas.
+                                </p>
+
+                                <StrategyGenerator />
+                            </div>
+                        </div>
+
                         {/* Recent Videos Table */}
                         <div className="bg-black border border-[#333] rounded-2xl overflow-hidden">
                             <div className="p-6 border-b border-[#333] flex justify-between items-center">
@@ -452,6 +473,93 @@ export default function AnalyticsPage() {
                     </div>
                 </div>
             </main>
+        </div>
+    );
+}
+
+
+// --- Strategy Component ---
+
+interface VideoSuggestion {
+    title: string;
+    topic: string;
+    reasoning: string;
+    predictedPerformance: 'High' | 'Medium' | 'Low';
+}
+
+function StrategyGenerator() {
+    const [suggestions, setSuggestions] = useState<VideoSuggestion[]>([]);
+    const [loading, setLoading] = useState(false);
+
+    const generate = async () => {
+        setLoading(true);
+        try {
+            const res = await fetch('/api/analytics/strategy', { method: 'POST' });
+            const data = await res.json();
+            if (data.suggestions) {
+                setSuggestions(data.suggestions);
+            }
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="space-y-6">
+            {!suggestions.length && !loading && (
+                <button
+                    onClick={generate}
+                    className="px-6 py-3 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.5)]"
+                >
+                    <Zap className="w-5 h-5 fill-black" />
+                    Train Model & Generate Ideas
+                </button>
+            )}
+
+            {loading && (
+                <div className="flex items-center gap-4 text-purple-300">
+                    <Loader2 className="animate-spin w-5 h-5" />
+                    <span className="animate-pulse">Analyzing 3,000+ data points for patterns...</span>
+                </div>
+            )}
+
+            {suggestions.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                    {suggestions.map((idea, i) => (
+                        <div key={i} className="bg-black/40 border border-white/10 p-5 rounded-xl hover:border-purple-500/50 transition-colors group">
+                            <div className="flex justify-between items-start mb-3">
+                                <span className="text-xs font-mono text-purple-400 bg-purple-500/10 px-2 py-1 rounded border border-purple-500/20">
+                                    {idea.topic}
+                                </span>
+                                {idea.predictedPerformance === 'High' && (
+                                    <span className="text-xs font-bold text-green-400 flex items-center gap-1">
+                                        <TrendingUp className="w-3 h-3" />
+                                        High Prob.
+                                    </span>
+                                )}
+                            </div>
+                            <h3 className="text-white font-bold mb-2 group-hover:text-purple-300 transition-colors">
+                                {idea.title}
+                            </h3>
+                            <p className="text-sm text-stone-400 border-t border-white/5 pt-3 mt-3">
+                                <span className="text-xs text-stone-500 uppercase tracking-widest block mb-1">Why this works</span>
+                                {idea.reasoning}
+                            </p>
+                        </div>
+                    ))}
+                    <div className="flex items-center justify-center">
+                        <button
+                            onClick={generate}
+                            className="p-4 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-white transition-all group"
+                            title="Regenerate"
+                        >
+                            <RefreshCw className="w-6 h-6 group-hover:rotate-180 transition-transform duration-500" />
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
