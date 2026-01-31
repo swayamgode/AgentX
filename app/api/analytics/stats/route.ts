@@ -24,7 +24,7 @@ export async function GET() {
             // Calculate weekly activity (last 7 days based on uploadedAt)
             const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
             const today = new Date();
-            const last7Days = [];
+            const last7Days: { day: string; date: string; count: number }[] = [];
 
             for (let i = 6; i >= 0; i--) {
                 const d = new Date(today);
