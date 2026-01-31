@@ -15,6 +15,9 @@ export interface VideoMetadata {
     tags: string[];
     templateId: string;
     audioId: string | null;
+    accountId?: string;
+    status?: 'SCHEDULED' | 'UPLOADED' | 'FAILED';
+    youtubeId?: string;
 }
 
 /**
@@ -60,6 +63,12 @@ export async function saveVideoLocally(
     videoBlob: Blob,
     metadata: Omit<VideoMetadata, 'filename' | 'path'>
 ): Promise<VideoMetadata> {
+    // Default status to SCHEDULED if not provided
+    const finalMetadata: Omit<VideoMetadata, 'filename' | 'path'> = {
+        status: 'SCHEDULED', // Default
+        ...metadata
+    };
+
     const filename = generateVideoFilename(metadata.templateId, metadata.scheduledFor);
     const videosDir = getVideosDirectory();
     const filePath = path.join(videosDir, filename);
@@ -76,14 +85,14 @@ export async function saveVideoLocally(
     fs.writeFileSync(
         metadataPath,
         JSON.stringify({
-            ...metadata,
+            ...finalMetadata,
             filename,
             savedAt: new Date().toISOString(),
         }, null, 2)
     );
 
     return {
-        ...metadata,
+        ...finalMetadata,
         filename,
         path: filePath,
     };

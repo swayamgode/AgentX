@@ -2,8 +2,13 @@ import { createClient } from '@supabase/supabase-js';
 import { TwitterApi } from 'twitter-api-v2';
 import cron from 'node-cron';
 import * as dotenv from 'dotenv';
+import { google } from 'googleapis';
+import { multiAccountStorage } from '../lib/token-storage';
+import { listGeneratedVideos, deleteVideo, VideoMetadata } from '../lib/video-storage';
+import * as fs from 'fs';
+import * as path from 'path';
 
-// Load .env first (for DATABASE_URL), then .env.local (for Twitter credentials)
+// Load .env first (for DATABASE_URL), then .env.local (for Twitter/YouTube credentials)
 dotenv.config({ path: '.env' });
 dotenv.config({ path: '.env.local' });
 
@@ -18,26 +23,28 @@ const accessSecret = clean(process.env.TWITTER_ACCESS_SECRET);
 const supabaseUrl = clean(process.env.NEXT_PUBLIC_SUPABASE_URL);
 const supabaseKey = clean(process.env.SUPABASE_SERVICE_ROLE_KEY);
 
-if (!appKey || !appSecret || !accessToken || !accessSecret) {
-    console.error("Missing Twitter credentials in .env.local");
-    process.exit(1);
-}
+const youtubeClientId = clean(process.env.YOUTUBE_CLIENT_ID);
+const youtubeClientSecret = clean(process.env.YOUTUBE_CLIENT_SECRET);
+const youtubeRedirectUri = clean(process.env.YOUTUBE_REDIRECT_URI);
+
 
 if (!supabaseUrl || !supabaseKey) {
     console.error("Missing Supabase credentials");
     process.exit(1);
 }
 
-const client = new TwitterApi({
+const client = (appKey && appSecret && accessToken && accessSecret) ? new TwitterApi({
     appKey,
     appSecret,
     accessToken,
     accessSecret,
-});
+}) : null;
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function checkAndPostTweets() {
+    if (!client) return;
+
     console.log(`[${new Date().toISOString()}] Checking for scheduled tweets...`);
 
     try {
@@ -112,7 +119,145 @@ async function checkAndPostTweets() {
     }
 }
 
+async function checkAndPostYouTubeContent() {
+    console.log(`[${new Date().toISOString()}] Checking for scheduled YouTube videos...`);
+
+    if (!youtubeClientId || !youtubeClientSecret) {
+        console.error("Missing YouTube Client ID/Secret");
+        return;
+    }
+
+    const videos = listGeneratedVideos();
+    const now = new Date();
+
+    // Filter for scheduled videos that are ready to post (and not already uploaded)
+    const pendingVideos = videos.filter(v => {
+        return (v.status === 'SCHEDULED' || !v.status) && new Date(v.scheduledFor) <= now;
+    });
+
+    if (pendingVideos.length === 0) {
+        return;
+    }
+
+    console.log(`Found ${pendingVideos.length} YouTube videos to post.`);
+
+    for (const video of pendingVideos) {
+        // Assume default account if not specified, or skip
+        if (!video.accountId) {
+            const active = multiAccountStorage.getActiveAccount();
+            if (active) video.accountId = active.id;
+            else {
+                console.error(`Skipping video ${video.filename}: No account ID`);
+                continue;
+            }
+        }
+
+        const account = multiAccountStorage.getAccount(video.accountId!);
+        if (!account) {
+            console.error(`Account not found: ${video.accountId}`);
+            continue;
+        }
+
+        try {
+            const oauth2Client = new google.auth.OAuth2(
+                youtubeClientId,
+                youtubeClientSecret,
+                youtubeRedirectUri
+            );
+
+            oauth2Client.setCredentials({
+                access_token: account.tokens.access_token,
+                refresh_token: account.tokens.refresh_token,
+                expiry_date: account.tokens.expiry_date
+            });
+
+            // Refresh token if needed
+            const tokenInfo = await oauth2Client.getAccessToken();
+            if (tokenInfo.token) {
+                // Save new tokens if refreshed
+                if (tokenInfo.token !== account.tokens.access_token && tokenInfo.res?.data) {
+                    multiAccountStorage.updateTokens(account.id, {
+                        access_token: tokenInfo.token,
+                        expiry_date: tokenInfo.res.data.expiry_date,
+                        refresh_token: tokenInfo.res.data.refresh_token // might be undefined, that's ok
+                    });
+                }
+            } else {
+                console.error(`Failed to refresh token for ${account.channelName}`);
+                continue;
+            }
+
+            const youtube = google.youtube({
+                version: 'v3',
+                auth: oauth2Client
+            });
+
+            // Read file
+            const fileBuffer = fs.readFileSync(video.path); // video.path should be absolute
+
+            console.log(`Uploading ${video.filename} to ${account.channelName}...`);
+
+            const response = await youtube.videos.insert({
+                part: ['snippet', 'status'],
+                requestBody: {
+                    snippet: {
+                        title: video.title,
+                        description: video.description,
+                        tags: video.tags,
+                        categoryId: '23',
+                    },
+                    status: {
+                        privacyStatus: 'public', // User requested uplaod
+                        selfDeclaredMadeForKids: false,
+                    },
+                },
+                media: {
+                    body: streamFromBuffer(fileBuffer),
+                },
+            });
+
+            console.log(`Uploaded! ID: ${response.data.id}`);
+
+            // Update Metadata
+            const metadataPath = video.path.replace('.webm', '.json');
+            const newMetadata = {
+                ...video,
+                status: 'UPLOADED',
+                youtubeId: response.data.id,
+                uploadedAt: new Date().toISOString()
+            };
+
+            fs.writeFileSync(metadataPath, JSON.stringify(newMetadata, null, 2));
+
+            // Add to analytics starter
+            // We could update analytics-storage here if we wanted immediate record
+
+        } catch (error: any) {
+            console.error(`Failed to upload ${video.filename}:`, error.message);
+            // Update status to FAILED ?
+            const metadataPath = video.path.replace('.webm', '.json');
+            const newMetadata: VideoMetadata = {
+                ...video,
+                status: 'FAILED',
+            };
+            // fs.writeFileSync(metadataPath, JSON.stringify(newMetadata, null, 2));
+        }
+    }
+}
+
+// Simple buffer stream helper
+import { Readable } from 'stream';
+function streamFromBuffer(buffer: Buffer) {
+    const stream = new Readable();
+    stream.push(buffer);
+    stream.push(null);
+    return stream;
+}
+
 // Run every minute
-cron.schedule('* * * * *', checkAndPostTweets);
+cron.schedule('* * * * *', () => {
+    checkAndPostTweets();
+    checkAndPostYouTubeContent();
+});
 
 console.log("Scheduler started. checking every minute...");
