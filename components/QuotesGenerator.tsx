@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Sparkles, Download, Share2, RefreshCw, Smartphone, Monitor, Image as ImageIcon, Palette, Video, Music, Upload, Type, AlignLeft, AlignCenter, AlignRight, Minus, Plus, Calendar, Clock, Play, Pause, Youtube } from "lucide-react";
+import { Sparkles, Download, Share2, RefreshCw, Smartphone, Monitor, Image as ImageIcon, Palette, Video, Music, Upload, Type, AlignLeft, AlignCenter, AlignRight, Minus, Plus, Calendar, Clock, Play, Pause, Youtube, Rocket, Terminal, Loader2 } from "lucide-react";
 import { MusicLibrary, MusicTrack, getTrackUrl, fetchTrackAsBlob } from "@/lib/music-library";
 
 interface Decoration {
@@ -65,6 +65,21 @@ export function QuotesGenerator() {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const audioInputRef = useRef<HTMLInputElement>(null);
     const audioPreviewRef = useRef<HTMLAudioElement>(null);
+    const logsEndRef = useRef<HTMLDivElement>(null); // For batch logs
+
+    // Batch Automation State
+    const [isBatchRunning, setIsBatchRunning] = useState(false);
+    const [batchLogs, setBatchLogs] = useState<string[]>([]);
+
+    useEffect(() => {
+        if (logsEndRef.current) {
+            logsEndRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+    }, [batchLogs]);
+
+    const addBatchLog = (msg: string) => {
+        setBatchLogs(prev => [...prev, `${new Date().toLocaleTimeString()} - ${msg}`]);
+    };
 
     // Load music library and YouTube accounts on mount
     useEffect(() => {
@@ -254,16 +269,36 @@ export function QuotesGenerator() {
     };
 
 
+    interface RenderConfig {
+        backgroundType: 'gradient' | 'image';
+        backgroundImage: string | null;
+        color1: string;
+        color2: string;
+        textColor: string;
+        textAlign: 'left' | 'center' | 'right';
+        fontSizeScale: number;
+    }
+
     /**
      * Draws a single frame to the canvas.
      * @param canvas The canvas element
      * @param quote The quote to draw
      * @param time The current animation time in ms
      * @param preparedDecorations Optional pre-loaded decoration canvases [d1, d2]
+     * @param config Optional configuration to override state (for batch processing)
      */
-    const drawCanvas = async (canvas: HTMLCanvasElement, quote: Quote, time: number = 0, preparedDecorations: (HTMLCanvasElement | null)[] = []) => {
+    const drawCanvas = async (canvas: HTMLCanvasElement, quote: Quote, time: number = 0, preparedDecorations: (HTMLCanvasElement | null)[] = [], config?: RenderConfig) => {
         const ctx = canvas.getContext('2d')!;
         const width = canvas.width;
+
+        // Use config if provided, otherwise use state
+        const cfgBackgroundType = config ? config.backgroundType : backgroundType;
+        const cfgBackgroundImage = config ? config.backgroundImage : backgroundImage;
+        const cfgColor1 = config ? config.color1 : color1;
+        const cfgColor2 = config ? config.color2 : color2;
+        const cfgTextColor = config ? config.textColor : textColor;
+        const cfgTextAlign = config ? config.textAlign : textAlign;
+        const cfgFontSizeScale = config ? config.fontSizeScale : fontSizeScale;
 
         const height = canvas.height;
 
@@ -274,10 +309,10 @@ export function QuotesGenerator() {
         const zoom = 1 + (progress * 0.1); // Zoom from 1.0 to 1.1
 
         // 1. Draw Background
-        if (backgroundType === 'image' && backgroundImage) {
+        if (cfgBackgroundType === 'image' && cfgBackgroundImage) {
             const img = new Image();
             img.crossOrigin = "anonymous";
-            img.src = backgroundImage;
+            img.src = cfgBackgroundImage;
 
             // Ensure image is loaded before drawing
             if (!img.complete) {
@@ -304,8 +339,8 @@ export function QuotesGenerator() {
             // We can animate the gradient slightly by shifting the stop points or colors? 
             // For now, static gradient is clean.
             const grad = ctx.createLinearGradient(0, 0, width, height);
-            grad.addColorStop(0, color1);
-            grad.addColorStop(1, color2);
+            grad.addColorStop(0, cfgColor1);
+            grad.addColorStop(1, cfgColor2);
             ctx.fillStyle = grad;
             ctx.fillRect(0, 0, width, height);
         }
@@ -341,13 +376,13 @@ export function QuotesGenerator() {
         ctx.globalAlpha = 1.0;
 
         // 2. Draw Text Configuration
-        ctx.fillStyle = textColor;
+        ctx.fillStyle = cfgTextColor;
         const isStory = width === 1080 && height === 1920;
         const baseFontSize = isStory ? 64 : 50;
-        const fontSize = baseFontSize * fontSizeScale;
+        const fontSize = baseFontSize * cfgFontSizeScale;
 
         ctx.font = `bold ${fontSize}px "Inter", Arial, sans-serif`;
-        ctx.textAlign = textAlign;
+        ctx.textAlign = cfgTextAlign;
         ctx.textBaseline = 'middle';
 
         // Add shadow for better readability
@@ -384,8 +419,8 @@ export function QuotesGenerator() {
 
         // Calculate X positioning based on alignment
         let textX = width / 2; // Default center
-        if (textAlign === 'left') textX = width * 0.1;
-        else if (textAlign === 'right') textX = width * 0.9;
+        if (cfgTextAlign === 'left') textX = width * 0.1;
+        else if (cfgTextAlign === 'right') textX = width * 0.9;
 
         lines.forEach((line, i) => {
             ctx.fillText(line, textX, startY + i * lineHeight + floatY);
@@ -433,7 +468,7 @@ export function QuotesGenerator() {
         });
     };
 
-    const generateVideoBlob = async (quote: Quote): Promise<Blob | null> => {
+    const generateVideoBlob = async (quote: Quote, config?: RenderConfig): Promise<Blob | null> => {
         return new Promise(async (resolve) => {
             const canvas = document.createElement('canvas');
             canvas.width = 1080;
@@ -481,7 +516,7 @@ export function QuotesGenerator() {
             const animate = async () => {
                 const elapsed = Date.now() - startTime;
                 if (elapsed < duration) {
-                    await drawCanvas(canvas, quote, elapsed, decorations);
+                    await drawCanvas(canvas, quote, elapsed, decorations, config);
                     requestAnimationFrame(animate);
                 } else {
                     mediaRecorder.stop();
@@ -582,6 +617,151 @@ export function QuotesGenerator() {
             setScheduleProgress('Error during scheduling');
         } finally {
             setIsScheduling(false);
+        }
+    };
+
+    // --- BATCH AUTOMATION ---
+    const getRandomColor = () => {
+        const letters = '0123456789ABCDEF';
+        let color = '#';
+        for (let i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    };
+
+    const handleBatchAutoPilot = async () => {
+        if (!confirm("Start One-Click Auto Pilot for Quotes?\n\nThis will:\n1. Read topics from topics.txt\n2. Generate unique quotes for EACH connected YouTube account\n3. Use RANDOM visual styles for variety\n4. Upload automatically as #Shorts.")) return;
+
+        setIsBatchRunning(true);
+        setBatchLogs(["Starting Quote Auto-Pilot..."]);
+
+        try {
+            // 1. Fetch Accounts
+            addBatchLog("Fetching YouTube accounts...");
+            const accountsRes = await fetch('/api/youtube/accounts');
+            const accountsData = await accountsRes.json();
+            const accounts = accountsData.accounts || [];
+
+            if (accounts.length === 0) {
+                throw new Error("No YouTube accounts connected!");
+            }
+            addBatchLog(`Found ${accounts.length} accounts: ${accounts.map((a: any) => a.channelName).join(', ')}`);
+
+            // 2. Fetch Topics
+            addBatchLog("Reading topics.txt...");
+            const topicsRes = await fetch('/api/topics');
+            const topicsData = await topicsRes.json();
+            let topics = topicsData.topics || [];
+
+            if (topics.length === 0) {
+                throw new Error("No topics found or topics.txt is empty");
+            }
+
+            // Shuffle topics
+            topics = topics.sort(() => 0.5 - Math.random());
+            addBatchLog(`Loaded ${topics.length} topics. Assigned unique topics.`);
+
+            // 3. Process loop
+            for (let i = 0; i < accounts.length; i++) {
+                const account = accounts[i];
+                const topic = topics[i % topics.length];
+
+                addBatchLog(`\n➡️ Processing Account: ${account.channelName}`);
+                addBatchLog(`   Topic: "${topic}"`);
+
+                // Generate Quote
+                addBatchLog("   Generating quote text...");
+                const styles = ['inspirational', 'wisdom', 'success', 'funny'];
+                const randomStyle = styles[Math.floor(Math.random() * styles.length)];
+                const qRes = await fetch("/api/quotes/generate", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ topic, count: 1, style: randomStyle })
+                });
+                const qData = await qRes.json();
+
+                if (!qData.quotes || qData.quotes.length === 0) {
+                    addBatchLog("   ❌ Failed to generate quote");
+                    continue;
+                }
+
+                let quote: Quote = qData.quotes[0];
+
+                // Add Decorations (Logic duplicated from handleGenerate for batch safety)
+                if (availableGraphics.length > 0) {
+                    const decorations: Decoration[] = [];
+                    const numDecorations = Math.floor(Math.random() * 4); // 0-3 decorations
+                    for (let d = 0; d < numDecorations; d++) {
+                        const randomGraphic = availableGraphics[Math.floor(Math.random() * availableGraphics.length)];
+                        decorations.push({
+                            image: randomGraphic,
+                            x: Math.random(),
+                            y: Math.random(),
+                            size: 0.15 + Math.random() * 0.25
+                        });
+                    }
+                    quote.decorations = decorations;
+                }
+
+                // Create Random Visual Config
+                const config: RenderConfig = {
+                    backgroundType: 'gradient',
+                    backgroundImage: null,
+                    color1: getRandomColor(),
+                    color2: getRandomColor(),
+                    textColor: '#ffffff',
+                    textAlign: 'center',
+                    fontSizeScale: 0.5 + (Math.random() * 0.3) // 0.5 to 0.8
+                };
+                addBatchLog("   Rendering video (Random Styles applied)...");
+
+                // Render Video
+                const blob = await generateVideoBlob(quote, config);
+
+                if (!blob) {
+                    addBatchLog("   ❌ Failed to render video");
+                    continue;
+                }
+
+                // Upload
+                addBatchLog("   🚀 Uploading to YouTube...");
+                const formData = new FormData();
+                formData.append('video', blob, `quote-batch-${account.id}.webm`);
+
+                const quotePreview = quote.text.substring(0, 50);
+                formData.append('title', `${quotePreview}... #shorts`);
+                formData.append('description', `${quote.text}\n\n- ${quote.author}\n\n#quotes #${topic.replace(/\s/g, '')} #motivation`);
+                formData.append('tags', JSON.stringify(['shorts', 'quotes', topic, 'motivation']));
+                formData.append('topic', topic);
+                formData.append('templateId', 'quote-batch');
+                formData.append('texts', JSON.stringify([quote.text, quote.author]));
+                formData.append('accountId', account.id);
+                formData.append('publishAt', ''); // Publish immediately
+
+                const uploadRes = await fetch('/api/youtube/upload-video', {
+                    method: 'POST',
+                    body: formData
+                });
+                const uploadResult = await uploadRes.json();
+
+                if (uploadRes.ok) {
+                    addBatchLog(`   ✅ SUCCESS! Uploaded to ${account.channelName}`);
+                } else {
+                    addBatchLog(`   ❌ UPLOAD FAILED: ${uploadResult.error}`);
+                }
+
+                // Wait a bit
+                await new Promise(r => setTimeout(r, 2000));
+            }
+
+            addBatchLog("\n✨ QUOTE AUTO-PILOT COMPLETE! ✨");
+
+        } catch (e: any) {
+            console.error(e);
+            addBatchLog(`CRITICAL ERROR: ${e.message}`);
+        } finally {
+            setIsBatchRunning(false);
         }
     };
 
@@ -729,6 +909,41 @@ export function QuotesGenerator() {
                                     </>
                                 )}
                             </button>
+
+                            {/* Batch Button */}
+                            <button
+                                onClick={handleBatchAutoPilot}
+                                disabled={isBatchRunning || isGenerating}
+                                className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 transform hover:scale-[1.02] active:scale-[0.98]"
+                            >
+                                {isBatchRunning ? (
+                                    <>
+                                        <Loader2 className="animate-spin" size={20} />
+                                        Auto-Pilot Running...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Rocket size={20} />
+                                        Start Auto-Pilot
+                                    </>
+                                )}
+                            </button>
+
+                            {/* Batch Logs */}
+                            {(batchLogs.length > 0) && (
+                                <div className="mt-4 bg-[#111] border border-green-500/20 rounded-xl p-4 font-mono text-xs text-green-400 h-48 overflow-y-auto shadow-inner">
+                                    <div className="flex items-center gap-2 mb-2 pb-2 border-b border-green-500/20 text-gray-500">
+                                        <Terminal size={12} />
+                                        <span>SYSTEM LOGS</span>
+                                    </div>
+                                    <div className="space-y-1">
+                                        {batchLogs.map((log, i) => (
+                                            <div key={i} className="whitespace-pre-wrap">{log}</div>
+                                        ))}
+                                        <div ref={logsEndRef} />
+                                    </div>
+                                </div>
+                            )}
 
                         </div>
                     </div>

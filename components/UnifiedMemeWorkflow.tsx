@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Sparkles, Video, Calendar, CheckCircle, Loader2, Play, Edit2, AlertCircle, Wand2, X, Music, Share2, Download, Trash2, Zap, Star } from "lucide-react";
+import { Sparkles, Video, Calendar, CheckCircle, Loader2, Play, Edit2, AlertCircle, Wand2, X, Music, Share2, Download, Trash2, Zap, Star, Rocket, Terminal } from "lucide-react";
 import { MEME_TEMPLATES, MemeTemplate } from "@/lib/memes";
 import { canvasToVideoBlob } from "@/lib/video-converter";
+import { renderMemeToVideoBlob } from "@/lib/meme-renderer";
 import { useSocialConnection } from "@/hooks/useSocialConnection";
 import Link from "next/link";
 
@@ -30,6 +31,17 @@ export function UnifiedMemeWorkflow() {
     const [isScheduling, setIsScheduling] = useState(false);
     const [previewMeme, setPreviewMeme] = useState<GeneratedMeme | null>(null);
     const [defaultDesign, setDefaultDesign] = useState<{ templateId: string } | null>(null);
+
+    // Batch Automation State
+    const [isBatchRunning, setIsBatchRunning] = useState(false);
+    const [batchLogs, setBatchLogs] = useState<string[]>([]);
+    const logsEndRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (logsEndRef.current) {
+            logsEndRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+    }, [batchLogs]);
 
     // Load default design from local storage
     useEffect(() => {
@@ -415,6 +427,140 @@ export function UnifiedMemeWorkflow() {
     }
 
 
+    // --- ONE CLICK BATCH AUTOMATION ---
+    const addBatchLog = (msg: string) => {
+        setBatchLogs(prev => [...prev, `${new Date().toLocaleTimeString()} - ${msg}`]);
+    };
+
+    const handleBatchAutoPilot = async () => {
+        if (!confirm("Start One-Click Auto Pilot?\n\nThis will:\n1. Read topics from topics.txt\n2. Generate a unique meme for EACH connected YouTube account\n3. Render, add audio, and upload automatically.")) return;
+
+        setIsBatchRunning(true);
+        setBatchLogs(["Starting Auto-Pilot..."]);
+
+        try {
+            // 1. Fetch Accounts
+            addBatchLog("Fetching connected accounts...");
+            const accountsRes = await fetch('/api/youtube/accounts');
+            const accountsData = await accountsRes.json();
+            const accounts = accountsData.accounts || [];
+
+            if (accounts.length === 0) {
+                throw new Error("No YouTube accounts connected!");
+            }
+            addBatchLog(`Found ${accounts.length} accounts: ${accounts.map((a: any) => a.channelName).join(', ')}`);
+
+            // 2. Fetch Topics
+            addBatchLog("Reading topics.txt...");
+            const topicsRes = await fetch('/api/topics');
+            const topicsData = await topicsRes.json();
+            let topics = topicsData.topics || [];
+
+            if (topics.length === 0) {
+                throw new Error("No topics found in topics.txt");
+            }
+
+            // Shuffle topics
+            topics = topics.sort(() => 0.5 - Math.random());
+            addBatchLog(`Loaded ${topics.length} topics. Assigning unique topic to each account.`);
+
+            // 3. Process each account
+            for (let i = 0; i < accounts.length; i++) {
+                const account = accounts[i];
+                const topic = topics[i % topics.length]; // Cycle through topics
+
+                addBatchLog(`\n➡️ Processing Account: ${account.channelName}`);
+                addBatchLog(`   Topic: "${topic}"`);
+
+                // A. Generate Meme
+                addBatchLog("   Generating content...");
+                const genRes = await fetch("/api/memes/generate", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ topic, count: 1 })
+                });
+                const genData = await genRes.json();
+
+                if (!genData.memes || genData.memes.length === 0) {
+                    addBatchLog(`   ❌ Failed to generate meme for ${account.channelName}`);
+                    continue;
+                }
+
+                const memeCandidate = genData.memes[0];
+
+                // B. Render Video
+                addBatchLog("   Rendering video...");
+                const rawVideoBlob = await renderMemeToVideoBlob(memeCandidate.templateId, memeCandidate.texts);
+
+                if (!rawVideoBlob) {
+                    addBatchLog("   ❌ Failed to render video");
+                    continue;
+                }
+
+                // C. Add Audio
+                addBatchLog("   Adding audio...");
+                let finalVideoBlob = rawVideoBlob;
+
+                const formData = new FormData();
+                formData.append('video', rawVideoBlob, `batch-${account.id}.webm`);
+                formData.append('audioId', 'random');
+
+                try {
+                    const audioResponse = await fetch('/api/video/convert', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (audioResponse.ok) {
+                        finalVideoBlob = await audioResponse.blob();
+                    } else {
+                        addBatchLog("   ⚠️ Audio mix failed, using silent video.");
+                    }
+                } catch (err) {
+                    addBatchLog("   ⚠️ Audio mix error, using silent video.");
+                }
+
+                // D. Upload
+                addBatchLog("   🚀 Uploading to YouTube...");
+                const uploadFormData = new FormData();
+                uploadFormData.append('video', finalVideoBlob, `meme-${Date.now()}.mp4`);
+                uploadFormData.append('title', `${topic} #shorts`);
+                uploadFormData.append('description', `Funny meme about ${topic}\n\n#meme #shorts #${topic.replace(/\s/g, '')}`);
+                uploadFormData.append('tags', JSON.stringify([topic, 'meme', 'shorts']));
+                uploadFormData.append('topic', topic);
+                uploadFormData.append('templateId', memeCandidate.templateId);
+                uploadFormData.append('texts', JSON.stringify(memeCandidate.texts));
+                uploadFormData.append('accountId', account.id); // Targeted Upload
+                uploadFormData.append('publishAt', '');
+
+                const uploadResponse = await fetch('/api/youtube/upload-video', {
+                    method: 'POST',
+                    body: uploadFormData
+                });
+
+                const uploadResult = await uploadResponse.json();
+
+                if (uploadResponse.ok) {
+                    addBatchLog(`   ✅ SUCCESS! Uploaded to ${account.channelName}`);
+                } else {
+                    addBatchLog(`   ❌ UPLOAD FAILED: ${uploadResult.error}`);
+                }
+
+                // Small delay
+                await new Promise(r => setTimeout(r, 2000));
+            }
+
+            addBatchLog("\n✨ AUTO-PILOT COMPLETE! ✨");
+
+        } catch (e: any) {
+            console.error(e);
+            addBatchLog(`CRITICAL ERROR: ${e.message}`);
+        } finally {
+            setIsBatchRunning(false);
+        }
+    };
+
+
     const toggleMemeSelection = (id: string) => {
         setGeneratedMemes(prev =>
             prev.map(m => m.id === id ? { ...m, selected: !m.selected } : m)
@@ -569,6 +715,46 @@ export function UnifiedMemeWorkflow() {
                                             )}
                                         </div>
                                     </button>
+                                </div>
+
+                                {/* BATCH BUTTON */}
+                                <div className="pt-2">
+                                    <button
+                                        onClick={handleBatchAutoPilot}
+                                        disabled={isBatchRunning || isGenerating}
+                                        className="w-full group/batch relative overflow-hidden p-1 rounded-2xl transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 shadow-[0_0_30px_rgba(34,197,94,0.1)]"
+                                    >
+                                        <div className="relative bg-[#0F0F0F] border border-green-500/30 rounded-xl px-8 py-4 transition-all group-hover/batch:bg-[#151515] flex items-center justify-between">
+                                            <div className="flex items-center gap-4">
+                                                <div className="bg-green-500/10 p-2 rounded-lg">
+                                                    <Rocket className={`text-green-500 ${isBatchRunning ? 'animate-bounce' : ''}`} size={24} />
+                                                </div>
+                                                <div className="text-left">
+                                                    <h3 className="text-green-500 font-bold text-lg">One-Click Auto Pilot</h3>
+                                                    <p className="text-gray-500 text-xs">Read valid topics.txt • Generate for ALL Accounts • Auto Upload</p>
+                                                </div>
+                                            </div>
+                                            <div className="text-green-500">
+                                                {isBatchRunning ? <Loader2 className="animate-spin" /> : <span>Start &rarr;</span>}
+                                            </div>
+                                        </div>
+                                    </button>
+
+                                    {/* Batch Logs Console */}
+                                    {(batchLogs.length > 0) && (
+                                        <div className="mt-4 bg-black border border-green-500/20 rounded-xl p-4 font-mono text-xs text-green-400 h-64 overflow-y-auto shadow-inner">
+                                            <div className="flex items-center gap-2 mb-2 pb-2 border-b border-green-500/20 text-gray-400">
+                                                <Terminal size={12} />
+                                                <span>AUTO-PILOT LOGS</span>
+                                            </div>
+                                            <div className="space-y-1">
+                                                {batchLogs.map((log, i) => (
+                                                    <div key={i} className="whitespace-pre-wrap">{log}</div>
+                                                ))}
+                                                <div ref={logsEndRef} />
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
