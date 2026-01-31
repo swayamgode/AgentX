@@ -433,18 +433,18 @@ export function UnifiedMemeWorkflow() {
         <div className="w-full max-w-7xl mx-auto space-y-8 pb-20">
             {/* Header */}
             <div className="text-center space-y-4 mb-12">
-                <h1 className="text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 tracking-tight">
+                <h1 className="text-3xl md:text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 tracking-tight">
                     Meme Studio
                 </h1>
-                <p className="text-xl text-gray-400 font-light max-w-2xl mx-auto">
+                <p className="text-lg md:text-xl text-gray-400 font-light max-w-2xl mx-auto">
                     Create viral, shorts-ready memes for your social media in seconds using AI.
                 </p>
             </div>
 
             {/* Progress Steps */}
-            <div className="relative mb-16">
-                <div className="absolute top-1/2 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-white/10 to-transparent -z-10" />
-                <div className="flex justify-between max-w-4xl mx-auto px-4">
+            <div className="relative mb-8 md:mb-16">
+                <div className="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-white/10 to-transparent -z-10" />
+                <div className="flex gap-4 overflow-x-auto pb-4 md:pb-0 md:justify-between max-w-4xl mx-auto px-4 scrollbar-hide">
                     {[
                         { step: 'generate', label: 'Ideate & Generate', icon: Sparkles },
                         { step: 'review', label: 'Curate Selection', icon: Edit2 },
@@ -455,9 +455,9 @@ export function UnifiedMemeWorkflow() {
                         const isCompleted = ['generate', 'review', 'convert', 'schedule'].indexOf(currentStep) > ['generate', 'review', 'convert', 'schedule'].indexOf(step as any);
 
                         return (
-                            <div key={step} className="flex flex-col items-center gap-4 group">
+                            <div key={step} className="flex flex-col items-center gap-4 group shrink-0 min-w-[80px]">
                                 <div className={`
-                                    w-14 h-14 rounded-2xl flex items-center justify-center border transition-all duration-300 relative overflow-hidden
+                                    w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center border transition-all duration-300 relative overflow-hidden
                                     ${isActive || isCompleted
                                         ? 'border-purple-500 bg-purple-500/10 text-white shadow-[0_0_30px_rgba(168,85,247,0.3)]'
                                         : 'border-white/10 bg-[#0a0a0a] text-gray-600 group-hover:border-white/30 group-hover:text-gray-400'}
@@ -465,9 +465,9 @@ export function UnifiedMemeWorkflow() {
                                     {(isActive || isCompleted) && (
                                         <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/20 to-transparent" />
                                     )}
-                                    <Icon size={24} className="relative z-10" />
+                                    <Icon size={20} className="relative z-10 md:w-6 md:h-6" />
                                 </div>
-                                <span className={`text-sm font-medium transition-colors ${isActive || isCompleted ? 'text-white' : 'text-gray-600'}`}>
+                                <span className={`text-xs md:text-sm font-medium transition-colors ${isActive || isCompleted ? 'text-white' : 'text-gray-600'}`}>
                                     {label}
                                 </span>
                             </div>
@@ -506,13 +506,13 @@ export function UnifiedMemeWorkflow() {
 
                                 <div className="space-y-4">
                                     <label className="text-sm font-medium text-gray-400 uppercase tracking-wider ml-1">Quantity</label>
-                                    <div className="grid grid-cols-3 gap-6">
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-6">
                                         {[10, 20, 50].map(num => (
                                             <button
                                                 key={num}
                                                 onClick={() => setQuantity(num)}
                                                 className={`
-                                                    relative py-6 rounded-2xl font-bold transition-all border group/btn overflow-hidden
+                                                    relative py-4 md:py-6 rounded-2xl font-bold transition-all border group/btn overflow-hidden
                                                     ${quantity === num
                                                         ? 'bg-purple-500/10 border-purple-500 text-white shadow-[0_0_20px_rgba(168,85,247,0.2)]'
                                                         : 'bg-white/5 border-white/5 text-gray-500 hover:bg-white/10 hover:border-white/20 hover:text-gray-300'}
@@ -521,8 +521,8 @@ export function UnifiedMemeWorkflow() {
                                                 {quantity === num && (
                                                     <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10" />
                                                 )}
-                                                <span className="text-3xl block mb-1">{num}</span>
-                                                <span className="text-xs uppercase tracking-widest opacity-60">Memes</span>
+                                                <span className="text-2xl md:text-3xl block mb-1">{num}</span>
+                                                <span className="text-[10px] md:text-xs uppercase tracking-widest opacity-60">Memes</span>
                                             </button>
                                         ))}
                                     </div>
@@ -612,7 +612,7 @@ export function UnifiedMemeWorkflow() {
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 p-4">
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-6 p-2 md:p-4">
                             {generatedMemes.map(meme => {
                                 const template = MEME_TEMPLATES.find(t => t.id === meme.templateId);
                                 if (!template) return null;
@@ -708,7 +708,7 @@ export function UnifiedMemeWorkflow() {
                             })}
                         </div>
 
-                        <div className="sticky bottom-8 max-w-xl mx-auto z-50">
+                        <div className="sticky bottom-24 md:bottom-8 max-w-xl mx-auto z-40 md:z-50">
                             <button
                                 onClick={handleConvertToVideos}
                                 disabled={!generatedMemes.some(m => m.selected)}
@@ -781,7 +781,7 @@ export function UnifiedMemeWorkflow() {
                         </div>
 
                         {/* Video Preview Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                             {generatedMemes.filter(m => m.selected && m.videoBlob).map((meme, i) => {
                                 const videoUrl = meme.videoBlob ? URL.createObjectURL(meme.videoBlob) : '';
                                 return (
@@ -815,7 +815,7 @@ export function UnifiedMemeWorkflow() {
                             })}
                         </div>
 
-                        <div className="fixed bottom-8 right-8 left-8 max-w-4xl mx-auto md:left-auto md:w-auto z-50 flex flex-col md:flex-row gap-4">
+                        <div className="fixed bottom-24 right-8 left-8 max-w-4xl mx-auto md:left-auto md:w-auto z-40 md:z-50 flex flex-col md:flex-row gap-4 md:bottom-8">
                             {/* YouTube Button */}
                             <button
                                 onClick={handleSchedule}

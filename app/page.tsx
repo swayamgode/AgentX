@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { LeftSidebar } from "@/components/LeftSidebar";
+import { MobileNav } from "@/components/MobileNav";
 import {
   Bell, Search, ChevronDown, TrendingUp, Clock, Users, Video,
   BarChart3, Eye, ThumbsUp, MessageSquare, Calendar, RefreshCw,
@@ -122,16 +123,16 @@ export default function Home() {
     <div className="flex min-h-screen bg-[#F5F5F7]">
       <LeftSidebar />
 
-      <main className="flex-1 ml-0 md:ml-0">
+      <main className="flex-1 ml-0 md:ml-0 pb-20 md:pb-8">
         {/* Top Header */}
-        <div className="sticky top-0 bg-white/80 backdrop-blur-xl z-10 border-b border-[#e5e5e7]">
-          <div className="max-w-[1400px] mx-auto px-8 py-4 flex items-center justify-between">
+        <div className="sticky top-0 bg-white/80 backdrop-blur-xl z-20 border-b border-[#e5e5e7]">
+          <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-[#1d1d1f]">Hello Josh!</h1>
-              <p className="text-sm text-[#86868b] mt-0.5">Here's your performance overview.</p>
+              <h1 className="text-xl md:text-2xl font-bold text-[#1d1d1f]">Hello Josh!</h1>
+              <p className="text-xs md:text-sm text-[#86868b] mt-0.5">Here's your performance overview.</p>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 self-end md:self-auto">
               <button
                 onClick={() => fetchAnalytics(true)}
                 disabled={refreshing}
@@ -142,8 +143,8 @@ export default function Home() {
               </button>
               {/* Profile */}
               <div className="flex items-center gap-2 cursor-pointer hover:bg-[#f5f5f7] px-3 py-2 rounded-lg transition-colors">
-                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#000] to-[#333] flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">J</span>
+                <div className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-gradient-to-br from-[#000] to-[#333] flex items-center justify-center">
+                  <span className="text-white font-bold text-xs md:text-sm">J</span>
                 </div>
                 <ChevronDown size={16} className="text-[#86868b]" />
               </div>
@@ -152,7 +153,7 @@ export default function Home() {
         </div>
 
         {/* Main Content */}
-        <div className="max-w-[1400px] mx-auto px-8 py-8 space-y-8">
+        <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-4 md:py-8 space-y-6 md:space-y-8">
           {loading && !videos.length ? (
             <div className="flex items-center justify-center h-64">
               <Loader2 className="animate-spin text-[#1d1d1f]" size={32} />
@@ -160,15 +161,15 @@ export default function Home() {
           ) : (
             <>
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl flex items-center justify-between">
+                <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl flex items-center justify-between flex-wrap gap-2">
                   <div className="flex items-center gap-3">
                     <AlertCircle className="w-5 h-5 text-red-500" />
-                    <span>{error}</span>
+                    <span className="text-sm md:text-base">{error}</span>
                   </div>
                   {(error.toLowerCase().includes('expired') || error.toLowerCase().includes('auth') || error.toLowerCase().includes('connect')) && (
                     <Link
                       href="/settings"
-                      className="px-4 py-2 bg-white hover:bg-red-50 text-red-600 border border-red-200 rounded-lg text-sm font-bold transition-colors shadow-sm"
+                      className="px-4 py-2 bg-white hover:bg-red-50 text-red-600 border border-red-200 rounded-lg text-sm font-bold transition-colors shadow-sm w-full md:w-auto text-center"
                     >
                       Reconnect YouTube
                     </Link>
@@ -177,7 +178,7 @@ export default function Home() {
               )}
 
               {/* KPI Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <KPICard
                   title="Total Views"
                   value={formatNumber(stats.totalViews)}
@@ -213,20 +214,20 @@ export default function Home() {
               </div>
 
               {/* Charts Row 1: Growth Trend */}
-              <div className="bg-white border border-[#e5e5e7] rounded-2xl p-6 shadow-sm">
-                <div className="flex items-center justify-between mb-8">
+              <div className="bg-white border border-[#e5e5e7] rounded-2xl p-4 md:p-6 shadow-sm overflow-hidden">
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 md:mb-8 gap-2">
                   <div>
-                    <h2 className="text-xl font-bold text-[#1d1d1f] flex items-center gap-2">
+                    <h2 className="text-lg md:text-xl font-bold text-[#1d1d1f] flex items-center gap-2">
                       <Activity className="w-5 h-5 text-purple-600" />
                       Growth Trajectory
                     </h2>
-                    <p className="text-sm text-[#86868b] mt-1">View count progression over recent uploads</p>
+                    <p className="text-xs md:text-sm text-[#86868b] mt-1">View count progression over recent uploads</p>
                   </div>
                   <div className="text-xs font-mono text-[#86868b] bg-[#f5f5f7] px-3 py-1 rounded-full border border-[#e5e5e7]">
                     Last {growthData.length} Videos
                   </div>
                 </div>
-                <div className="h-[350px] w-full">
+                <div className="h-[250px] md:h-[350px] w-full -ml-4 md:ml-0 pr-4 md:pr-0">
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={growthData}>
                       <defs>
@@ -266,23 +267,23 @@ export default function Home() {
               {/* Charts Row 2: Topics & Engagement */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Top Topics */}
-                <div className="bg-white border border-[#e5e5e7] rounded-2xl p-6 shadow-sm">
-                  <h2 className="text-xl font-bold text-[#1d1d1f] mb-2 flex items-center gap-2">
+                <div className="bg-white border border-[#e5e5e7] rounded-2xl p-4 md:p-6 shadow-sm">
+                  <h2 className="text-lg md:text-xl font-bold text-[#1d1d1f] mb-2 flex items-center gap-2">
                     <Zap className="w-5 h-5 text-yellow-500" />
                     Niche Performance
                   </h2>
-                  <p className="text-sm text-[#86868b] mb-6">Top performing content categories</p>
+                  <p className="text-xs md:text-sm text-[#86868b] mb-6">Top performing content categories</p>
 
-                  <div className="h-[300px] w-full">
+                  <div className="h-[250px] md:h-[300px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={topicData} layout="vertical" margin={{ left: 0, right: 30, top: 0, bottom: 0 }}>
+                      <BarChart data={topicData} layout="vertical" margin={{ left: 0, right: 10, top: 0, bottom: 0 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e7" horizontal={true} vertical={false} />
                         <XAxis type="number" hide />
                         <YAxis
                           dataKey="name"
                           type="category"
-                          width={100}
-                          tick={{ fill: '#86868b', fontSize: 13, fontWeight: 500 }}
+                          width={90}
+                          tick={{ fill: '#86868b', fontSize: 12, fontWeight: 500 }}
                           tickLine={false}
                           axisLine={false}
                         />
@@ -291,7 +292,7 @@ export default function Home() {
                           contentStyle={{ backgroundColor: '#fff', borderColor: '#e5e5e7', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                           itemStyle={{ color: '#1d1d1f' }}
                         />
-                        <Bar dataKey="value" radius={[0, 6, 6, 0]} barSize={32}>
+                        <Bar dataKey="value" radius={[0, 6, 6, 0]} barSize={24} >
                           {topicData.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                           ))}
@@ -302,21 +303,21 @@ export default function Home() {
                 </div>
 
                 {/* Engagement Split */}
-                <div className="bg-white border border-[#e5e5e7] rounded-2xl p-6 shadow-sm flex flex-col">
-                  <h2 className="text-xl font-bold text-[#1d1d1f] mb-2 flex items-center gap-2">
+                <div className="bg-white border border-[#e5e5e7] rounded-2xl p-4 md:p-6 shadow-sm flex flex-col">
+                  <h2 className="text-lg md:text-xl font-bold text-[#1d1d1f] mb-2 flex items-center gap-2">
                     <MessageSquare className="w-5 h-5 text-pink-500" />
                     Engagement Mix
                   </h2>
-                  <p className="text-sm text-[#86868b] mb-6">Distribution of user interactions</p>
+                  <p className="text-xs md:text-sm text-[#86868b] mb-6">Distribution of user interactions</p>
 
-                  <div className="h-[300px] w-full flex-1 flex items-center justify-center relative">
+                  <div className="h-[250px] md:h-[300px] w-full flex-1 flex items-center justify-center relative">
                     {engagementData.length > 0 ? (
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                           <Pie
                             data={engagementData}
-                            innerRadius={80}
-                            outerRadius={110}
+                            innerRadius={70}
+                            outerRadius={100}
                             paddingAngle={5}
                             dataKey="value"
                             stroke="none"
@@ -329,7 +330,7 @@ export default function Home() {
                             contentStyle={{ backgroundColor: '#fff', borderColor: '#e5e5e7', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                             itemStyle={{ color: '#1d1d1f' }}
                           />
-                          <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ paddingTop: '20px' }} />
+                          <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ paddingTop: '10px' }} />
                         </PieChart>
                       </ResponsiveContainer>
                     ) : (
@@ -341,7 +342,7 @@ export default function Home() {
                     {/* Center Statistic */}
                     {engagementData.length > 0 && (
                       <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none pb-8">
-                        <span className="text-3xl font-bold text-[#1d1d1f]">
+                        <span className="text-2xl md:text-3xl font-bold text-[#1d1d1f]">
                           {formatNumber(stats.totalLikes + stats.totalComments)}
                         </span>
                         <span className="text-xs text-[#86868b] uppercase tracking-widest">Total</span>
@@ -353,15 +354,15 @@ export default function Home() {
 
               {/* Recent Videos Table */}
               <div className="bg-white border border-[#e5e5e7] rounded-2xl overflow-hidden shadow-sm">
-                <div className="p-6 border-b border-[#e5e5e7] flex justify-between items-center">
-                  <h2 className="text-xl font-bold text-[#1d1d1f]">Recent Uploads</h2>
+                <div className="p-4 md:p-6 border-b border-[#e5e5e7] flex justify-between items-center">
+                  <h2 className="text-lg md:text-xl font-bold text-[#1d1d1f]">Recent Uploads</h2>
                   <button className="text-xs font-semibold text-purple-600 hover:text-purple-700 transition-colors uppercase tracking-wider">
                     View All
                   </button>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-sm text-[#86868b]">
-                    <thead className="bg-[#f5f5f7] text-[#86868b] font-medium">
+                    <thead className="bg-[#f5f5f7] text-[#86868b] font-medium hidden md:table-header-group">
                       <tr>
                         <th className="px-6 py-4 rounded-tl-lg">Content</th>
                         <th className="px-6 py-4">Status</th>
@@ -372,10 +373,10 @@ export default function Home() {
                     </thead>
                     <tbody className="divide-y divide-[#e5e5e7]">
                       {videos.slice(0, 10).map((video) => (
-                        <tr key={video.youtubeId} className="hover:bg-[#fafafa] transition-colors group">
-                          <td className="px-6 py-4">
-                            <div className="flex items-center gap-4">
-                              <div className="w-24 h-14 bg-[#f5f5f7] rounded-lg overflow-hidden flex-shrink-0 relative group shadow-sm border border-[#e5e5e7]">
+                        <tr key={video.youtubeId} className="hover:bg-[#fafafa] transition-colors group flex md:table-row flex-col">
+                          <td className="px-4 md:px-6 py-3 md:py-4">
+                            <div className="flex items-center gap-3 md:gap-4">
+                              <div className="w-20 md:w-24 h-12 md:h-14 bg-[#f5f5f7] rounded-lg overflow-hidden flex-shrink-0 relative group shadow-sm border border-[#e5e5e7]">
                                 {video.thumbnailUrl ? (
                                   <img src={video.thumbnailUrl} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                                 ) : (
@@ -385,8 +386,8 @@ export default function Home() {
                                   <Play className="w-6 h-6 text-white fill-white" />
                                 </div>
                               </div>
-                              <div className="max-w-[250px]">
-                                <div className="font-semibold text-[#1d1d1f] truncate" title={video.title}>{video.title}</div>
+                              <div className="max-w-[200px] md:max-w-[250px]">
+                                <div className="font-semibold text-[#1d1d1f] truncate text-sm md:text-base" title={video.title}>{video.title}</div>
                                 <div className="text-xs text-[#86868b] mt-1 flex items-center gap-2">
                                   <span className="px-1.5 py-0.5 rounded bg-[#f5f5f7] border border-[#e5e5e7] text-[#86868b]">{video.topic || 'General'}</span>
                                   <span>•</span>
@@ -395,19 +396,22 @@ export default function Home() {
                               </div>
                             </div>
                           </td>
-                          <td className="px-6 py-4">
+                          <td className="px-4 md:px-6 py-2 md:py-4 flex items-center justify-between md:table-cell">
+                            <span className="md:hidden text-xs font-medium">Status</span>
                             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200">
                               <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
                               Public
                             </span>
                           </td>
-                          <td className="px-6 py-4 text-right font-bold text-[#1d1d1f] font-mono tracking-tight">
+                          <td className="px-4 md:px-6 py-2 md:py-4 text-right font-bold text-[#1d1d1f] font-mono tracking-tight flex items-center justify-between md:table-cell">
+                            <span className="md:hidden text-xs font-normal text-gray-500">Views</span>
                             {formatNumber(parseInt(video.stats?.viewCount || '0'))}
                           </td>
-                          <td className="px-6 py-4 text-right font-mono text-[#86868b]">
+                          <td className="px-4 md:px-6 py-2 md:py-4 text-right font-mono text-[#86868b] flex items-center justify-between md:table-cell">
+                            <span className="md:hidden text-xs font-normal text-gray-500">Likes</span>
                             {formatNumber(parseInt(video.stats?.likeCount || '0'))}
                           </td>
-                          <td className="px-6 py-4 text-right">
+                          <td className="px-4 md:px-6 py-2 md:py-4 text-right hidden md:table-cell">
                             <a
                               href={`https://www.youtube.com/watch?v=${video.youtubeId}`}
                               target="_blank"
@@ -429,6 +433,7 @@ export default function Home() {
           )}
         </div>
       </main>
+      <MobileNav />
     </div>
   );
 }

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { LeftSidebar } from "@/components/LeftSidebar";
 import { SocialMediaConnect } from "@/components/SocialMediaConnect";
 import { YouTubeAccountManager } from "@/components/YouTubeAccountManager";
+import { MobileNav } from "@/components/MobileNav";
 
 export default function SettingsPage() {
     const [apiKey, setApiKey] = useState("");
@@ -88,29 +89,29 @@ export default function SettingsPage() {
         <div className="flex min-h-screen bg-[#F5F5F7]">
             <LeftSidebar />
 
-            <main className="flex-1 p-8">
-                <div className="max-w-[1000px] mx-auto space-y-8">
+            <main className="flex-1 p-4 md:p-8 pb-20 md:pb-8">
+                <div className="max-w-[1000px] mx-auto space-y-6 md:space-y-8">
                     {/* Header */}
                     <div className="flex items-center gap-4">
                         <Link href="/" className="p-2 -ml-2 hover:bg-white rounded-full transition-colors text-[#86868b] hover:text-[#1d1d1f]">
                             <ArrowLeft size={24} />
                         </Link>
                         <div>
-                            <h1 className="text-3xl font-bold text-[#1d1d1f]">Settings</h1>
-                            <p className="text-[#86868b] mt-1">Manage your account preferences and integrations</p>
+                            <h1 className="text-2xl md:text-3xl font-bold text-[#1d1d1f]">Settings</h1>
+                            <p className="text-sm md:text-base text-[#86868b] mt-1">Manage your account preferences and integrations</p>
                         </div>
                     </div>
 
                     <div className="grid grid-cols-1 gap-6">
                         {/* API Configuration */}
                         <section className="space-y-4">
-                            <h2 className="text-xl font-semibold text-[#1d1d1f]">General Configuration</h2>
-                            <div className="bg-white border border-[#e5e5e7] rounded-2xl p-6 shadow-sm">
-                                <div className="flex gap-6 items-start">
-                                    <div className="p-4 bg-[#f5f5f7] rounded-2xl hidden sm:block">
+                            <h2 className="text-lg md:text-xl font-semibold text-[#1d1d1f]">General Configuration</h2>
+                            <div className="bg-white border border-[#e5e5e7] rounded-2xl p-4 md:p-6 shadow-sm">
+                                <div className="flex flex-col md:flex-row gap-6 items-start">
+                                    <div className="p-4 bg-[#f5f5f7] rounded-2xl hidden md:block">
                                         <Key size={32} className="text-[#1d1d1f]" />
                                     </div>
-                                    <div className="flex-1 space-y-6">
+                                    <div className="flex-1 space-y-6 w-full">
                                         <div>
                                             <h3 className="font-bold text-lg text-[#1d1d1f]">Gemini API Key</h3>
                                             <p className="text-[#86868b] text-sm mt-1">
@@ -126,7 +127,7 @@ export default function SettingsPage() {
                                                 </div>
                                             )}
 
-                                            <div className="flex gap-3">
+                                            <div className="flex flex-col md:flex-row gap-3">
                                                 <input
                                                     type="password"
                                                     value={apiKey}
@@ -158,16 +159,16 @@ export default function SettingsPage() {
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             {/* Social Media Connections */}
                             <section className="space-y-4">
-                                <h2 className="text-xl font-semibold text-[#1d1d1f]">Social Integrations</h2>
-                                <div className="bg-white border border-[#e5e5e7] rounded-2xl p-6 shadow-sm h-full">
+                                <h2 className="text-lg md:text-xl font-semibold text-[#1d1d1f]">Social Integrations</h2>
+                                <div className="bg-white border border-[#e5e5e7] rounded-2xl p-4 md:p-6 shadow-sm h-full">
                                     <SocialMediaConnect />
                                 </div>
                             </section>
 
                             {/* YouTube Manager */}
                             <section className="space-y-4">
-                                <h2 className="text-xl font-semibold text-[#1d1d1f]">Channel Management</h2>
-                                <div className="bg-white border border-[#e5e5e7] rounded-2xl p-6 shadow-sm h-full">
+                                <h2 className="text-lg md:text-xl font-semibold text-[#1d1d1f]">Channel Management</h2>
+                                <div className="bg-white border border-[#e5e5e7] rounded-2xl p-4 md:p-6 shadow-sm h-full">
                                     <YouTubeAccountManager />
                                 </div>
                             </section>
@@ -179,6 +180,7 @@ export default function SettingsPage() {
                     </div>
                 </div>
             </main>
+            <MobileNav />
         </div>
     );
 }

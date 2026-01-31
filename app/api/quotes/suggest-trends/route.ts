@@ -1,36 +1,38 @@
 import { NextResponse } from 'next/server';
+import fs from 'fs/promises';
+import path from 'path';
 
-export async function POST() { // Removed req parameter as it's not currently used
+export async function POST() {
     try {
-        const apiKey = process.env.GOOGLE_API_KEY;
-        if (!apiKey) {
-            return NextResponse.json({ error: 'Gemini API key not configured' }, { status: 500 });
-        }
+        const filePath = path.join(process.cwd(), 'topics.txt');
 
-        const { GoogleGenerativeAI } = await import('@google/generative-ai');
-        const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-
-        const prompt = `Suggest 10 currently trending, viral, or evergreen topics for YouTube Shorts quotes videos. 
-        Focus on niches that get high engagement (e.g., Stoicism, Dark Psychology, Financial Freedom, Self-Discipline, Heartbreak, Sigma Mindset).
-        
-        Return ONLY a JSON array of strings, for example:
-        ["Stoicism", "Self Discipline", "Financial Freedom"]`;
-
-        const result = await model.generateContent(prompt);
-        const responseText = result.response.text();
-
-        let topics = [];
+        let fileContent = '';
         try {
-            const jsonMatch = responseText.match(/\[[\s\S]*\]/);
-            const jsonText = jsonMatch ? jsonMatch[0] : responseText;
-            topics = JSON.parse(jsonText);
-        } catch (e) {
-            console.error("Failed to parse AI topics:", responseText);
-            topics = ["Motivation", "Discipline", "Success", "Stoicism", "Wisdom"];
+            fileContent = await fs.readFile(filePath, 'utf-8');
+        } catch (err) {
+            console.error('Error reading topics.txt, falling back to defaults:', err);
+            return NextResponse.json({
+                topics: ["Motivation", "Discipline", "Success", "Stoicism", "Wisdom"]
+            });
         }
 
-        return NextResponse.json({ topics });
+        // Parse lines
+        const allLines = fileContent.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+
+        // Filter out headers (lines with emojis or looking like categories) and instructions
+        const validTopics = allLines.filter(line => {
+            // Exclude lines starting with emoji-like characters or specific symbols
+            // Common emojis range (simplified check) or check for specific known headers
+            const hasEmoji = /[\u{1F300}-\u{1F9FF}]/u.test(line);
+            const isInstruction = line.startsWith('(') || line.startsWith('[');
+            return !hasEmoji && !isInstruction;
+        });
+
+        // Shuffle and pick 10 (or all if less than 10)
+        const shuffled = validTopics.sort(() => 0.5 - Math.random());
+        const selectedTopics = shuffled.slice(0, 10);
+
+        return NextResponse.json({ topics: selectedTopics });
 
     } catch (error) {
         console.error('Topic suggestion error:', error);
@@ -39,3 +41,4 @@ export async function POST() { // Removed req parameter as it's not currently us
         });
     }
 }
+

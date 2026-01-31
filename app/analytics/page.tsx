@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { LeftSidebar } from "@/components/LeftSidebar";
+import { MobileNav } from "@/components/MobileNav";
 import {
     AreaChart,
     Area,
@@ -154,10 +155,10 @@ export default function AnalyticsPage() {
         <div className="flex min-h-screen bg-black text-[#e7e9ea]">
             <LeftSidebar />
 
-            <main className="flex-1 border-x border-[#333] min-h-screen flex flex-col">
+            <main className="flex-1 border-x border-[#333] min-h-screen flex flex-col pb-20 md:pb-0">
                 {/* Header */}
                 <div className="sticky top-0 bg-black/80 backdrop-blur-md z-10 border-b border-[#333]">
-                    <div className="p-4 flex justify-between items-start">
+                    <div className="p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                         <div>
                             <h1 className="text-xl font-bold text-white flex items-center gap-2">
                                 <BarChart3 className="text-purple-500" /> Analytics Code
@@ -170,7 +171,7 @@ export default function AnalyticsPage() {
                         <button
                             onClick={() => fetchAnalytics(true)}
                             disabled={refreshing}
-                            className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs font-medium text-gray-400 transition-colors disabled:opacity-50"
+                            className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs font-medium text-gray-400 transition-colors disabled:opacity-50 self-end md:self-auto"
                         >
                             <RefreshCw size={14} className={refreshing ? "animate-spin" : ""} />
                             {refreshing ? 'Syncing...' : 'Sync Data'}
@@ -178,17 +179,17 @@ export default function AnalyticsPage() {
                     </div>
                 </div>
 
-                <div className="p-6 md:p-8 space-y-8">
+                <div className="p-4 md:p-8 space-y-6 md:space-y-8">
                     {/* Ambient Background Glow - adjusted z-index to be behind content but inside main */}
                     <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0 opacity-50">
                         <div className="absolute top-[-10%] left-[20%] w-[40%] h-[40%] bg-purple-900/10 rounded-full blur-[120px]" />
                         <div className="absolute bottom-[-10%] right-[0%] w-[40%] h-[40%] bg-blue-900/10 rounded-full blur-[120px]" />
                     </div>
 
-                    <div className="relative z-10 space-y-8">
+                    <div className="relative z-10 space-y-6 md:space-y-8">
 
                         {error && (
-                            <div className="bg-red-900/10 border border-red-500/20 text-red-200 p-4 rounded-xl flex items-center justify-between backdrop-blur-md">
+                            <div className="bg-red-900/10 border border-red-500/20 text-red-200 p-4 rounded-xl flex items-center justify-between backdrop-blur-md flex-wrap gap-2">
                                 <div className="flex items-center gap-3">
                                     <AlertCircle className="w-5 h-5 text-red-400" />
                                     <span>{error}</span>
@@ -196,7 +197,7 @@ export default function AnalyticsPage() {
                                 {error.toLowerCase().includes('expired') || error.toLowerCase().includes('auth') || error.toLowerCase().includes('connect') ? (
                                     <Link
                                         href="/settings"
-                                        className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-red-500/30 rounded-lg text-sm font-bold transition-all"
+                                        className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-red-500/30 rounded-lg text-sm font-bold transition-all w-full md:w-auto text-center"
                                     >
                                         Reconnect YouTube
                                     </Link>
@@ -205,7 +206,7 @@ export default function AnalyticsPage() {
                         )}
 
                         {/* KPI Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                             <KPICard
                                 title="Total Views"
                                 value={formatNumber(stats.totalViews)}
@@ -237,20 +238,20 @@ export default function AnalyticsPage() {
                         </div>
 
                         {/* Charts Row 1: Growth Trend */}
-                        <div className="bg-black border border-[#333] rounded-2xl p-6">
-                            <div className="flex items-center justify-between mb-8">
+                        <div className="bg-black border border-[#333] rounded-2xl p-4 md:p-6 overflow-hidden">
+                            <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 md:mb-8 gap-2">
                                 <div>
-                                    <h2 className="text-xl font-bold text-[#e7e9ea] flex items-center gap-2">
+                                    <h2 className="text-lg md:text-xl font-bold text-[#e7e9ea] flex items-center gap-2">
                                         <Activity className="w-5 h-5 text-purple-400" />
                                         Growth Trajectory
                                     </h2>
-                                    <p className="text-sm text-[#71767b] mt-1">View count progression over recent uploads</p>
+                                    <p className="text-xs md:text-sm text-[#71767b] mt-1">View count progression over recent uploads</p>
                                 </div>
                                 <div className="text-xs font-mono text-[#71767b] bg-[#16181c] px-3 py-1 rounded-full border border-[#333]">
                                     Last {growthData.length} Videos
                                 </div>
                             </div>
-                            <div className="h-[350px] w-full">
+                            <div className="h-[250px] md:h-[350px] w-full -ml-4 md:ml-0 pr-4 md:pr-0">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <AreaChart data={growthData}>
                                         <defs>
@@ -290,23 +291,23 @@ export default function AnalyticsPage() {
                         {/* Charts Row 2: Topics & Engagement */}
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             {/* Top Topics */}
-                            <div className="bg-black border border-[#333] rounded-2xl p-6">
-                                <h2 className="text-xl font-bold text-[#e7e9ea] mb-2 flex items-center gap-2">
+                            <div className="bg-black border border-[#333] rounded-2xl p-4 md:p-6">
+                                <h2 className="text-lg md:text-xl font-bold text-[#e7e9ea] mb-2 flex items-center gap-2">
                                     <Zap className="w-5 h-5 text-yellow-400" />
                                     Niche Performance
                                 </h2>
-                                <p className="text-sm text-[#71767b] mb-6">Top performing content categories</p>
+                                <p className="text-xs md:text-sm text-[#71767b] mb-6">Top performing content categories</p>
 
-                                <div className="h-[300px] w-full">
+                                <div className="h-[250px] md:h-[300px] w-full">
                                     <ResponsiveContainer width="100%" height="100%">
-                                        <BarChart data={topicData} layout="vertical" margin={{ left: 0, right: 30, top: 0, bottom: 0 }}>
+                                        <BarChart data={topicData} layout="vertical" margin={{ left: 0, right: 10, top: 0, bottom: 0 }}>
                                             <CartesianGrid strokeDasharray="3 3" stroke="#333" horizontal={true} vertical={false} />
                                             <XAxis type="number" hide />
                                             <YAxis
                                                 dataKey="name"
                                                 type="category"
-                                                width={100}
-                                                tick={{ fill: '#71767b', fontSize: 13, fontWeight: 500 }}
+                                                width={90}
+                                                tick={{ fill: '#71767b', fontSize: 12, fontWeight: 500 }}
                                                 tickLine={false}
                                                 axisLine={false}
                                             />
@@ -315,7 +316,7 @@ export default function AnalyticsPage() {
                                                 contentStyle={{ backgroundColor: '#000', borderColor: '#333', borderRadius: '12px' }}
                                                 itemStyle={{ color: '#e7e9ea' }}
                                             />
-                                            <Bar dataKey="value" radius={[0, 6, 6, 0]} barSize={32}>
+                                            <Bar dataKey="value" radius={[0, 6, 6, 0]} barSize={24} >
                                                 {topicData.map((entry, index) => (
                                                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                                 ))}
@@ -326,21 +327,21 @@ export default function AnalyticsPage() {
                             </div>
 
                             {/* Engagement Split */}
-                            <div className="bg-black border border-[#333] rounded-2xl p-6 flex flex-col">
-                                <h2 className="text-xl font-bold text-[#e7e9ea] mb-2 flex items-center gap-2">
+                            <div className="bg-black border border-[#333] rounded-2xl p-4 md:p-6 flex flex-col">
+                                <h2 className="text-lg md:text-xl font-bold text-[#e7e9ea] mb-2 flex items-center gap-2">
                                     <MessageSquare className="w-5 h-5 text-pink-400" />
                                     Engagement Mix
                                 </h2>
-                                <p className="text-sm text-[#71767b] mb-6">Distribution of user interactions</p>
+                                <p className="text-xs md:text-sm text-[#71767b] mb-6">Distribution of user interactions</p>
 
-                                <div className="h-[300px] w-full flex-1 flex items-center justify-center relative">
+                                <div className="h-[250px] md:h-[300px] w-full flex-1 flex items-center justify-center relative">
                                     {engagementData.length > 0 ? (
                                         <ResponsiveContainer width="100%" height="100%">
                                             <PieChart>
                                                 <Pie
                                                     data={engagementData}
-                                                    innerRadius={80}
-                                                    outerRadius={110}
+                                                    innerRadius={70}
+                                                    outerRadius={100}
                                                     paddingAngle={5}
                                                     dataKey="value"
                                                     stroke="none"
@@ -353,7 +354,7 @@ export default function AnalyticsPage() {
                                                     contentStyle={{ backgroundColor: '#000', borderColor: '#333', borderRadius: '12px' }}
                                                     itemStyle={{ color: '#e7e9ea' }}
                                                 />
-                                                <Legend verticalAlign="bottom" height={36} iconType="circle" />
+                                                <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ paddingTop: '10px' }} />
                                             </PieChart>
                                         </ResponsiveContainer>
                                     ) : (
@@ -364,8 +365,8 @@ export default function AnalyticsPage() {
                                     )}
                                     {/* Center Statistic */}
                                     {engagementData.length > 0 && (
-                                        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                            <span className="text-3xl font-bold text-[#e7e9ea]">
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none pb-8">
+                                            <span className="text-2xl md:text-3xl font-bold text-[#e7e9ea]">
                                                 {formatNumber(stats.totalLikes + stats.totalComments)}
                                             </span>
                                             <span className="text-xs text-[#71767b] uppercase tracking-widest">Total</span>
@@ -377,17 +378,17 @@ export default function AnalyticsPage() {
 
 
                         {/* AI Strategy Engine */}
-                        <div className="bg-gradient-to-br from-purple-900/10 to-blue-900/10 border border-purple-500/20 rounded-2xl p-6 relative overflow-hidden">
+                        <div className="bg-gradient-to-br from-purple-900/10 to-blue-900/10 border border-purple-500/20 rounded-2xl p-4 md:p-6 relative overflow-hidden">
                             <div className="absolute top-0 right-0 p-3 opacity-20">
-                                <Zap className="w-24 h-24 text-purple-500" />
+                                <Zap className="w-16 h-16 md:w-24 md:h-24 text-purple-500" />
                             </div>
 
                             <div className="relative z-10">
-                                <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-3">
+                                <h2 className="text-lg md:text-2xl font-bold text-white mb-2 flex items-center gap-3">
                                     <span className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">AI Strategy Engine</span>
-                                    <span className="text-xs px-2 py-1 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">BETA</span>
+                                    <span className="text-[10px] md:text-xs px-2 py-1 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">BETA</span>
                                 </h2>
-                                <p className="text-stone-400 max-w-2xl mb-6">
+                                <p className="text-stone-400 max-w-2xl mb-6 text-sm md:text-base">
                                     This model "trains" on your historical analytics data to identify winning patterns.
                                     It analyzes correlation between topics, keywords, and view velocity to suggest high-probability video ideas.
                                 </p>
@@ -398,15 +399,15 @@ export default function AnalyticsPage() {
 
                         {/* Recent Videos Table */}
                         <div className="bg-black border border-[#333] rounded-2xl overflow-hidden">
-                            <div className="p-6 border-b border-[#333] flex justify-between items-center">
-                                <h2 className="text-xl font-bold text-[#e7e9ea]">Recent Uploads</h2>
+                            <div className="p-4 md:p-6 border-b border-[#333] flex justify-between items-center">
+                                <h2 className="text-lg md:text-xl font-bold text-[#e7e9ea]">Recent Uploads</h2>
                                 <button className="text-xs font-semibold text-purple-400 hover:text-purple-300 transition-colors uppercase tracking-wider">
                                     View All
                                 </button>
                             </div>
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left text-sm text-[#71767b]">
-                                    <thead className="bg-[#16181c] text-[#71767b] font-medium">
+                                    <thead className="bg-[#16181c] text-[#71767b] font-medium hidden md:table-header-group">
                                         <tr>
                                             <th className="px-6 py-4 rounded-tl-lg">Content</th>
                                             <th className="px-6 py-4">Status</th>
@@ -417,10 +418,10 @@ export default function AnalyticsPage() {
                                     </thead>
                                     <tbody className="divide-y divide-[#333]">
                                         {videos.slice(0, 10).map((video) => (
-                                            <tr key={video.youtubeId} className="hover:bg-[#16181c] transition-colors group">
-                                                <td className="px-6 py-4">
-                                                    <div className="flex items-center gap-4">
-                                                        <div className="w-24 h-14 bg-[#16181c] rounded-lg overflow-hidden flex-shrink-0 relative group shadow-lg border border-[#333]">
+                                            <tr key={video.youtubeId} className="hover:bg-[#16181c] transition-colors group flex md:table-row flex-col">
+                                                <td className="px-4 md:px-6 py-3 md:py-4">
+                                                    <div className="flex items-center gap-3 md:gap-4">
+                                                        <div className="w-20 md:w-24 h-12 md:h-14 bg-[#16181c] rounded-lg overflow-hidden flex-shrink-0 relative group shadow-lg border border-[#333]">
                                                             {video.thumbnailUrl ? (
                                                                 <img src={video.thumbnailUrl} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                                                             ) : (
@@ -430,8 +431,8 @@ export default function AnalyticsPage() {
                                                                 <Play className="w-6 h-6 text-white fill-white" />
                                                             </div>
                                                         </div>
-                                                        <div className="max-w-[250px]">
-                                                            <div className="font-semibold text-[#e7e9ea] truncate" title={video.title}>{video.title}</div>
+                                                        <div className="max-w-[200px] md:max-w-[250px]">
+                                                            <div className="font-semibold text-[#e7e9ea] truncate text-sm md:text-base" title={video.title}>{video.title}</div>
                                                             <div className="text-xs text-[#71767b] mt-1 flex items-center gap-2">
                                                                 <span className="px-1.5 py-0.5 rounded bg-[#16181c] border border-[#333] text-[#71767b]">{video.topic || 'General'}</span>
                                                                 <span>•</span>
@@ -440,19 +441,22 @@ export default function AnalyticsPage() {
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td className="px-6 py-4">
+                                                <td className="px-4 md:px-6 py-2 md:py-4 flex items-center justify-between md:table-cell">
+                                                    <span className="md:hidden text-xs font-medium">Status</span>
                                                     <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-500/10 text-green-400 border border-green-500/20">
                                                         <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
                                                         Public
                                                     </span>
                                                 </td>
-                                                <td className="px-6 py-4 text-right font-bold text-[#e7e9ea] font-mono tracking-tight">
+                                                <td className="px-4 md:px-6 py-2 md:py-4 text-right font-bold text-[#e7e9ea] font-mono tracking-tight flex items-center justify-between md:table-cell">
+                                                    <span className="md:hidden text-xs font-normal text-gray-500">Views</span>
                                                     {formatNumber(parseInt(video.stats?.viewCount || '0'))}
                                                 </td>
-                                                <td className="px-6 py-4 text-right font-mono text-[#71767b]">
+                                                <td className="px-4 md:px-6 py-2 md:py-4 text-right font-mono text-[#71767b] flex items-center justify-between md:table-cell">
+                                                    <span className="md:hidden text-xs font-normal text-gray-500">Likes</span>
                                                     {formatNumber(parseInt(video.stats?.likeCount || '0'))}
                                                 </td>
-                                                <td className="px-6 py-4 text-right">
+                                                <td className="px-4 md:px-6 py-2 md:py-4 text-right hidden md:table-cell">
                                                     <a
                                                         href={`https://www.youtube.com/watch?v=${video.youtubeId}`}
                                                         target="_blank"
@@ -473,6 +477,7 @@ export default function AnalyticsPage() {
                     </div>
                 </div>
             </main>
+            <MobileNav />
         </div>
     );
 }
