@@ -18,7 +18,7 @@ export async function POST(req: Request) {
             .update({ status: "SCHEDULED" })
             .in('id', tweetIds)
             .eq('status', 'PENDING_APPROVAL')
-            .select('*', { count: 'exact' }); // Select to get count of updated rows effectively
+            .select('*'); // Select to get updated rows
 
         if (error) {
             throw error;
