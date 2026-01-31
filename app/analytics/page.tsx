@@ -15,7 +15,8 @@ import {
     Play,
     Activity,
     Zap,
-    Loader2
+    Loader2,
+    Clock
 } from 'lucide-react';
 import Link from 'next/link';
 import { LeftSidebar } from "@/components/LeftSidebar";
@@ -33,7 +34,9 @@ import {
     PieChart,
     Pie,
     Cell,
-    Legend
+    Legend,
+    LineChart,
+    Line
 } from 'recharts';
 
 interface VideoAnalytics {
@@ -128,6 +131,59 @@ export default function AnalyticsPage() {
             .map(([name, value]) => ({ name, value }))
             .sort((a, b) => b.value - a.value)
             .slice(0, 5); // Top 5
+    }, [videos]);
+
+    // Hourly Data
+    const hourlyData = useMemo(() => {
+        const hourMap: { [key: number]: { views: number, count: number } } = {};
+
+        videos.forEach(v => {
+            const date = new Date(v.uploadedAt);
+            const hour = date.getHours();
+            const views = parseInt(v.stats?.viewCount || '0');
+
+            if (!hourMap[hour]) {
+                hourMap[hour] = { views: 0, count: 0 };
+            }
+
+            hourMap[hour].views += views;
+            hourMap[hour].count += 1;
+        });
+
+        return Array.from({ length: 24 }, (_, i) => ({
+            hour: i,
+            hourLabel: `${i.toString().padStart(2, '0')}:00`,
+            totalViews: hourMap[i]?.views || 0,
+            videoCount: hourMap[i]?.count || 0,
+        })).filter(d => d.videoCount > 0);
+    }, [videos]);
+
+    // Daily Data
+    const dailyData = useMemo(() => {
+        const dayMap: { [key: string]: { views: number, count: number } } = {};
+
+        videos.forEach(v => {
+            const date = new Date(v.uploadedAt);
+            const dayKey = date.toISOString().split('T')[0];
+            const views = parseInt(v.stats?.viewCount || '0');
+
+            if (!dayMap[dayKey]) {
+                dayMap[dayKey] = { views: 0, count: 0 };
+            }
+
+            dayMap[dayKey].views += views;
+            dayMap[dayKey].count += 1;
+        });
+
+        return Object.entries(dayMap)
+            .map(([date, stats]) => ({
+                date,
+                dateLabel: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+                views: stats.views,
+                videoCount: stats.count,
+            }))
+            .sort((a, b) => a.date.localeCompare(b.date))
+            .slice(-14); // Last 14 days
     }, [videos]);
 
     const engagementData = useMemo(() => {
@@ -372,6 +428,88 @@ export default function AnalyticsPage() {
                                             <span className="text-xs text-[#71767b] uppercase tracking-widest">Total</span>
                                         </div>
                                     )}
+                                </div>
+                            </div>
+                        </div>
+
+
+                        {/* Daily & Hourly View Counts */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            {/* Daily View Counts */}
+                            <div className="bg-black border border-[#333] rounded-2xl p-4 md:p-6">
+                                <h2 className="text-lg md:text-xl font-bold text-[#e7e9ea] mb-2 flex items-center gap-2">
+                                    <Calendar className="w-5 h-5 text-blue-400" />
+                                    Daily View Counts
+                                </h2>
+                                <p className="text-xs md:text-sm text-[#71767b] mb-6">Total views per day (last 14 days)</p>
+
+                                <div className="h-[250px] md:h-[300px] w-full">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <LineChart data={dailyData}>
+                                            <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                                            <XAxis
+                                                dataKey="dateLabel"
+                                                stroke="#525252"
+                                                tick={{ fill: '#71767b', fontSize: 12 }}
+                                            />
+                                            <YAxis
+                                                stroke="#525252"
+                                                tick={{ fill: '#71767b', fontSize: 12 }}
+                                                tickFormatter={formatNumber}
+                                            />
+                                            <Tooltip
+                                                contentStyle={{ backgroundColor: '#000', borderColor: '#333', borderRadius: '12px' }}
+                                                itemStyle={{ color: '#e7e9ea' }}
+                                            />
+                                            <Line
+                                                type="monotone"
+                                                dataKey="views"
+                                                stroke="#3b82f6"
+                                                strokeWidth={3}
+                                                dot={{ fill: '#3b82f6', r: 4 }}
+                                                activeDot={{ r: 6 }}
+                                            />
+                                        </LineChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </div>
+
+                            {/* Hourly View Counts */}
+                            <div className="bg-black border border-[#333] rounded-2xl p-4 md:p-6">
+                                <h2 className="text-lg md:text-xl font-bold text-[#e7e9ea] mb-2 flex items-center gap-2">
+                                    <Clock className="w-5 h-5 text-orange-400" />
+                                    Hourly View Counts
+                                </h2>
+                                <p className="text-xs md:text-sm text-[#71767b] mb-6">Total views by hour of upload</p>
+
+                                <div className="h-[250px] md:h-[300px] w-full">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <LineChart data={hourlyData}>
+                                            <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                                            <XAxis
+                                                dataKey="hourLabel"
+                                                stroke="#525252"
+                                                tick={{ fill: '#71767b', fontSize: 12 }}
+                                            />
+                                            <YAxis
+                                                stroke="#525252"
+                                                tick={{ fill: '#71767b', fontSize: 12 }}
+                                                tickFormatter={formatNumber}
+                                            />
+                                            <Tooltip
+                                                contentStyle={{ backgroundColor: '#000', borderColor: '#333', borderRadius: '12px' }}
+                                                itemStyle={{ color: '#e7e9ea' }}
+                                            />
+                                            <Line
+                                                type="monotone"
+                                                dataKey="totalViews"
+                                                stroke="#f59e0b"
+                                                strokeWidth={3}
+                                                dot={{ fill: '#f59e0b', r: 4 }}
+                                                activeDot={{ r: 6 }}
+                                            />
+                                        </LineChart>
+                                    </ResponsiveContainer>
                                 </div>
                             </div>
                         </div>
