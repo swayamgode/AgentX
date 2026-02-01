@@ -14,7 +14,7 @@ export interface YouTubeAccount {
     id: string;
     channelName: string;
     channelId: string;
-    email: string;
+    email: string;                      
     watermark: string;
     thumbnailUrl?: string;
     tokens: YouTubeTokens;
