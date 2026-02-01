@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Sparkles, Download, Share2, RefreshCw, Smartphone, Monitor, Image as ImageIcon, Palette, Video, Music, Upload, Type, AlignLeft, AlignCenter, AlignRight, Minus, Plus, Calendar, Clock, Play, Pause, Youtube, Rocket, Terminal, Loader2 } from "lucide-react";
+import { Sparkles, Download, Share2, RefreshCw, Smartphone, Monitor, Image as ImageIcon, Palette, Video, Music, Upload, Type, AlignLeft, AlignCenter, AlignRight, Minus, Plus, Calendar, Clock, Play, Pause, Youtube, Rocket, Terminal, Loader2, ChevronDown } from "lucide-react";
 import { MusicLibrary, MusicTrack, getTrackUrl, fetchTrackAsBlob } from "@/lib/music-library";
 
 interface Decoration {
@@ -70,6 +70,13 @@ export function QuotesGenerator() {
     // Batch Automation State
     const [isBatchRunning, setIsBatchRunning] = useState(false);
     const [batchLogs, setBatchLogs] = useState<string[]>([]);
+
+    // Auto-Pilot Configuration State
+    const [autoPilotStyle, setAutoPilotStyle] = useState<'random' | 'inspirational' | 'funny' | 'wisdom' | 'success'>('random');
+    const [autoPilotGenerationsPerChannel, setAutoPilotGenerationsPerChannel] = useState(1);
+    const [autoPilotBackgroundType, setAutoPilotBackgroundType] = useState<'random' | 'gradient' | 'image'>('random');
+    const [autoPilotTextAlign, setAutoPilotTextAlign] = useState<'random' | 'left' | 'center' | 'right'>('random');
+    const [showAutoPilotSettings, setShowAutoPilotSettings] = useState(false);
 
     useEffect(() => {
         if (logsEndRef.current) {
@@ -631,10 +638,12 @@ export function QuotesGenerator() {
     };
 
     const handleBatchAutoPilot = async () => {
-        if (!confirm("Start One-Click Auto Pilot for Quotes?\n\nThis will:\n1. Read topics from topics.txt\n2. Generate unique quotes for EACH connected YouTube account\n3. Use RANDOM visual styles for variety\n4. Upload automatically as #Shorts.")) return;
+        const settingsInfo = `Auto-Pilot Settings:\n- Style: ${autoPilotStyle}\n- Generations per channel: ${autoPilotGenerationsPerChannel}\n- Background: ${autoPilotBackgroundType}\n- Text align: ${autoPilotTextAlign}`;
+
+        if (!confirm(`Start Auto-Pilot for Quotes?\n\n${settingsInfo}\n\nThis will:\n1. Read topics from topics.txt\n2. Generate ${autoPilotGenerationsPerChannel} quote(s) for EACH connected YouTube account\n3. Use your configured visual styles\n4. Upload automatically as #Shorts.`)) return;
 
         setIsBatchRunning(true);
-        setBatchLogs(["Starting Quote Auto-Pilot..."]);
+        setBatchLogs(["Starting Quote Auto-Pilot...", settingsInfo]);
 
         try {
             // 1. Fetch Accounts
@@ -662,100 +671,136 @@ export function QuotesGenerator() {
             topics = topics.sort(() => 0.5 - Math.random());
             addBatchLog(`Loaded ${topics.length} topics. Assigned unique topics.`);
 
-            // 3. Process loop
+            // 3. Process loop - for each account, generate multiple videos based on autoPilotGenerationsPerChannel
+            let topicIndex = 0;
             for (let i = 0; i < accounts.length; i++) {
                 const account = accounts[i];
-                const topic = topics[i % topics.length];
 
                 addBatchLog(`\n➡️ Processing Account: ${account.channelName}`);
-                addBatchLog(`   Topic: "${topic}"`);
+                addBatchLog(`   Generating ${autoPilotGenerationsPerChannel} video(s)...`);
 
-                // Generate Quote
-                addBatchLog("   Generating quote text...");
-                const styles = ['inspirational', 'wisdom', 'success', 'funny'];
-                const randomStyle = styles[Math.floor(Math.random() * styles.length)];
-                const qRes = await fetch("/api/quotes/generate", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ topic, count: 1, style: randomStyle })
-                });
-                const qData = await qRes.json();
+                // Generate multiple videos per account
+                for (let genNum = 0; genNum < autoPilotGenerationsPerChannel; genNum++) {
+                    const topic = topics[topicIndex % topics.length];
+                    topicIndex++;
 
-                if (!qData.quotes || qData.quotes.length === 0) {
-                    addBatchLog("   ❌ Failed to generate quote");
-                    continue;
-                }
+                    addBatchLog(`\n   📹 Video ${genNum + 1}/${autoPilotGenerationsPerChannel}`);
+                    addBatchLog(`   Topic: "${topic}"`);
 
-                let quote: Quote = qData.quotes[0];
-
-                // Add Decorations (Logic duplicated from handleGenerate for batch safety)
-                if (availableGraphics.length > 0) {
-                    const decorations: Decoration[] = [];
-                    const numDecorations = Math.floor(Math.random() * 4); // 0-3 decorations
-                    for (let d = 0; d < numDecorations; d++) {
-                        const randomGraphic = availableGraphics[Math.floor(Math.random() * availableGraphics.length)];
-                        decorations.push({
-                            image: randomGraphic,
-                            x: Math.random(),
-                            y: Math.random(),
-                            size: 0.15 + Math.random() * 0.25
-                        });
+                    // Determine style
+                    const styles = ['inspirational', 'wisdom', 'success', 'funny'];
+                    let selectedStyle: string;
+                    if (autoPilotStyle === 'random') {
+                        selectedStyle = styles[Math.floor(Math.random() * styles.length)];
+                    } else {
+                        selectedStyle = autoPilotStyle;
                     }
-                    quote.decorations = decorations;
+
+                    // Generate Quote
+                    addBatchLog(`   Generating quote (${selectedStyle})...`);
+                    const qRes = await fetch("/api/quotes/generate", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ topic, count: 1, style: selectedStyle })
+                    });
+                    const qData = await qRes.json();
+
+                    if (!qData.quotes || qData.quotes.length === 0) {
+                        addBatchLog("   ❌ Failed to generate quote");
+                        continue;
+                    }
+
+                    let quote: Quote = qData.quotes[0];
+
+                    // Add Decorations
+                    if (availableGraphics.length > 0) {
+                        const decorations: Decoration[] = [];
+                        const numDecorations = Math.floor(Math.random() * 4); // 0-3 decorations
+                        for (let d = 0; d < numDecorations; d++) {
+                            const randomGraphic = availableGraphics[Math.floor(Math.random() * availableGraphics.length)];
+                            decorations.push({
+                                image: randomGraphic,
+                                x: Math.random(),
+                                y: Math.random(),
+                                size: 0.15 + Math.random() * 0.25
+                            });
+                        }
+                        quote.decorations = decorations;
+                    }
+
+                    // Determine background type
+                    let bgType: 'gradient' | 'image';
+                    if (autoPilotBackgroundType === 'random') {
+                        bgType = Math.random() > 0.5 ? 'gradient' : 'gradient'; // For now, always gradient since we don't have image
+                    } else if (autoPilotBackgroundType === 'image') {
+                        bgType = backgroundImage ? 'image' : 'gradient'; // Fallback to gradient if no image
+                    } else {
+                        bgType = 'gradient';
+                    }
+
+                    // Determine text alignment
+                    let alignment: 'left' | 'center' | 'right';
+                    if (autoPilotTextAlign === 'random') {
+                        const alignments: ('left' | 'center' | 'right')[] = ['left', 'center', 'right'];
+                        alignment = alignments[Math.floor(Math.random() * alignments.length)];
+                    } else {
+                        alignment = autoPilotTextAlign as 'left' | 'center' | 'right';
+                    }
+
+                    // Create Visual Config
+                    const config: RenderConfig = {
+                        backgroundType: bgType,
+                        backgroundImage: bgType === 'image' ? backgroundImage : null,
+                        color1: getRandomColor(),
+                        color2: getRandomColor(),
+                        textColor: '#ffffff',
+                        textAlign: alignment,
+                        fontSizeScale: 0.5 + (Math.random() * 0.3) // 0.5 to 0.8
+                    };
+                    addBatchLog(`   Rendering video (${bgType} bg, ${alignment} align)...`);
+
+                    // Render Video
+                    const blob = await generateVideoBlob(quote, config);
+
+                    if (!blob) {
+                        addBatchLog("   ❌ Failed to render video");
+                        continue;
+                    }
+
+                    // Upload
+                    addBatchLog("   🚀 Uploading to YouTube...");
+                    const formData = new FormData();
+                    formData.append('video', blob, `quote-batch-${account.id}-${genNum}.webm`);
+
+                    const quotePreview = quote.text.substring(0, 50);
+                    formData.append('title', `${quotePreview}... #shorts`);
+                    formData.append('description', `${quote.text}\n\n- ${quote.author}\n\n#quotes #${topic.replace(/\s/g, '')} #motivation`);
+                    formData.append('tags', JSON.stringify(['shorts', 'quotes', topic, 'motivation']));
+                    formData.append('topic', topic);
+                    formData.append('templateId', 'quote-batch');
+                    formData.append('texts', JSON.stringify([quote.text, quote.author]));
+                    formData.append('accountId', account.id);
+                    formData.append('publishAt', ''); // Publish immediately
+
+                    const uploadRes = await fetch('/api/youtube/upload-video', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const uploadResult = await uploadRes.json();
+
+                    if (uploadRes.ok) {
+                        addBatchLog(`   ✅ SUCCESS! Uploaded to ${account.channelName}`);
+                    } else {
+                        addBatchLog(`   ❌ UPLOAD FAILED: ${uploadResult.error}`);
+                    }
+
+                    // Wait a bit between uploads
+                    await new Promise(r => setTimeout(r, 2000));
                 }
-
-                // Create Random Visual Config
-                const config: RenderConfig = {
-                    backgroundType: 'gradient',
-                    backgroundImage: null,
-                    color1: getRandomColor(),
-                    color2: getRandomColor(),
-                    textColor: '#ffffff',
-                    textAlign: 'center',
-                    fontSizeScale: 0.5 + (Math.random() * 0.3) // 0.5 to 0.8
-                };
-                addBatchLog("   Rendering video (Random Styles applied)...");
-
-                // Render Video
-                const blob = await generateVideoBlob(quote, config);
-
-                if (!blob) {
-                    addBatchLog("   ❌ Failed to render video");
-                    continue;
-                }
-
-                // Upload
-                addBatchLog("   🚀 Uploading to YouTube...");
-                const formData = new FormData();
-                formData.append('video', blob, `quote-batch-${account.id}.webm`);
-
-                const quotePreview = quote.text.substring(0, 50);
-                formData.append('title', `${quotePreview}... #shorts`);
-                formData.append('description', `${quote.text}\n\n- ${quote.author}\n\n#quotes #${topic.replace(/\s/g, '')} #motivation`);
-                formData.append('tags', JSON.stringify(['shorts', 'quotes', topic, 'motivation']));
-                formData.append('topic', topic);
-                formData.append('templateId', 'quote-batch');
-                formData.append('texts', JSON.stringify([quote.text, quote.author]));
-                formData.append('accountId', account.id);
-                formData.append('publishAt', ''); // Publish immediately
-
-                const uploadRes = await fetch('/api/youtube/upload-video', {
-                    method: 'POST',
-                    body: formData
-                });
-                const uploadResult = await uploadRes.json();
-
-                if (uploadRes.ok) {
-                    addBatchLog(`   ✅ SUCCESS! Uploaded to ${account.channelName}`);
-                } else {
-                    addBatchLog(`   ❌ UPLOAD FAILED: ${uploadResult.error}`);
-                }
-
-                // Wait a bit
-                await new Promise(r => setTimeout(r, 2000));
             }
 
             addBatchLog("\n✨ QUOTE AUTO-PILOT COMPLETE! ✨");
+            addBatchLog(`Total videos generated: ${accounts.length * autoPilotGenerationsPerChannel}`);
 
         } catch (e: any) {
             console.error(e);
@@ -909,6 +954,114 @@ export function QuotesGenerator() {
                                     </>
                                 )}
                             </button>
+
+                            {/* Auto-Pilot Settings Panel */}
+                            <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4 space-y-4">
+                                <button
+                                    onClick={() => setShowAutoPilotSettings(!showAutoPilotSettings)}
+                                    className="w-full flex items-center justify-between text-left"
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <Rocket size={18} className="text-green-600" />
+                                        <span className="text-sm font-bold text-green-900">Auto-Pilot Settings</span>
+                                    </div>
+                                    <ChevronDown
+                                        size={18}
+                                        className={`text-green-600 transition-transform ${showAutoPilotSettings ? 'rotate-180' : ''}`}
+                                    />
+                                </button>
+
+                                {showAutoPilotSettings && (
+                                    <div className="space-y-4 animate-in fade-in slide-in-from-top-2">
+                                        {/* Style Selection */}
+                                        <div>
+                                            <label className="text-xs font-bold text-green-900 uppercase tracking-wider mb-2 block">
+                                                Design Style
+                                            </label>
+                                            <div className="grid grid-cols-2 gap-2">
+                                                {(['random', 'inspirational', 'funny', 'wisdom', 'success'] as const).map(s => (
+                                                    <button
+                                                        key={s}
+                                                        onClick={() => setAutoPilotStyle(s)}
+                                                        className={`py-2 px-3 rounded-lg font-medium text-xs transition-all border ${autoPilotStyle === s
+                                                            ? 'bg-green-600 text-white border-green-600 shadow-md'
+                                                            : 'bg-white text-green-800 border-green-200 hover:bg-green-100'
+                                                            }`}
+                                                    >
+                                                        {s === 'random' ? '🎲 Random' : s.charAt(0).toUpperCase() + s.slice(1)}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {/* Generations Per Channel */}
+                                        <div>
+                                            <label className="text-xs font-bold text-green-900 uppercase tracking-wider mb-2 block">
+                                                Generations Per Channel <span className="text-green-600 font-mono ml-2">{autoPilotGenerationsPerChannel}</span>
+                                            </label>
+                                            <div className="bg-white rounded-lg px-4 py-3 border border-green-200">
+                                                <input
+                                                    type="range"
+                                                    min="1"
+                                                    max="10"
+                                                    value={autoPilotGenerationsPerChannel}
+                                                    onChange={(e) => setAutoPilotGenerationsPerChannel(parseInt(e.target.value))}
+                                                    className="w-full accent-green-600 h-2 bg-green-100 rounded-lg appearance-none cursor-pointer"
+                                                    style={{
+                                                        background: `linear-gradient(to right, rgb(22, 163, 74) 0%, rgb(22, 163, 74) ${(autoPilotGenerationsPerChannel / 10) * 100}%, rgb(220, 252, 231) ${(autoPilotGenerationsPerChannel / 10) * 100}%, rgb(220, 252, 231) 100%)`
+                                                    }}
+                                                />
+                                                <div className="flex justify-between text-xs text-green-700 mt-2 font-mono">
+                                                    <span>1</span>
+                                                    <span>10</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Background Type */}
+                                        <div>
+                                            <label className="text-xs font-bold text-green-900 uppercase tracking-wider mb-2 block">
+                                                Background Type
+                                            </label>
+                                            <div className="grid grid-cols-3 gap-2">
+                                                {(['random', 'gradient', 'image'] as const).map(bg => (
+                                                    <button
+                                                        key={bg}
+                                                        onClick={() => setAutoPilotBackgroundType(bg)}
+                                                        className={`py-2 px-3 rounded-lg font-medium text-xs transition-all border ${autoPilotBackgroundType === bg
+                                                            ? 'bg-green-600 text-white border-green-600 shadow-md'
+                                                            : 'bg-white text-green-800 border-green-200 hover:bg-green-100'
+                                                            }`}
+                                                    >
+                                                        {bg === 'random' ? '🎲' : bg === 'gradient' ? '🌈' : '🖼️'} {bg.charAt(0).toUpperCase() + bg.slice(1)}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {/* Text Alignment */}
+                                        <div>
+                                            <label className="text-xs font-bold text-green-900 uppercase tracking-wider mb-2 block">
+                                                Text Alignment
+                                            </label>
+                                            <div className="grid grid-cols-4 gap-2">
+                                                {(['random', 'left', 'center', 'right'] as const).map(align => (
+                                                    <button
+                                                        key={align}
+                                                        onClick={() => setAutoPilotTextAlign(align)}
+                                                        className={`py-2 px-3 rounded-lg font-medium text-xs transition-all border ${autoPilotTextAlign === align
+                                                            ? 'bg-green-600 text-white border-green-600 shadow-md'
+                                                            : 'bg-white text-green-800 border-green-200 hover:bg-green-100'
+                                                            }`}
+                                                    >
+                                                        {align === 'random' ? '🎲' : align === 'left' ? '⬅️' : align === 'center' ? '↔️' : '➡️'}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
 
                             {/* Batch Button */}
                             <button
