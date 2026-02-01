@@ -5,94 +5,117 @@ import { analyticsStorage } from '@/lib/analytics-storage';
 
 export async function GET() {
     try {
-        const account = multiAccountStorage.getActiveAccount();
-        if (!account || !account.tokens.access_token) {
-            return NextResponse.json({ error: 'No YouTube account connected' }, { status: 401 });
+        const accounts = multiAccountStorage.getAllAccounts();
+        if (!accounts || accounts.length === 0) {
+            return NextResponse.json({ error: 'No YouTube accounts connected' }, { status: 401 });
         }
 
-        const oauth2Client = new google.auth.OAuth2(
-            process.env.YOUTUBE_CLIENT_ID,
-            process.env.YOUTUBE_CLIENT_SECRET,
-            process.env.YOUTUBE_REDIRECT_URI
-        );
+        const allVideos = analyticsStorage.getAll();
 
-        oauth2Client.setCredentials(account.tokens);
+        if (allVideos.length === 0) {
+            return NextResponse.json({ videos: [], accounts: accounts.map(a => ({ id: a.id, channelName: a.channelName, channelId: a.channelId })) });
+        }
 
-        // Refresh token if needed
-        if (account.tokens.expiry_date && account.tokens.expiry_date < Date.now() && account.tokens.refresh_token) {
-            try {
-                const { credentials } = await oauth2Client.refreshAccessToken();
-                multiAccountStorage.updateTokens(account.id, {
-                    access_token: credentials.access_token!,
-                    refresh_token: credentials.refresh_token || account.tokens.refresh_token,
-                    expiry_date: credentials.expiry_date || undefined
-                });
-                oauth2Client.setCredentials(credentials);
-            } catch (err) {
-                console.error("Failed to refresh token", err);
-                return NextResponse.json({ error: 'Authentication expired' }, { status: 401 });
+        // Process each account
+        let totalUpdated = 0;
+        for (const account of accounts) {
+            if (!account.tokens.access_token) continue;
+
+            // Filter videos for THIS account only
+            const accountVideos = allVideos.filter(v => v.channelId === account.channelId);
+            const accountVideoIds = accountVideos.map(v => v.youtubeId).filter(Boolean);
+
+            if (accountVideoIds.length === 0) {
+                console.log(`No videos found for account: ${account.channelName}`);
+                continue;
             }
-        }
 
-        const videos = analyticsStorage.getAll();
-        const videoIds = videos.map(v => v.youtubeId).filter(Boolean);
+            const oauth2Client = new google.auth.OAuth2(
+                process.env.YOUTUBE_CLIENT_ID,
+                process.env.YOUTUBE_CLIENT_SECRET,
+                process.env.YOUTUBE_REDIRECT_URI
+            );
 
-        if (videoIds.length === 0) {
-            return NextResponse.json({ videos: [] });
-        }
+            oauth2Client.setCredentials(account.tokens);
 
-        // YouTube API allows up to 50 IDs per request
-        const youtube = google.youtube({ version: 'v3', auth: oauth2Client });
-        const chunkSize = 50;
-        let updatedCount = 0;
+            // Refresh token if needed
+            if (account.tokens.expiry_date && account.tokens.expiry_date < Date.now() && account.tokens.refresh_token) {
+                try {
+                    const { credentials } = await oauth2Client.refreshAccessToken();
+                    multiAccountStorage.updateTokens(account.id, {
+                        access_token: credentials.access_token!,
+                        refresh_token: credentials.refresh_token || account.tokens.refresh_token,
+                        expiry_date: credentials.expiry_date || undefined
+                    });
+                    oauth2Client.setCredentials(credentials);
+                } catch (err) {
+                    console.error(`Failed to refresh token for ${account.channelName}`, err);
+                    continue; // Skip this account but continue with others
+                }
+            }
 
-        for (let i = 0; i < videoIds.length; i += chunkSize) {
-            const chunk = videoIds.slice(i, i + chunkSize);
-            const response = await youtube.videos.list({
-                part: ['statistics', 'snippet'],
-                id: chunk
-            });
+            // YouTube API allows up to 50 IDs per request
+            const youtube = google.youtube({ version: 'v3', auth: oauth2Client });
+            const chunkSize = 50;
 
-            if (response.data.items) {
-                for (const item of response.data.items) {
-                    if (item.id) {
-                        const updates: any = {};
+            for (let i = 0; i < accountVideoIds.length; i += chunkSize) {
+                const chunk = accountVideoIds.slice(i, i + chunkSize);
+                try {
+                    const response = await youtube.videos.list({
+                        part: ['statistics', 'snippet'],
+                        id: chunk
+                    });
 
-                        // Update stats
-                        if (item.statistics) {
-                            updates.stats = {
-                                viewCount: item.statistics.viewCount || '0',
-                                likeCount: item.statistics.likeCount || '0',
-                                commentCount: item.statistics.commentCount || '0',
-                                lastUpdated: new Date().toISOString()
-                            };
-                        }
+                    if (response.data.items) {
+                        for (const item of response.data.items) {
+                            if (item.id) {
+                                const updates: any = {};
 
-                        // Update thumbnail
-                        if (item.snippet?.thumbnails?.high?.url) {
-                            updates.thumbnailUrl = item.snippet.thumbnails.high.url;
-                        } else if (item.snippet?.thumbnails?.medium?.url) {
-                            updates.thumbnailUrl = item.snippet.thumbnails.medium.url;
-                        } else if (item.snippet?.thumbnails?.default?.url) {
-                            updates.thumbnailUrl = item.snippet.thumbnails.default.url;
-                        }
+                                // Update stats
+                                if (item.statistics) {
+                                    updates.stats = {
+                                        viewCount: item.statistics.viewCount || '0',
+                                        likeCount: item.statistics.likeCount || '0',
+                                        commentCount: item.statistics.commentCount || '0',
+                                        lastUpdated: new Date().toISOString()
+                                    };
+                                }
 
-                        if (Object.keys(updates).length > 0) {
-                            analyticsStorage.updateData(item.id, updates);
-                            updatedCount++;
+                                // Update thumbnail
+                                if (item.snippet?.thumbnails?.high?.url) {
+                                    updates.thumbnailUrl = item.snippet.thumbnails.high.url;
+                                } else if (item.snippet?.thumbnails?.medium?.url) {
+                                    updates.thumbnailUrl = item.snippet.thumbnails.medium.url;
+                                } else if (item.snippet?.thumbnails?.default?.url) {
+                                    updates.thumbnailUrl = item.snippet.thumbnails.default.url;
+                                }
+
+                                // Ensure channel info is set (in case old videos don't have it)
+                                updates.channelId = account.channelId;
+                                updates.channelName = account.channelName;
+
+                                if (Object.keys(updates).length > 0) {
+                                    analyticsStorage.updateData(item.id, updates);
+                                    totalUpdated++;
+                                }
+                            }
                         }
                     }
+                } catch (err) {
+                    console.error(`Error fetching stats for ${account.channelName}:`, err);
+                    // Continue with next chunk
                 }
             }
         }
 
-        // Return fresh data
+        // Return fresh data with account info
         const updatedVideos = analyticsStorage.getAll();
 
         return NextResponse.json({
             success: true,
-            updated: updatedCount,
-            videos: updatedVideos
+            updated: totalUpdated,
+            videos: updatedVideos,
+            accounts: accounts.map(a => ({ id: a.id, channelName: a.channelName, channelId: a.channelId }))
         });
 
     } catch (error: any) {

@@ -11,6 +11,8 @@ export interface VideoAnalyticsData {
     texts: string[];
     thumbnailUrl?: string;
     uploadedAt: string;
+    channelId?: string;
+    channelName?: string;
     stats?: {
         viewCount: string;
         likeCount: string;

@@ -121,7 +121,9 @@ export async function POST(request: NextRequest) {
                         title,
                         topic: topic || 'unknown',
                         templateId: templateId || 'unknown',
-                        texts
+                        texts,
+                        channelId: account.channelId,
+                        channelName: account.channelName
                     });
                 } catch (err) {
                     console.error('Failed to save analytics data:', err);
@@ -164,7 +166,9 @@ export async function POST(request: NextRequest) {
                                 title,
                                 topic: topic || 'unknown',
                                 templateId: templateId || 'unknown',
-                                texts
+                                texts,
+                                channelId: account.channelId,
+                                channelName: account.channelName
                             });
                         } catch (err) {
                             console.error('Failed to save analytics data:', err);

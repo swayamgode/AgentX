@@ -47,6 +47,8 @@ interface VideoAnalytics {
     texts: string[];
     thumbnailUrl?: string;
     uploadedAt: string;
+    channelId?: string;
+    channelName?: string;
     stats?: {
         viewCount: string;
         likeCount: string;
@@ -55,10 +57,18 @@ interface VideoAnalytics {
     };
 }
 
+interface AccountInfo {
+    id: string;
+    channelName: string;
+    channelId: string;
+}
+
 const COLORS = ['#8b5cf6', '#ec4899', '#3b82f6', '#10b981', '#f59e0b'];
 
 export default function AnalyticsPage() {
     const [videos, setVideos] = useState<VideoAnalytics[]>([]);
+    const [accounts, setAccounts] = useState<AccountInfo[]>([]);
+    const [selectedAccount, setSelectedAccount] = useState<string>('all');
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -82,6 +92,10 @@ export default function AnalyticsPage() {
                 );
                 setVideos(sorted);
             }
+
+            if (data.accounts) {
+                setAccounts(data.accounts);
+            }
         } catch (err: any) {
             setError(err.message);
         } finally {
@@ -94,20 +108,28 @@ export default function AnalyticsPage() {
         fetchAnalytics();
     }, []);
 
+    // Filter videos by selected account
+    const filteredVideos = useMemo(() => {
+        if (selectedAccount === 'all') {
+            return videos;
+        }
+        return videos.filter(v => v.channelId === selectedAccount);
+    }, [videos, selectedAccount]);
+
     // --- Data Processing for Charts ---
 
     const stats = useMemo(() => {
-        const totalViews = videos.reduce((acc, v) => acc + parseInt(v.stats?.viewCount || '0'), 0);
-        const totalLikes = videos.reduce((acc, v) => acc + parseInt(v.stats?.likeCount || '0'), 0);
-        const totalComments = videos.reduce((acc, v) => acc + parseInt(v.stats?.commentCount || '0'), 0);
-        const avgViews = videos.length > 0 ? Math.round(totalViews / videos.length) : 0;
+        const totalViews = filteredVideos.reduce((acc, v) => acc + parseInt(v.stats?.viewCount || '0'), 0);
+        const totalLikes = filteredVideos.reduce((acc, v) => acc + parseInt(v.stats?.likeCount || '0'), 0);
+        const totalComments = filteredVideos.reduce((acc, v) => acc + parseInt(v.stats?.commentCount || '0'), 0);
+        const avgViews = filteredVideos.length > 0 ? Math.round(totalViews / filteredVideos.length) : 0;
 
         return { totalViews, totalLikes, totalComments, avgViews };
-    }, [videos]);
+    }, [filteredVideos]);
 
     const growthData = useMemo(() => {
         // Reverse for chronological order (oldest to newest)
-        return [...videos].reverse().map(v => {
+        return [...filteredVideos].reverse().map(v => {
             const date = new Date(v.uploadedAt);
             return {
                 name: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }), // e.g. "Jan 21 14:30"
@@ -118,11 +140,11 @@ export default function AnalyticsPage() {
                 title: v.title
             };
         });
-    }, [videos]);
+    }, [filteredVideos]);
 
     const topicData = useMemo(() => {
         const topicMap: Record<string, number> = {};
-        videos.forEach(v => {
+        filteredVideos.forEach(v => {
             const topic = v.topic || 'Other';
             const views = parseInt(v.stats?.viewCount || '0');
             topicMap[topic] = (topicMap[topic] || 0) + views;
@@ -131,13 +153,13 @@ export default function AnalyticsPage() {
             .map(([name, value]) => ({ name, value }))
             .sort((a, b) => b.value - a.value)
             .slice(0, 5); // Top 5
-    }, [videos]);
+    }, [filteredVideos]);
 
     // Hourly Data
     const hourlyData = useMemo(() => {
         const hourMap: { [key: number]: { views: number, count: number } } = {};
 
-        videos.forEach(v => {
+        filteredVideos.forEach(v => {
             const date = new Date(v.uploadedAt);
             const hour = date.getHours();
             const views = parseInt(v.stats?.viewCount || '0');
@@ -156,13 +178,13 @@ export default function AnalyticsPage() {
             totalViews: hourMap[i]?.views || 0,
             videoCount: hourMap[i]?.count || 0,
         })).filter(d => d.videoCount > 0);
-    }, [videos]);
+    }, [filteredVideos]);
 
     // Daily Data
     const dailyData = useMemo(() => {
         const dayMap: { [key: string]: { views: number, count: number } } = {};
 
-        videos.forEach(v => {
+        filteredVideos.forEach(v => {
             const date = new Date(v.uploadedAt);
             const dayKey = date.toISOString().split('T')[0];
             const views = parseInt(v.stats?.viewCount || '0');
@@ -184,7 +206,7 @@ export default function AnalyticsPage() {
             }))
             .sort((a, b) => a.date.localeCompare(b.date))
             .slice(-14); // Last 14 days
-    }, [videos]);
+    }, [filteredVideos]);
 
     const engagementData = useMemo(() => {
         return [
@@ -217,21 +239,38 @@ export default function AnalyticsPage() {
                     <div className="p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                         <div>
                             <h1 className="text-xl font-bold text-white flex items-center gap-2">
-                                <BarChart3 className="text-purple-500" /> Analytics Code
+                                <BarChart3 className="text-purple-500" /> Analytics
                             </h1>
                             <p className="text-sm text-[#71767b] mt-1">
                                 <Activity className="w-3 h-3 inline mr-1 text-green-500" />
                                 Live performance tracking
                             </p>
                         </div>
-                        <button
-                            onClick={() => fetchAnalytics(true)}
-                            disabled={refreshing}
-                            className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs font-medium text-gray-400 transition-colors disabled:opacity-50 self-end md:self-auto"
-                        >
-                            <RefreshCw size={14} className={refreshing ? "animate-spin" : ""} />
-                            {refreshing ? 'Syncing...' : 'Sync Data'}
-                        </button>
+                        <div className="flex items-center gap-3 w-full md:w-auto">
+                            {/* Account Filter */}
+                            {accounts.length > 1 && (
+                                <select
+                                    value={selectedAccount}
+                                    onChange={(e) => setSelectedAccount(e.target.value)}
+                                    className="flex-1 md:flex-initial bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-purple-500/50 transition-colors"
+                                >
+                                    <option value="all">All Accounts ({accounts.length})</option>
+                                    {accounts.map(account => (
+                                        <option key={account.id} value={account.channelId}>
+                                            {account.channelName}
+                                        </option>
+                                    ))}
+                                </select>
+                            )}
+                            <button
+                                onClick={() => fetchAnalytics(true)}
+                                disabled={refreshing}
+                                className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs font-medium text-gray-400 transition-colors disabled:opacity-50 self-end md:self-auto"
+                            >
+                                <RefreshCw size={14} className={refreshing ? "animate-spin" : ""} />
+                                {refreshing ? 'Syncing...' : 'Sync Data'}
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -286,7 +325,7 @@ export default function AnalyticsPage() {
                             />
                             <KPICard
                                 title="Content Library"
-                                value={videos.length.toString()}
+                                value={filteredVideos.length.toString()}
                                 icon={<Video className="w-5 h-5 text-white" />}
                                 trend="Videos"
                                 color="from-emerald-500 to-green-500"
@@ -555,7 +594,7 @@ export default function AnalyticsPage() {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-[#333]">
-                                        {videos.slice(0, 10).map((video) => (
+                                        {filteredVideos.slice(0, 10).map((video) => (
                                             <tr key={video.youtubeId} className="hover:bg-[#16181c] transition-colors group flex md:table-row flex-col">
                                                 <td className="px-4 md:px-6 py-3 md:py-4">
                                                     <div className="flex items-center gap-3 md:gap-4">
