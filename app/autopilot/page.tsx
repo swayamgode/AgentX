@@ -138,7 +138,7 @@ export default function AutoPilotPage() {
                 <div className="sticky top-0 bg-white/80 backdrop-blur-xl z-20 border-b border-[#e5e5e7]">
                     <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-4">
                         <div className="flex items-center gap-3">
-                            <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl">
+                            <div className="p-2 bg-gradient-to-br from-[#000] to-[#333] rounded-xl">
                                 <Rocket className="w-6 h-6 text-white" />
                             </div>
                             <div>
@@ -161,19 +161,19 @@ export default function AutoPilotPage() {
                             icon={<Zap className="w-5 h-5" />}
                             title="Smart Generation"
                             description="Automatically generates unique content for each channel"
-                            color="from-green-500 to-emerald-500"
+                            color="from-[#000] to-[#333]"
                         />
                         <FeatureCard
                             icon={<TrendingUp className="w-5 h-5" />}
                             title="Configurable Styles"
                             description="Choose design preferences or let AI randomize"
-                            color="from-blue-500 to-cyan-500"
+                            color="from-[#1a1a1a] to-[#000]"
                         />
                         <FeatureCard
                             icon={<Video className="w-5 h-5" />}
                             title="Bulk Upload"
                             description="Upload multiple videos across all accounts at once"
-                            color="from-purple-500 to-pink-500"
+                            color="from-[#333] to-[#1a1a1a]"
                         />
                     </div>
 
@@ -183,7 +183,7 @@ export default function AutoPilotPage() {
                         <div className="space-y-6">
                             <div className="bg-white border border-[#e5e5e7] rounded-2xl p-6 shadow-sm">
                                 <div className="flex items-center gap-2 mb-6">
-                                    <SettingsIcon className="text-green-600" size={20} />
+                                    <SettingsIcon className="text-[#1d1d1f]" size={20} />
                                     <h2 className="text-lg font-bold text-[#1d1d1f]">Auto-Pilot Settings</h2>
                                 </div>
 
@@ -199,7 +199,7 @@ export default function AutoPilotPage() {
                                                     key={s}
                                                     onClick={() => setAutoPilotStyle(s)}
                                                     className={`py-2.5 px-3 rounded-lg font-medium text-sm transition-all border ${autoPilotStyle === s
-                                                            ? 'bg-green-600 text-white border-green-600 shadow-md'
+                                                            ? 'bg-black text-white border-black shadow-md'
                                                             : 'bg-[#F5F5F7] text-[#86868b] border-transparent hover:bg-[#e5e5e7] hover:text-[#1d1d1f]'
                                                         }`}
                                                 >
@@ -212,7 +212,7 @@ export default function AutoPilotPage() {
                                     {/* Generations Per Channel */}
                                     <div>
                                         <label className="text-xs font-bold text-[#86868b] uppercase tracking-wider mb-2 block">
-                                            Generations Per Channel <span className="text-green-600 font-mono ml-2">{autoPilotGenerationsPerChannel}</span>
+                                            Generations Per Channel <span className="text-[#1d1d1f] font-mono ml-2">{autoPilotGenerationsPerChannel}</span>
                                         </label>
                                         <div className="bg-[#F5F5F7] rounded-xl px-4 py-4">
                                             <input
@@ -221,9 +221,9 @@ export default function AutoPilotPage() {
                                                 max="10"
                                                 value={autoPilotGenerationsPerChannel}
                                                 onChange={(e) => setAutoPilotGenerationsPerChannel(parseInt(e.target.value))}
-                                                className="w-full accent-green-600 h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer"
+                                                className="w-full accent-black h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer"
                                                 style={{
-                                                    background: `linear-gradient(to right, rgb(22, 163, 74) 0%, rgb(22, 163, 74) ${(autoPilotGenerationsPerChannel / 10) * 100}%, rgb(229, 231, 235) ${(autoPilotGenerationsPerChannel / 10) * 100}%, rgb(229, 231, 235) 100%)`
+                                                    background: `linear-gradient(to right, rgb(0, 0, 0) 0%, rgb(0, 0, 0) ${(autoPilotGenerationsPerChannel / 10) * 100}%, rgb(229, 231, 235) ${(autoPilotGenerationsPerChannel / 10) * 100}%, rgb(229, 231, 235) 100%)`
                                                 }}
                                             />
                                             <div className="flex justify-between text-xs text-[#86868b] mt-2 font-mono">
@@ -244,7 +244,7 @@ export default function AutoPilotPage() {
                                                     key={bg}
                                                     onClick={() => setAutoPilotBackgroundType(bg)}
                                                     className={`py-2.5 px-3 rounded-lg font-medium text-sm transition-all border ${autoPilotBackgroundType === bg
-                                                            ? 'bg-green-600 text-white border-green-600 shadow-md'
+                                                            ? 'bg-black text-white border-black shadow-md'
                                                             : 'bg-[#F5F5F7] text-[#86868b] border-transparent hover:bg-[#e5e5e7] hover:text-[#1d1d1f]'
                                                         }`}
                                                 >
@@ -270,7 +270,7 @@ export default function AutoPilotPage() {
                                                     key={align}
                                                     onClick={() => setAutoPilotTextAlign(align)}
                                                     className={`py-2.5 px-3 rounded-lg font-medium text-sm transition-all border ${autoPilotTextAlign === align
-                                                            ? 'bg-green-600 text-white border-green-600 shadow-md'
+                                                            ? 'bg-black text-white border-black shadow-md'
                                                             : 'bg-[#F5F5F7] text-[#86868b] border-transparent hover:bg-[#e5e5e7] hover:text-[#1d1d1f]'
                                                         }`}
                                                 >
@@ -284,7 +284,7 @@ export default function AutoPilotPage() {
                                     <button
                                         onClick={handleStartAutoPilot}
                                         disabled={isBatchRunning}
-                                        className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 transform hover:scale-[1.02] active:scale-[0.98]"
+                                        className="w-full bg-black hover:bg-[#333] text-white font-bold py-4 rounded-xl transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 transform hover:scale-[1.02] active:scale-[0.98]"
                                     >
                                         {isBatchRunning ? (
                                             <>
@@ -306,15 +306,15 @@ export default function AutoPilotPage() {
                         <div className="space-y-6">
                             <div className="bg-white border border-[#e5e5e7] rounded-2xl p-6 shadow-sm">
                                 <div className="flex items-center gap-2 mb-4">
-                                    <Terminal className="text-green-600" size={20} />
+                                    <Terminal className="text-[#1d1d1f]" size={20} />
                                     <h2 className="text-lg font-bold text-[#1d1d1f]">System Logs</h2>
                                 </div>
 
                                 {batchLogs.length > 0 ? (
-                                    <div className="bg-[#111] border border-green-500/20 rounded-xl p-4 font-mono text-xs text-green-400 h-[500px] overflow-y-auto shadow-inner">
+                                    <div className="bg-[#111] border border-[#333] rounded-xl p-4 font-mono text-xs text-[#86868b] h-[500px] overflow-y-auto shadow-inner">
                                         <div className="space-y-1">
                                             {batchLogs.map((log, i) => (
-                                                <div key={i} className="whitespace-pre-wrap">{log}</div>
+                                                <div key={i} className="whitespace-pre-wrap text-white">{log}</div>
                                             ))}
                                             <div ref={logsEndRef} />
                                         </div>
@@ -330,29 +330,29 @@ export default function AutoPilotPage() {
                     </div>
 
                     {/* Info Section */}
-                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-6">
-                        <h3 className="text-lg font-bold text-green-900 mb-3">
+                    <div className="bg-[#F5F5F7] border border-[#e5e5e7] rounded-2xl p-6">
+                        <h3 className="text-lg font-bold text-[#1d1d1f] mb-3">
                             📚 How Auto-Pilot Works
                         </h3>
-                        <ol className="space-y-2 text-sm text-green-800">
+                        <ol className="space-y-2 text-sm text-[#86868b]">
                             <li className="flex gap-2">
-                                <span className="font-bold">1.</span>
+                                <span className="font-bold text-[#1d1d1f]">1.</span>
                                 <span>Configure your preferences above (style, generations per channel, etc.)</span>
                             </li>
                             <li className="flex gap-2">
-                                <span className="font-bold">2.</span>
+                                <span className="font-bold text-[#1d1d1f]">2.</span>
                                 <span>Ensure you have connected YouTube accounts in Settings</span>
                             </li>
                             <li className="flex gap-2">
-                                <span className="font-bold">3.</span>
-                                <span>Edit <code className="bg-white px-2 py-0.5 rounded">topics.txt</code> to customize content themes</span>
+                                <span className="font-bold text-[#1d1d1f]">3.</span>
+                                <span>Edit <code className="bg-white px-2 py-0.5 rounded border border-[#e5e5e7]">topics.txt</code> to customize content themes</span>
                             </li>
                             <li className="flex gap-2">
-                                <span className="font-bold">4.</span>
+                                <span className="font-bold text-[#1d1d1f]">4.</span>
                                 <span>Click "Start Auto-Pilot" to begin automated generation and upload</span>
                             </li>
                             <li className="flex gap-2">
-                                <span className="font-bold">5.</span>
+                                <span className="font-bold text-[#1d1d1f]">5.</span>
                                 <span>Monitor progress in the System Logs panel</span>
                             </li>
                         </ol>
