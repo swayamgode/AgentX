@@ -747,17 +747,17 @@ export function QuotesGenerator() {
                         alignment = autoPilotTextAlign as 'left' | 'center' | 'right';
                     }
 
-                    // Create Visual Config
+                    // Create Visual Config with plain black background
                     const config: RenderConfig = {
                         backgroundType: bgType,
                         backgroundImage: bgType === 'image' ? backgroundImage : null,
-                        color1: getRandomColor(),
-                        color2: getRandomColor(),
+                        color1: '#000000', // Black
+                        color2: '#000000', // Black (same as color1 for solid color)
                         textColor: '#ffffff',
                         textAlign: alignment,
                         fontSizeScale: 0.5 + (Math.random() * 0.3) // 0.5 to 0.8
                     };
-                    addBatchLog(`   Rendering video (${bgType} bg, ${alignment} align)...`);
+                    addBatchLog(`   Rendering video (Plain black bg, ${alignment} align)...`);
 
                     // Render Video
                     const blob = await generateVideoBlob(quote, config);
