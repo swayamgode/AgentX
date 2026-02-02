@@ -65,22 +65,43 @@ export default function AutoPilotPage() {
             const totalVideos = accounts.length * autoPilotGenerationsPerChannel;
             addBatchLog(`📊 Will generate ${totalVideos} total videos (${accounts.length} accounts × ${autoPilotGenerationsPerChannel} videos)`);
 
-            // 4. Process loop
+            // 4. Process loop with quota limit handling
             let topicIndex = 0;
             let successCount = 0;
             let failCount = 0;
+            let quotaExceededAccounts = new Set<string>();
+            let accountVideoCount = new Map<string, number>(); // Track videos per account
 
+            // Track videos to generate
+            let videosToGenerate: Array<{ account: any; topic: string; videoNum: number }> = [];
+
+            // Build queue of all videos to generate
             for (let i = 0; i < accounts.length; i++) {
                 const account = accounts[i];
-
-                addBatchLog(`\n➡️  Processing Account ${i + 1}/${accounts.length}: ${account.channelName}`);
-
+                accountVideoCount.set(account.id, 0); // Initialize counter
                 for (let genNum = 0; genNum < autoPilotGenerationsPerChannel; genNum++) {
                     const topic = topics[topicIndex % topics.length];
                     topicIndex++;
+                    videosToGenerate.push({ account, topic, videoNum: genNum + 1 });
+                }
+            }
 
-                    addBatchLog(`   📹 Video ${genNum + 1}/${autoPilotGenerationsPerChannel} - Topic: "${topic}"`);
+            addBatchLog(`📦 Queue: ${videosToGenerate.length} videos to generate across ${accounts.length} accounts`);
 
+            // Process each video
+            for (let i = 0; i < videosToGenerate.length; i++) {
+                const { account, topic, videoNum } = videosToGenerate[i];
+
+                // Skip if account quota exceeded
+                if (quotaExceededAccounts.has(account.id)) {
+                    addBatchLog(`\n⏭️  Skipping ${account.channelName} (quota exceeded)`);
+                    continue;
+                }
+
+                addBatchLog(`\n➡️  Video ${i + 1}/${videosToGenerate.length} - ${account.channelName}`);
+                addBatchLog(`   📝 Topic: "${topic}"`);
+
+                try {
                     // Determine style
                     const styles = ['inspirational', 'wisdom', 'success', 'funny'];
                     let selectedStyle: string;
@@ -105,21 +126,194 @@ export default function AutoPilotPage() {
                         continue;
                     }
 
-                    addBatchLog(`   ✅ Quote generated successfully`);
-                    addBatchLog(`   🎬 Rendering and uploading video...`);
+                    const quote = qData.quotes[0];
+                    addBatchLog(`   ✅ Quote: "${quote.text.substring(0, 50)}..."`);
 
-                    // For now, just simulate the upload process
-                    // In a real implementation, you would call the actual video generation and upload APIs
-                    await new Promise(r => setTimeout(r, 2000));
+                    // Determine background type
+                    let bgType = autoPilotBackgroundType;
+                    if (bgType === 'random') {
+                        bgType = ['gradient', 'image'][Math.floor(Math.random() * 2)] as 'gradient' | 'image';
+                    }
+
+                    // Determine text alignment
+                    let alignment = autoPilotTextAlign;
+                    if (alignment === 'random') {
+                        alignment = ['left', 'center', 'right'][Math.floor(Math.random() * 3)] as 'left' | 'center' | 'right';
+                    }
+
+                    // Render video (client-side rendering would happen here)
+                    addBatchLog(`   🎨 Rendering video (${bgType} bg, ${alignment} align)...`);
+
+                    // Create a canvas and render the quote video
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 1080;
+                    canvas.height = 1920;
+                    const ctx = canvas.getContext('2d')!;
+
+                    // Function to draw a frame
+                    const drawFrame = (time: number) => {
+                        // Simple black background
+                        ctx.fillStyle = '#000000';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                        // Draw quote text
+                        ctx.fillStyle = '#ffffff';
+                        ctx.font = 'bold 72px Arial';
+                        ctx.textAlign = alignment as CanvasTextAlign;
+
+                        // Add subtle animation
+                        const floatY = Math.sin(time / 2000) * 10;
+
+                        const x = alignment === 'center' ? canvas.width / 2 : alignment === 'left' ? 100 : canvas.width - 100;
+                        const words = quote.text.split(' ');
+                        let line = '';
+                        let y = canvas.height / 2 - 200 + floatY;
+                        const lineHeight = 90;
+                        const maxWidth = canvas.width - 200;
+
+                        for (let n = 0; n < words.length; n++) {
+                            const testLine = line + words[n] + ' ';
+                            const metrics = ctx.measureText(testLine);
+                            if (metrics.width > maxWidth && n > 0) {
+                                ctx.fillText(line, x, y);
+                                line = words[n] + ' ';
+                                y += lineHeight;
+                            } else {
+                                line = testLine;
+                            }
+                        }
+                        ctx.fillText(line, x, y);
+
+                        // Draw author
+                        if (quote.author) {
+                            ctx.font = '48px Arial';
+                            ctx.fillStyle = '#888888';
+                            y += lineHeight * 2;
+                            ctx.fillText(`- ${quote.author}`, x, y);
+                        }
+                    };
+
+                    // Generate video using MediaRecorder
+                    addBatchLog(`   🎬 Converting to video...`);
+                    const blob = await new Promise<Blob>((resolve) => {
+                        const canvasStream = canvas.captureStream(30);
+
+                        // Try H.264 first (better YouTube compatibility), fallback to VP9
+                        let mimeType = 'video/webm;codecs=h264';
+                        if (!MediaRecorder.isTypeSupported(mimeType)) {
+                            mimeType = 'video/webm;codecs=vp9';
+                        }
+                        if (!MediaRecorder.isTypeSupported(mimeType)) {
+                            mimeType = 'video/webm';
+                        }
+
+                        const mediaRecorder = new MediaRecorder(canvasStream, {
+                            mimeType: mimeType,
+                            videoBitsPerSecond: 2500000 // 2.5 Mbps
+                        });
+
+                        const chunks: BlobPart[] = [];
+                        mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+                        mediaRecorder.onstop = () => {
+                            const videoBlob = new Blob(chunks, { type: 'video/webm' });
+                            resolve(videoBlob);
+                        };
+
+                        mediaRecorder.start();
+
+                        const duration = 8000; // 8 seconds
+                        const startTime = Date.now();
+
+                        const animate = () => {
+                            const elapsed = Date.now() - startTime;
+                            if (elapsed < duration) {
+                                drawFrame(elapsed);
+                                requestAnimationFrame(animate);
+                            } else {
+                                mediaRecorder.stop();
+                            }
+                        };
+                        animate();
+                    });
+
+                    // Upload to YouTube
+                    const formData = new FormData();
+                    formData.append('video', blob, `quote-autopilot-${Date.now()}.webm`);
+                    formData.append('title', `${quote.text.substring(0, 80)} #Shorts`);
+                    formData.append('description', `${quote.text}\n\n${quote.author ? `- ${quote.author}` : ''}\n\n#Shorts #Quotes #${selectedStyle}`);
+                    formData.append('tags', JSON.stringify(['shorts', 'quotes', selectedStyle, topic]));
+                    formData.append('accountId', account.id);
+                    formData.append('topic', topic);
+                    formData.append('templateId', 'quote-autopilot');
+                    formData.append('texts', JSON.stringify([quote.text]));
+
+                    // Upload to YouTube
+                    addBatchLog(`   📤 Uploading to YouTube...`);
+                    const uploadRes = await fetch('/api/youtube/upload-video', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const uploadData = await uploadRes.json();
+
+                    if (uploadRes.status === 429 || uploadData.error?.includes('Daily Upload Limit')) {
+                        // Quota exceeded for this account
+                        addBatchLog(`   ⚠️  QUOTA EXCEEDED for ${account.channelName}`);
+                        quotaExceededAccounts.add(account.id);
+
+                        // Try to find another account that hasn't exceeded quota
+                        const availableAccount = accounts.find((a: any) => !quotaExceededAccounts.has(a.id));
+                        if (availableAccount) {
+                            addBatchLog(`   🔄 Switching to ${availableAccount.channelName}...`);
+                            // Re-queue this video for the available account
+                            videosToGenerate[i] = { ...videosToGenerate[i], account: availableAccount };
+                            i--; // Retry this iteration with new account
+                            continue;
+                        } else {
+                            addBatchLog(`   ❌ All accounts have exceeded quota!`);
+                            failCount++;
+                            continue;
+                        }
+                    }
+
+                    if (!uploadData.success) {
+                        addBatchLog(`   ❌ Upload failed: ${uploadData.error}`);
+                        failCount++;
+                        continue;
+                    }
 
                     addBatchLog(`   ✅ SUCCESS! Uploaded to ${account.channelName}`);
+                    addBatchLog(`   🔗 ${uploadData.videoUrl}`);
                     successCount++;
+
+                    // Track video count for this account
+                    const currentCount = accountVideoCount.get(account.id) || 0;
+                    accountVideoCount.set(account.id, currentCount + 1);
+
+                } catch (error: any) {
+                    addBatchLog(`   ❌ ERROR: ${error.message}`);
+                    failCount++;
                 }
             }
 
             addBatchLog(`\n✨ AUTO-PILOT COMPLETE! ✨`);
             addBatchLog(`📊 Results: ${successCount} successful, ${failCount} failed`);
-            addBatchLog(`🎉 Total videos generated: ${successCount}`);
+            addBatchLog(`\n📈 Videos Posted Per Account:`);
+
+            // Show detailed breakdown per account
+            for (const account of accounts) {
+                const count = accountVideoCount.get(account.id) || 0;
+                const quotaHit = quotaExceededAccounts.has(account.id);
+                const status = quotaHit ? '⚠️ QUOTA LIMIT REACHED' : '✅';
+                addBatchLog(`   ${status} ${account.channelName}: ${count} video(s)`);
+            }
+
+            if (quotaExceededAccounts.size > 0) {
+                addBatchLog(`\n⚠️  ${quotaExceededAccounts.size} account(s) reached daily upload quota`);
+                addBatchLog(`💡 Tip: Videos were redistributed to other accounts automatically`);
+            }
+
+            addBatchLog(`\n🎉 Total videos successfully posted: ${successCount}`);
 
         } catch (e: any) {
             console.error(e);
@@ -199,8 +393,8 @@ export default function AutoPilotPage() {
                                                     key={s}
                                                     onClick={() => setAutoPilotStyle(s)}
                                                     className={`py-2.5 px-3 rounded-lg font-medium text-sm transition-all border ${autoPilotStyle === s
-                                                            ? 'bg-black text-white border-black shadow-md'
-                                                            : 'bg-[#F5F5F7] text-[#86868b] border-transparent hover:bg-[#e5e5e7] hover:text-[#1d1d1f]'
+                                                        ? 'bg-black text-white border-black shadow-md'
+                                                        : 'bg-[#F5F5F7] text-[#86868b] border-transparent hover:bg-[#e5e5e7] hover:text-[#1d1d1f]'
                                                         }`}
                                                 >
                                                     {s === 'random' ? '🎲 Random' : s.charAt(0).toUpperCase() + s.slice(1)}
@@ -244,8 +438,8 @@ export default function AutoPilotPage() {
                                                     key={bg}
                                                     onClick={() => setAutoPilotBackgroundType(bg)}
                                                     className={`py-2.5 px-3 rounded-lg font-medium text-sm transition-all border ${autoPilotBackgroundType === bg
-                                                            ? 'bg-black text-white border-black shadow-md'
-                                                            : 'bg-[#F5F5F7] text-[#86868b] border-transparent hover:bg-[#e5e5e7] hover:text-[#1d1d1f]'
+                                                        ? 'bg-black text-white border-black shadow-md'
+                                                        : 'bg-[#F5F5F7] text-[#86868b] border-transparent hover:bg-[#e5e5e7] hover:text-[#1d1d1f]'
                                                         }`}
                                                 >
                                                     {bg === 'random' ? '🎲' : bg === 'gradient' ? '🌈' : '🖼️'}
@@ -270,8 +464,8 @@ export default function AutoPilotPage() {
                                                     key={align}
                                                     onClick={() => setAutoPilotTextAlign(align)}
                                                     className={`py-2.5 px-3 rounded-lg font-medium text-sm transition-all border ${autoPilotTextAlign === align
-                                                            ? 'bg-black text-white border-black shadow-md'
-                                                            : 'bg-[#F5F5F7] text-[#86868b] border-transparent hover:bg-[#e5e5e7] hover:text-[#1d1d1f]'
+                                                        ? 'bg-black text-white border-black shadow-md'
+                                                        : 'bg-[#F5F5F7] text-[#86868b] border-transparent hover:bg-[#e5e5e7] hover:text-[#1d1d1f]'
                                                         }`}
                                                 >
                                                     {align === 'random' ? '🎲' : align === 'left' ? '⬅️' : align === 'center' ? '↔️' : '➡️'}
