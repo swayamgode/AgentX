@@ -63,7 +63,7 @@ interface AccountInfo {
     channelId: string;
 }
 
-const COLORS = ['#8b5cf6', '#ec4899', '#3b82f6', '#10b981', '#f59e0b'];
+const COLORS = ['#ffffff', '#e5e5e5', '#cccccc', '#b3b3b3', '#999999'];
 
 export default function AnalyticsPage() {
     const [videos, setVideos] = useState<VideoAnalytics[]>([]);
@@ -224,7 +224,7 @@ export default function AnalyticsPage() {
     if (loading && !videos.length) {
         return (
             <div className="min-h-screen bg-black flex items-center justify-center">
-                <Loader2 className="animate-spin text-purple-500" size={32} />
+                <Loader2 className="animate-spin text-white" size={32} />
             </div>
         );
     }
@@ -239,10 +239,10 @@ export default function AnalyticsPage() {
                     <div className="p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                         <div>
                             <h1 className="text-xl font-bold text-white flex items-center gap-2">
-                                <BarChart3 className="text-purple-500" /> Analytics
+                                <BarChart3 className="text-white" /> Analytics
                             </h1>
                             <p className="text-sm text-[#71767b] mt-1">
-                                <Activity className="w-3 h-3 inline mr-1 text-green-500" />
+                                <Activity className="w-3 h-3 inline mr-1 text-white" />
                                 Live performance tracking
                             </p>
                         </div>
@@ -252,7 +252,7 @@ export default function AnalyticsPage() {
                                 <select
                                     value={selectedAccount}
                                     onChange={(e) => setSelectedAccount(e.target.value)}
-                                    className="flex-1 md:flex-initial bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-purple-500/50 transition-colors"
+                                    className="flex-1 md:flex-initial bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-white/50 transition-colors"
                                 >
                                     <option value="all">All Accounts ({accounts.length})</option>
                                     {accounts.map(account => (
@@ -277,8 +277,8 @@ export default function AnalyticsPage() {
                 <div className="p-4 md:p-8 space-y-6 md:space-y-8">
                     {/* Ambient Background Glow - adjusted z-index to be behind content but inside main */}
                     <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0 opacity-50">
-                        <div className="absolute top-[-10%] left-[20%] w-[40%] h-[40%] bg-purple-900/10 rounded-full blur-[120px]" />
-                        <div className="absolute bottom-[-10%] right-[0%] w-[40%] h-[40%] bg-blue-900/10 rounded-full blur-[120px]" />
+                        <div className="absolute top-[-10%] left-[20%] w-[40%] h-[40%] bg-white/5 rounded-full blur-[120px]" />
+                        <div className="absolute bottom-[-10%] right-[0%] w-[40%] h-[40%] bg-white/5 rounded-full blur-[120px]" />
                     </div>
 
                     <div className="relative z-10 space-y-6 md:space-y-8">
@@ -305,30 +305,30 @@ export default function AnalyticsPage() {
                             <KPICard
                                 title="Total Views"
                                 value={formatNumber(stats.totalViews)}
-                                icon={<Eye className="w-5 h-5 text-white" />}
+                                icon={<Eye className="w-5 h-5 text-black" />}
                                 trend="+12%"
-                                color="from-blue-500 to-cyan-500"
+                                color="from-white to-gray-200"
                             />
                             <KPICard
                                 title="Avg. Views / Video"
                                 value={formatNumber(stats.avgViews)}
-                                icon={<TrendingUp className="w-5 h-5 text-white" />}
+                                icon={<TrendingUp className="w-5 h-5 text-black" />}
                                 trend="+5%"
-                                color="from-purple-500 to-pink-500"
+                                color="from-white to-gray-200"
                             />
                             <KPICard
                                 title="Total Interaction"
                                 value={formatNumber(stats.totalLikes + stats.totalComments)}
-                                icon={<ThumbsUp className="w-5 h-5 text-white" />}
+                                icon={<ThumbsUp className="w-5 h-5 text-black" />}
                                 trend="+8%"
-                                color="from-orange-500 to-red-500"
+                                color="from-white to-gray-200"
                             />
                             <KPICard
                                 title="Content Library"
                                 value={filteredVideos.length.toString()}
-                                icon={<Video className="w-5 h-5 text-white" />}
+                                icon={<Video className="w-5 h-5 text-black" />}
                                 trend="Videos"
-                                color="from-emerald-500 to-green-500"
+                                color="from-white to-gray-200"
                             />
                         </div>
 
@@ -337,7 +337,7 @@ export default function AnalyticsPage() {
                             <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 md:mb-8 gap-2">
                                 <div>
                                     <h2 className="text-lg md:text-xl font-bold text-[#e7e9ea] flex items-center gap-2">
-                                        <Activity className="w-5 h-5 text-purple-400" />
+                                        <Activity className="w-5 h-5 text-white" />
                                         Growth Trajectory
                                     </h2>
                                     <p className="text-xs md:text-sm text-[#71767b] mt-1">View count progression over recent uploads</p>
@@ -351,8 +351,8 @@ export default function AnalyticsPage() {
                                     <AreaChart data={growthData}>
                                         <defs>
                                             <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
-                                                <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                                                <stop offset="5%" stopColor="#ffffff" stopOpacity={0.3} />
+                                                <stop offset="95%" stopColor="#ffffff" stopOpacity={0} />
                                             </linearGradient>
                                         </defs>
                                         <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
@@ -373,7 +373,7 @@ export default function AnalyticsPage() {
                                         <Area
                                             type="monotone"
                                             dataKey="views"
-                                            stroke="#8b5cf6"
+                                            stroke="#ffffff"
                                             strokeWidth={3}
                                             fillOpacity={1}
                                             fill="url(#colorViews)"
@@ -388,7 +388,7 @@ export default function AnalyticsPage() {
                             {/* Top Topics */}
                             <div className="bg-black border border-[#333] rounded-2xl p-4 md:p-6">
                                 <h2 className="text-lg md:text-xl font-bold text-[#e7e9ea] mb-2 flex items-center gap-2">
-                                    <Zap className="w-5 h-5 text-yellow-400" />
+                                    <Zap className="w-5 h-5 text-white" />
                                     Niche Performance
                                 </h2>
                                 <p className="text-xs md:text-sm text-[#71767b] mb-6">Top performing content categories</p>
@@ -424,7 +424,7 @@ export default function AnalyticsPage() {
                             {/* Engagement Split */}
                             <div className="bg-black border border-[#333] rounded-2xl p-4 md:p-6 flex flex-col">
                                 <h2 className="text-lg md:text-xl font-bold text-[#e7e9ea] mb-2 flex items-center gap-2">
-                                    <MessageSquare className="w-5 h-5 text-pink-400" />
+                                    <MessageSquare className="w-5 h-5 text-white" />
                                     Engagement Mix
                                 </h2>
                                 <p className="text-xs md:text-sm text-[#71767b] mb-6">Distribution of user interactions</p>
@@ -442,7 +442,7 @@ export default function AnalyticsPage() {
                                                     stroke="none"
                                                 >
                                                     {engagementData.map((entry, index) => (
-                                                        <Cell key={`cell-${index}`} fill={index === 0 ? '#ec4899' : '#3b82f6'} />
+                                                        <Cell key={`cell-${index}`} fill={index === 0 ? '#ffffff' : '#cccccc'} />
                                                     ))}
                                                 </Pie>
                                                 <Tooltip
@@ -477,7 +477,7 @@ export default function AnalyticsPage() {
                             {/* Daily View Counts */}
                             <div className="bg-black border border-[#333] rounded-2xl p-4 md:p-6">
                                 <h2 className="text-lg md:text-xl font-bold text-[#e7e9ea] mb-2 flex items-center gap-2">
-                                    <Calendar className="w-5 h-5 text-blue-400" />
+                                    <Calendar className="w-5 h-5 text-white" />
                                     Daily View Counts
                                 </h2>
                                 <p className="text-xs md:text-sm text-[#71767b] mb-6">Total views per day (last 14 days)</p>
@@ -503,9 +503,9 @@ export default function AnalyticsPage() {
                                             <Line
                                                 type="monotone"
                                                 dataKey="views"
-                                                stroke="#3b82f6"
+                                                stroke="#ffffff"
                                                 strokeWidth={3}
-                                                dot={{ fill: '#3b82f6', r: 4 }}
+                                                dot={{ fill: '#ffffff', r: 4 }}
                                                 activeDot={{ r: 6 }}
                                             />
                                         </LineChart>
@@ -516,7 +516,7 @@ export default function AnalyticsPage() {
                             {/* Hourly View Counts */}
                             <div className="bg-black border border-[#333] rounded-2xl p-4 md:p-6">
                                 <h2 className="text-lg md:text-xl font-bold text-[#e7e9ea] mb-2 flex items-center gap-2">
-                                    <Clock className="w-5 h-5 text-orange-400" />
+                                    <Clock className="w-5 h-5 text-white" />
                                     Hourly View Counts
                                 </h2>
                                 <p className="text-xs md:text-sm text-[#71767b] mb-6">Total views by hour of upload</p>
@@ -542,9 +542,9 @@ export default function AnalyticsPage() {
                                             <Line
                                                 type="monotone"
                                                 dataKey="totalViews"
-                                                stroke="#f59e0b"
+                                                stroke="#cccccc"
                                                 strokeWidth={3}
-                                                dot={{ fill: '#f59e0b', r: 4 }}
+                                                dot={{ fill: '#cccccc', r: 4 }}
                                                 activeDot={{ r: 6 }}
                                             />
                                         </LineChart>
@@ -555,17 +555,17 @@ export default function AnalyticsPage() {
 
 
                         {/* AI Strategy Engine */}
-                        <div className="bg-gradient-to-br from-purple-900/10 to-blue-900/10 border border-purple-500/20 rounded-2xl p-4 md:p-6 relative overflow-hidden">
+                        <div className="bg-white/5 border border-white/20 rounded-2xl p-4 md:p-6 relative overflow-hidden">
                             <div className="absolute top-0 right-0 p-3 opacity-20">
-                                <Zap className="w-16 h-16 md:w-24 md:h-24 text-purple-500" />
+                                <Zap className="w-16 h-16 md:w-24 md:h-24 text-white" />
                             </div>
 
                             <div className="relative z-10">
                                 <h2 className="text-lg md:text-2xl font-bold text-white mb-2 flex items-center gap-3">
-                                    <span className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">AI Strategy Engine</span>
-                                    <span className="text-[10px] md:text-xs px-2 py-1 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">BETA</span>
+                                    <span className="text-white">AI Strategy Engine</span>
+                                    <span className="text-[10px] md:text-xs px-2 py-1 rounded bg-white/20 text-white border border-white/30">BETA</span>
                                 </h2>
-                                <p className="text-stone-400 max-w-2xl mb-6 text-sm md:text-base">
+                                <p className="text-gray-400 max-w-2xl mb-6 text-sm md:text-base">
                                     This model "trains" on your historical analytics data to identify winning patterns.
                                     It analyzes correlation between topics, keywords, and view velocity to suggest high-probability video ideas.
                                 </p>
@@ -578,7 +578,7 @@ export default function AnalyticsPage() {
                         <div className="bg-black border border-[#333] rounded-2xl overflow-hidden">
                             <div className="p-4 md:p-6 border-b border-[#333] flex justify-between items-center">
                                 <h2 className="text-lg md:text-xl font-bold text-[#e7e9ea]">Recent Uploads</h2>
-                                <button className="text-xs font-semibold text-purple-400 hover:text-purple-300 transition-colors uppercase tracking-wider">
+                                <button className="text-xs font-semibold text-white hover:text-gray-300 transition-colors uppercase tracking-wider">
                                     View All
                                 </button>
                             </div>
@@ -620,8 +620,8 @@ export default function AnalyticsPage() {
                                                 </td>
                                                 <td className="px-4 md:px-6 py-2 md:py-4 flex items-center justify-between md:table-cell">
                                                     <span className="md:hidden text-xs font-medium">Status</span>
-                                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-500/10 text-green-400 border border-green-500/20">
-                                                        <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-white/10 text-white border border-white/20">
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
                                                         Public
                                                     </span>
                                                 </td>
@@ -709,7 +709,7 @@ function StrategyGenerator() {
                                 value={competitorInput}
                                 onChange={(e) => setCompetitorInput(e.target.value)}
                                 placeholder="Enter competitor channel (e.g. @MrBeast, @Veritasium)"
-                                className="flex-1 bg-black/40 border border-[#333] rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-purple-500/50 transition-all font-mono text-sm"
+                                className="flex-1 bg-black/40 border border-[#333] rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-white/50 transition-all font-mono text-sm"
                             />
                         </div>
                         <p className="text-xs text-[#555] mt-2">
@@ -728,11 +728,11 @@ function StrategyGenerator() {
             )}
 
             {loading && (
-                <div className="flex flex-col items-center justify-center py-10 gap-4 text-purple-300">
+                <div className="flex flex-col items-center justify-center py-10 gap-4 text-white">
                     <Loader2 className="animate-spin w-8 h-8" />
                     <div className="text-center space-y-1">
                         <span className="font-bold block animate-pulse">Analyzing Pattern Data...</span>
-                        <span className="text-sm text-purple-400/60 block">
+                        <span className="text-sm text-gray-400 block">
                             {competitorInput ? `Scraping public trends from ${competitorInput}...` : 'Processing 3,000+ data points...'}
                         </span>
                     </div>
@@ -742,23 +742,23 @@ function StrategyGenerator() {
             {suggestions.length > 0 && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
                     {suggestions.map((idea, i) => (
-                        <div key={i} className="bg-black/40 border border-white/10 p-5 rounded-xl hover:border-purple-500/50 transition-colors group">
+                        <div key={i} className="bg-black/40 border border-white/10 p-5 rounded-xl hover:border-white/50 transition-colors group">
                             <div className="flex justify-between items-start mb-3">
-                                <span className="text-xs font-mono text-purple-400 bg-purple-500/10 px-2 py-1 rounded border border-purple-500/20">
+                                <span className="text-xs font-mono text-white bg-white/10 px-2 py-1 rounded border border-white/20">
                                     {idea.topic}
                                 </span>
                                 {idea.predictedPerformance === 'High' && (
-                                    <span className="text-xs font-bold text-green-400 flex items-center gap-1">
+                                    <span className="text-xs font-bold text-white flex items-center gap-1">
                                         <TrendingUp className="w-3 h-3" />
                                         High Prob.
                                     </span>
                                 )}
                             </div>
-                            <h3 className="text-white font-bold mb-2 group-hover:text-purple-300 transition-colors">
+                            <h3 className="text-white font-bold mb-2 group-hover:text-gray-300 transition-colors">
                                 {idea.title}
                             </h3>
-                            <p className="text-sm text-stone-400 border-t border-white/5 pt-3 mt-3">
-                                <span className="text-xs text-stone-500 uppercase tracking-widest block mb-1">Why this works</span>
+                            <p className="text-sm text-gray-400 border-t border-white/5 pt-3 mt-3">
+                                <span className="text-xs text-gray-500 uppercase tracking-widest block mb-1">Why this works</span>
                                 {idea.reasoning}
                             </p>
                         </div>
@@ -785,11 +785,11 @@ function KPICard({ title, value, icon, trend, color }: { title: string, value: s
             <div className={`absolute inset-0 bg-gradient-to-br ${color} opacity-0 group-hover:opacity-5 transition-opacity duration-500`} />
 
             <div className="relative z-10 flex justify-between items-start mb-4">
-                <div className={`p-3 rounded-xl bg-gradient-to-br ${color} shadow-lg shadow-purple-500/20`}>
+                <div className={`p-3 rounded-xl bg-gradient-to-br ${color} shadow-lg shadow-white/20`}>
                     {icon}
                 </div>
                 {trend && (
-                    <span className="text-xs font-bold text-green-400 bg-green-500/10 px-2 py-1 rounded-lg border border-green-500/20 flex items-center gap-1">
+                    <span className="text-xs font-bold text-white bg-white/10 px-2 py-1 rounded-lg border border-white/20 flex items-center gap-1">
                         <TrendingUp className="w-3 h-3" />
                         {trend}
                     </span>
