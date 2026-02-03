@@ -8,7 +8,7 @@ export interface VideoOptions {
     fps?: number; // Frames per second (default: 30)
     format?: 'webm' | 'mp4'; // Video format
 }
-
+//wah
 /**
  * Convert canvas to video blob
  * Creates a video from a static canvas image
