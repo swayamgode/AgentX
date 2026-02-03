@@ -63,7 +63,7 @@ interface AccountInfo {
     channelId: string;
 }
 
-const COLORS = ['#ffffff', '#e5e5e5', '#cccccc', '#b3b3b3', '#999999'];
+const COLORS = ['#1d1d1f', '#333333', '#666666', '#999999', '#cccccc'];
 
 export default function AnalyticsPage() {
     const [videos, setVideos] = useState<VideoAnalytics[]>([]);
@@ -223,26 +223,26 @@ export default function AnalyticsPage() {
 
     if (loading && !videos.length) {
         return (
-            <div className="min-h-screen bg-black flex items-center justify-center">
-                <Loader2 className="animate-spin text-white" size={32} />
+            <div className="min-h-screen bg-[#F5F5F7] flex items-center justify-center">
+                <Loader2 className="animate-spin text-[#1d1d1f]" size={32} />
             </div>
         );
     }
 
     return (
-        <div className="flex min-h-screen bg-black text-[#e7e9ea]">
+        <div className="flex min-h-screen bg-[#F5F5F7] text-[#1d1d1f]">
             <LeftSidebar />
 
-            <main className="flex-1 border-x border-[#333] min-h-screen flex flex-col pb-20 md:pb-0">
+            <main className="flex-1 min-h-screen flex flex-col pb-20 md:pb-0">
                 {/* Header */}
-                <div className="sticky top-0 bg-black/80 backdrop-blur-md z-10 border-b border-[#333]">
+                <div className="sticky top-0 bg-white/80 backdrop-blur-md z-10 border-b border-[#e5e5e7]">
                     <div className="p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                         <div>
-                            <h1 className="text-xl font-bold text-white flex items-center gap-2">
-                                <BarChart3 className="text-white" /> Analytics
+                            <h1 className="text-xl font-bold text-[#1d1d1f] flex items-center gap-2">
+                                <BarChart3 className="text-[#1d1d1f]" /> Analytics
                             </h1>
-                            <p className="text-sm text-[#71767b] mt-1">
-                                <Activity className="w-3 h-3 inline mr-1 text-white" />
+                            <p className="text-sm text-[#86868b] mt-1">
+                                <Activity className="w-3 h-3 inline mr-1 text-[#1d1d1f]" />
                                 Live performance tracking
                             </p>
                         </div>
@@ -252,7 +252,7 @@ export default function AnalyticsPage() {
                                 <select
                                     value={selectedAccount}
                                     onChange={(e) => setSelectedAccount(e.target.value)}
-                                    className="flex-1 md:flex-initial bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-white/50 transition-colors"
+                                    className="flex-1 md:flex-initial bg-white border border-[#e5e5e7] rounded-lg px-3 py-1.5 text-sm text-[#1d1d1f] focus:outline-none focus:border-[#1d1d1f] transition-colors"
                                 >
                                     <option value="all">All Accounts ({accounts.length})</option>
                                     {accounts.map(account => (
@@ -265,7 +265,7 @@ export default function AnalyticsPage() {
                             <button
                                 onClick={() => fetchAnalytics(true)}
                                 disabled={refreshing}
-                                className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs font-medium text-gray-400 transition-colors disabled:opacity-50 self-end md:self-auto"
+                                className="flex items-center gap-2 px-3 py-1.5 bg-white hover:bg-[#F5F5F7] border border-[#e5e5e7] rounded-lg text-xs font-medium text-[#1d1d1f] transition-colors disabled:opacity-50 self-end md:self-auto"
                             >
                                 <RefreshCw size={14} className={refreshing ? "animate-spin" : ""} />
                                 {refreshing ? 'Syncing...' : 'Sync Data'}
@@ -276,23 +276,23 @@ export default function AnalyticsPage() {
 
                 <div className="p-4 md:p-8 space-y-6 md:space-y-8">
                     {/* Ambient Background Glow - adjusted z-index to be behind content but inside main */}
-                    <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0 opacity-50">
-                        <div className="absolute top-[-10%] left-[20%] w-[40%] h-[40%] bg-white/5 rounded-full blur-[120px]" />
-                        <div className="absolute bottom-[-10%] right-[0%] w-[40%] h-[40%] bg-white/5 rounded-full blur-[120px]" />
+                    <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0 opacity-30">
+                        <div className="absolute top-[-10%] left-[20%] w-[40%] h-[40%] bg-black/3 rounded-full blur-[120px]" />
+                        <div className="absolute bottom-[-10%] right-[0%] w-[40%] h-[40%] bg-black/3 rounded-full blur-[120px]" />
                     </div>
 
                     <div className="relative z-10 space-y-6 md:space-y-8">
 
                         {error && (
-                            <div className="bg-red-900/10 border border-red-500/20 text-red-200 p-4 rounded-xl flex items-center justify-between backdrop-blur-md flex-wrap gap-2">
+                            <div className="bg-red-50 border border-red-200 text-red-800 p-4 rounded-xl flex items-center justify-between backdrop-blur-md flex-wrap gap-2">
                                 <div className="flex items-center gap-3">
-                                    <AlertCircle className="w-5 h-5 text-red-400" />
+                                    <AlertCircle className="w-5 h-5 text-red-600" />
                                     <span>{error}</span>
                                 </div>
                                 {error.toLowerCase().includes('expired') || error.toLowerCase().includes('auth') || error.toLowerCase().includes('connect') ? (
                                     <Link
                                         href="/settings"
-                                        className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-red-500/30 rounded-lg text-sm font-bold transition-all w-full md:w-auto text-center"
+                                        className="px-4 py-2 bg-red-100 hover:bg-red-200 text-red-700 hover:text-red-800 border border-red-300 rounded-lg text-sm font-bold transition-all w-full md:w-auto text-center"
                                     >
                                         Reconnect YouTube
                                     </Link>
@@ -305,44 +305,44 @@ export default function AnalyticsPage() {
                             <KPICard
                                 title="Total Views"
                                 value={formatNumber(stats.totalViews)}
-                                icon={<Eye className="w-5 h-5 text-black" />}
+                                icon={<Eye className="w-5 h-5 text-white" />}
                                 trend="+12%"
-                                color="from-white to-gray-200"
+                                color="from-[#1d1d1f] to-[#333]"
                             />
                             <KPICard
                                 title="Avg. Views / Video"
                                 value={formatNumber(stats.avgViews)}
-                                icon={<TrendingUp className="w-5 h-5 text-black" />}
+                                icon={<TrendingUp className="w-5 h-5 text-white" />}
                                 trend="+5%"
-                                color="from-white to-gray-200"
+                                color="from-[#1d1d1f] to-[#333]"
                             />
                             <KPICard
                                 title="Total Interaction"
                                 value={formatNumber(stats.totalLikes + stats.totalComments)}
-                                icon={<ThumbsUp className="w-5 h-5 text-black" />}
+                                icon={<ThumbsUp className="w-5 h-5 text-white" />}
                                 trend="+8%"
-                                color="from-white to-gray-200"
+                                color="from-[#1d1d1f] to-[#333]"
                             />
                             <KPICard
                                 title="Content Library"
                                 value={filteredVideos.length.toString()}
-                                icon={<Video className="w-5 h-5 text-black" />}
+                                icon={<Video className="w-5 h-5 text-white" />}
                                 trend="Videos"
-                                color="from-white to-gray-200"
+                                color="from-[#1d1d1f] to-[#333]"
                             />
                         </div>
 
                         {/* Charts Row 1: Growth Trend */}
-                        <div className="bg-black border border-[#333] rounded-2xl p-4 md:p-6 overflow-hidden">
+                        <div className="bg-white border border-[#e5e5e7] rounded-2xl p-4 md:p-6 overflow-hidden shadow-sm">
                             <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 md:mb-8 gap-2">
                                 <div>
-                                    <h2 className="text-lg md:text-xl font-bold text-[#e7e9ea] flex items-center gap-2">
-                                        <Activity className="w-5 h-5 text-white" />
+                                    <h2 className="text-lg md:text-xl font-bold text-[#1d1d1f] flex items-center gap-2">
+                                        <Activity className="w-5 h-5 text-[#1d1d1f]" />
                                         Growth Trajectory
                                     </h2>
-                                    <p className="text-xs md:text-sm text-[#71767b] mt-1">View count progression over recent uploads</p>
+                                    <p className="text-xs md:text-sm text-[#86868b] mt-1">View count progression over recent uploads</p>
                                 </div>
-                                <div className="text-xs font-mono text-[#71767b] bg-[#16181c] px-3 py-1 rounded-full border border-[#333]">
+                                <div className="text-xs font-mono text-[#86868b] bg-[#F5F5F7] px-3 py-1 rounded-full border border-[#e5e5e7]">
                                     Last {growthData.length} Videos
                                 </div>
                             </div>
@@ -351,29 +351,29 @@ export default function AnalyticsPage() {
                                     <AreaChart data={growthData}>
                                         <defs>
                                             <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#ffffff" stopOpacity={0.3} />
-                                                <stop offset="95%" stopColor="#ffffff" stopOpacity={0} />
+                                                <stop offset="5%" stopColor="#1d1d1f" stopOpacity={0.1} />
+                                                <stop offset="95%" stopColor="#1d1d1f" stopOpacity={0} />
                                             </linearGradient>
                                         </defs>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
+                                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e7" vertical={false} />
                                         <YAxis
-                                            stroke="#525252"
-                                            tick={{ fill: '#71767b', fontSize: 12 }}
+                                            stroke="#86868b"
+                                            tick={{ fill: '#86868b', fontSize: 12 }}
                                             tickLine={false}
                                             axisLine={false}
                                             dx={-10}
                                             tickFormatter={(value) => formatNumber(value)}
                                         />
                                         <Tooltip
-                                            cursor={{ stroke: '#333', strokeWidth: 1 }}
-                                            contentStyle={{ backgroundColor: '#000', borderColor: '#333', borderRadius: '12px' }}
-                                            itemStyle={{ color: '#e7e9ea' }}
-                                            labelStyle={{ color: '#71767b', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}
+                                            cursor={{ stroke: '#e5e5e7', strokeWidth: 1 }}
+                                            contentStyle={{ backgroundColor: '#ffffff', borderColor: '#e5e5e7', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
+                                            itemStyle={{ color: '#1d1d1f' }}
+                                            labelStyle={{ color: '#86868b', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}
                                         />
                                         <Area
                                             type="monotone"
                                             dataKey="views"
-                                            stroke="#ffffff"
+                                            stroke="#1d1d1f"
                                             strokeWidth={3}
                                             fillOpacity={1}
                                             fill="url(#colorViews)"
@@ -386,30 +386,30 @@ export default function AnalyticsPage() {
                         {/* Charts Row 2: Topics & Engagement */}
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             {/* Top Topics */}
-                            <div className="bg-black border border-[#333] rounded-2xl p-4 md:p-6">
-                                <h2 className="text-lg md:text-xl font-bold text-[#e7e9ea] mb-2 flex items-center gap-2">
-                                    <Zap className="w-5 h-5 text-white" />
+                            <div className="bg-white border border-[#e5e5e7] rounded-2xl p-4 md:p-6 shadow-sm">
+                                <h2 className="text-lg md:text-xl font-bold text-[#1d1d1f] mb-2 flex items-center gap-2">
+                                    <Zap className="w-5 h-5 text-[#1d1d1f]" />
                                     Niche Performance
                                 </h2>
-                                <p className="text-xs md:text-sm text-[#71767b] mb-6">Top performing content categories</p>
+                                <p className="text-xs md:text-sm text-[#86868b] mb-6">Top performing content categories</p>
 
                                 <div className="h-[250px] md:h-[300px] w-full">
                                     <ResponsiveContainer width="100%" height="100%">
                                         <BarChart data={topicData} layout="vertical" margin={{ left: 0, right: 10, top: 0, bottom: 0 }}>
-                                            <CartesianGrid strokeDasharray="3 3" stroke="#333" horizontal={true} vertical={false} />
+                                            <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e7" horizontal={true} vertical={false} />
                                             <XAxis type="number" hide />
                                             <YAxis
                                                 dataKey="name"
                                                 type="category"
                                                 width={90}
-                                                tick={{ fill: '#71767b', fontSize: 12, fontWeight: 500 }}
+                                                tick={{ fill: '#86868b', fontSize: 12, fontWeight: 500 }}
                                                 tickLine={false}
                                                 axisLine={false}
                                             />
                                             <Tooltip
-                                                cursor={{ fill: '#16181c', radius: 4 }}
-                                                contentStyle={{ backgroundColor: '#000', borderColor: '#333', borderRadius: '12px' }}
-                                                itemStyle={{ color: '#e7e9ea' }}
+                                                cursor={{ fill: '#F5F5F7', radius: 4 }}
+                                                contentStyle={{ backgroundColor: '#ffffff', borderColor: '#e5e5e7', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
+                                                itemStyle={{ color: '#1d1d1f' }}
                                             />
                                             <Bar dataKey="value" radius={[0, 6, 6, 0]} barSize={24} >
                                                 {topicData.map((entry, index) => (
@@ -422,12 +422,12 @@ export default function AnalyticsPage() {
                             </div>
 
                             {/* Engagement Split */}
-                            <div className="bg-black border border-[#333] rounded-2xl p-4 md:p-6 flex flex-col">
-                                <h2 className="text-lg md:text-xl font-bold text-[#e7e9ea] mb-2 flex items-center gap-2">
-                                    <MessageSquare className="w-5 h-5 text-white" />
+                            <div className="bg-white border border-[#e5e5e7] rounded-2xl p-4 md:p-6 flex flex-col shadow-sm">
+                                <h2 className="text-lg md:text-xl font-bold text-[#1d1d1f] mb-2 flex items-center gap-2">
+                                    <MessageSquare className="w-5 h-5 text-[#1d1d1f]" />
                                     Engagement Mix
                                 </h2>
-                                <p className="text-xs md:text-sm text-[#71767b] mb-6">Distribution of user interactions</p>
+                                <p className="text-xs md:text-sm text-[#86868b] mb-6">Distribution of user interactions</p>
 
                                 <div className="h-[250px] md:h-[300px] w-full flex-1 flex items-center justify-center relative">
                                     {engagementData.length > 0 ? (
@@ -442,12 +442,12 @@ export default function AnalyticsPage() {
                                                     stroke="none"
                                                 >
                                                     {engagementData.map((entry, index) => (
-                                                        <Cell key={`cell-${index}`} fill={index === 0 ? '#ffffff' : '#cccccc'} />
+                                                        <Cell key={`cell-${index}`} fill={index === 0 ? '#1d1d1f' : '#999999'} />
                                                     ))}
                                                 </Pie>
                                                 <Tooltip
-                                                    contentStyle={{ backgroundColor: '#000', borderColor: '#333', borderRadius: '12px' }}
-                                                    itemStyle={{ color: '#e7e9ea' }}
+                                                    contentStyle={{ backgroundColor: '#ffffff', borderColor: '#e5e5e7', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
+                                                    itemStyle={{ color: '#1d1d1f' }}
                                                 />
                                                 <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ paddingTop: '10px' }} />
                                             </PieChart>
@@ -461,10 +461,10 @@ export default function AnalyticsPage() {
                                     {/* Center Statistic */}
                                     {engagementData.length > 0 && (
                                         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none pb-8">
-                                            <span className="text-2xl md:text-3xl font-bold text-[#e7e9ea]">
+                                            <span className="text-2xl md:text-3xl font-bold text-[#1d1d1f]">
                                                 {formatNumber(stats.totalLikes + stats.totalComments)}
                                             </span>
-                                            <span className="text-xs text-[#71767b] uppercase tracking-widest">Total</span>
+                                            <span className="text-xs text-[#86868b] uppercase tracking-widest">Total</span>
                                         </div>
                                     )}
                                 </div>
@@ -475,37 +475,37 @@ export default function AnalyticsPage() {
                         {/* Daily & Hourly View Counts */}
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             {/* Daily View Counts */}
-                            <div className="bg-black border border-[#333] rounded-2xl p-4 md:p-6">
-                                <h2 className="text-lg md:text-xl font-bold text-[#e7e9ea] mb-2 flex items-center gap-2">
-                                    <Calendar className="w-5 h-5 text-white" />
+                            <div className="bg-white border border-[#e5e5e7] rounded-2xl p-4 md:p-6 shadow-sm">
+                                <h2 className="text-lg md:text-xl font-bold text-[#1d1d1f] mb-2 flex items-center gap-2">
+                                    <Calendar className="w-5 h-5 text-[#1d1d1f]" />
                                     Daily View Counts
                                 </h2>
-                                <p className="text-xs md:text-sm text-[#71767b] mb-6">Total views per day (last 14 days)</p>
+                                <p className="text-xs md:text-sm text-[#86868b] mb-6">Total views per day (last 14 days)</p>
 
                                 <div className="h-[250px] md:h-[300px] w-full">
                                     <ResponsiveContainer width="100%" height="100%">
                                         <LineChart data={dailyData}>
-                                            <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                                            <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e7" />
                                             <XAxis
                                                 dataKey="dateLabel"
-                                                stroke="#525252"
-                                                tick={{ fill: '#71767b', fontSize: 12 }}
+                                                stroke="#86868b"
+                                                tick={{ fill: '#86868b', fontSize: 12 }}
                                             />
                                             <YAxis
-                                                stroke="#525252"
-                                                tick={{ fill: '#71767b', fontSize: 12 }}
+                                                stroke="#86868b"
+                                                tick={{ fill: '#86868b', fontSize: 12 }}
                                                 tickFormatter={formatNumber}
                                             />
                                             <Tooltip
-                                                contentStyle={{ backgroundColor: '#000', borderColor: '#333', borderRadius: '12px' }}
-                                                itemStyle={{ color: '#e7e9ea' }}
+                                                contentStyle={{ backgroundColor: '#ffffff', borderColor: '#e5e5e7', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
+                                                itemStyle={{ color: '#1d1d1f' }}
                                             />
                                             <Line
                                                 type="monotone"
                                                 dataKey="views"
-                                                stroke="#ffffff"
+                                                stroke="#1d1d1f"
                                                 strokeWidth={3}
-                                                dot={{ fill: '#ffffff', r: 4 }}
+                                                dot={{ fill: '#1d1d1f', r: 4 }}
                                                 activeDot={{ r: 6 }}
                                             />
                                         </LineChart>
@@ -514,37 +514,37 @@ export default function AnalyticsPage() {
                             </div>
 
                             {/* Hourly View Counts */}
-                            <div className="bg-black border border-[#333] rounded-2xl p-4 md:p-6">
-                                <h2 className="text-lg md:text-xl font-bold text-[#e7e9ea] mb-2 flex items-center gap-2">
-                                    <Clock className="w-5 h-5 text-white" />
+                            <div className="bg-white border border-[#e5e5e7] rounded-2xl p-4 md:p-6 shadow-sm">
+                                <h2 className="text-lg md:text-xl font-bold text-[#1d1d1f] mb-2 flex items-center gap-2">
+                                    <Clock className="w-5 h-5 text-[#1d1d1f]" />
                                     Hourly View Counts
                                 </h2>
-                                <p className="text-xs md:text-sm text-[#71767b] mb-6">Total views by hour of upload</p>
+                                <p className="text-xs md:text-sm text-[#86868b] mb-6">Total views by hour of upload</p>
 
                                 <div className="h-[250px] md:h-[300px] w-full">
                                     <ResponsiveContainer width="100%" height="100%">
                                         <LineChart data={hourlyData}>
-                                            <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                                            <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e7" />
                                             <XAxis
                                                 dataKey="hourLabel"
-                                                stroke="#525252"
-                                                tick={{ fill: '#71767b', fontSize: 12 }}
+                                                stroke="#86868b"
+                                                tick={{ fill: '#86868b', fontSize: 12 }}
                                             />
                                             <YAxis
-                                                stroke="#525252"
-                                                tick={{ fill: '#71767b', fontSize: 12 }}
+                                                stroke="#86868b"
+                                                tick={{ fill: '#86868b', fontSize: 12 }}
                                                 tickFormatter={formatNumber}
                                             />
                                             <Tooltip
-                                                contentStyle={{ backgroundColor: '#000', borderColor: '#333', borderRadius: '12px' }}
-                                                itemStyle={{ color: '#e7e9ea' }}
+                                                contentStyle={{ backgroundColor: '#ffffff', borderColor: '#e5e5e7', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
+                                                itemStyle={{ color: '#1d1d1f' }}
                                             />
                                             <Line
                                                 type="monotone"
                                                 dataKey="totalViews"
-                                                stroke="#cccccc"
+                                                stroke="#666666"
                                                 strokeWidth={3}
-                                                dot={{ fill: '#cccccc', r: 4 }}
+                                                dot={{ fill: '#666666', r: 4 }}
                                                 activeDot={{ r: 6 }}
                                             />
                                         </LineChart>
@@ -555,17 +555,17 @@ export default function AnalyticsPage() {
 
 
                         {/* AI Strategy Engine */}
-                        <div className="bg-white/5 border border-white/20 rounded-2xl p-4 md:p-6 relative overflow-hidden">
+                        <div className="bg-[#F5F5F7] border border-[#e5e5e7] rounded-2xl p-4 md:p-6 relative overflow-hidden shadow-sm">
                             <div className="absolute top-0 right-0 p-3 opacity-20">
-                                <Zap className="w-16 h-16 md:w-24 md:h-24 text-white" />
+                                <Zap className="w-16 h-16 md:w-24 md:h-24 text-[#1d1d1f]" />
                             </div>
 
                             <div className="relative z-10">
-                                <h2 className="text-lg md:text-2xl font-bold text-white mb-2 flex items-center gap-3">
-                                    <span className="text-white">AI Strategy Engine</span>
-                                    <span className="text-[10px] md:text-xs px-2 py-1 rounded bg-white/20 text-white border border-white/30">BETA</span>
+                                <h2 className="text-lg md:text-2xl font-bold text-[#1d1d1f] mb-2 flex items-center gap-3">
+                                    <span className="text-[#1d1d1f]">AI Strategy Engine</span>
+                                    <span className="text-[10px] md:text-xs px-2 py-1 rounded bg-[#1d1d1f]/10 text-[#1d1d1f] border border-[#1d1d1f]/20">BETA</span>
                                 </h2>
-                                <p className="text-gray-400 max-w-2xl mb-6 text-sm md:text-base">
+                                <p className="text-[#86868b] max-w-2xl mb-6 text-sm md:text-base">
                                     This model "trains" on your historical analytics data to identify winning patterns.
                                     It analyzes correlation between topics, keywords, and view velocity to suggest high-probability video ideas.
                                 </p>
@@ -575,16 +575,16 @@ export default function AnalyticsPage() {
                         </div>
 
                         {/* Recent Videos Table */}
-                        <div className="bg-black border border-[#333] rounded-2xl overflow-hidden">
-                            <div className="p-4 md:p-6 border-b border-[#333] flex justify-between items-center">
-                                <h2 className="text-lg md:text-xl font-bold text-[#e7e9ea]">Recent Uploads</h2>
-                                <button className="text-xs font-semibold text-white hover:text-gray-300 transition-colors uppercase tracking-wider">
+                        <div className="bg-white border border-[#e5e5e7] rounded-2xl overflow-hidden shadow-sm">
+                            <div className="p-4 md:p-6 border-b border-[#e5e5e7] flex justify-between items-center">
+                                <h2 className="text-lg md:text-xl font-bold text-[#1d1d1f]">Recent Uploads</h2>
+                                <button className="text-xs font-semibold text-[#1d1d1f] hover:text-black transition-colors uppercase tracking-wider">
                                     View All
                                 </button>
                             </div>
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left text-sm text-[#71767b]">
-                                    <thead className="bg-[#16181c] text-[#71767b] font-medium hidden md:table-header-group">
+                                    <thead className="bg-[#F5F5F7] text-[#86868b] font-medium hidden md:table-header-group">
                                         <tr>
                                             <th className="px-6 py-4 rounded-tl-lg">Content</th>
                                             <th className="px-6 py-4">Status</th>
@@ -593,12 +593,12 @@ export default function AnalyticsPage() {
                                             <th className="px-6 py-4 text-right rounded-tr-lg">Action</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-[#333]">
+                                    <tbody className="divide-y divide-[#e5e5e7]">
                                         {filteredVideos.slice(0, 10).map((video) => (
-                                            <tr key={video.youtubeId} className="hover:bg-[#16181c] transition-colors group flex md:table-row flex-col">
+                                            <tr key={video.youtubeId} className="hover:bg-[#F5F5F7] transition-colors group flex md:table-row flex-col">
                                                 <td className="px-4 md:px-6 py-3 md:py-4">
                                                     <div className="flex items-center gap-3 md:gap-4">
-                                                        <div className="w-20 md:w-24 h-12 md:h-14 bg-[#16181c] rounded-lg overflow-hidden flex-shrink-0 relative group shadow-lg border border-[#333]">
+                                                        <div className="w-20 md:w-24 h-12 md:h-14 bg-[#F5F5F7] rounded-lg overflow-hidden flex-shrink-0 relative group shadow-sm border border-[#e5e5e7]">
                                                             {video.thumbnailUrl ? (
                                                                 <img src={video.thumbnailUrl} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                                                             ) : (
@@ -609,9 +609,9 @@ export default function AnalyticsPage() {
                                                             </div>
                                                         </div>
                                                         <div className="max-w-[200px] md:max-w-[250px]">
-                                                            <div className="font-semibold text-[#e7e9ea] truncate text-sm md:text-base" title={video.title}>{video.title}</div>
-                                                            <div className="text-xs text-[#71767b] mt-1 flex items-center gap-2">
-                                                                <span className="px-1.5 py-0.5 rounded bg-[#16181c] border border-[#333] text-[#71767b]">{video.topic || 'General'}</span>
+                                                            <div className="font-semibold text-[#1d1d1f] truncate text-sm md:text-base" title={video.title}>{video.title}</div>
+                                                            <div className="text-xs text-[#86868b] mt-1 flex items-center gap-2">
+                                                                <span className="px-1.5 py-0.5 rounded bg-[#F5F5F7] border border-[#e5e5e7] text-[#86868b]">{video.topic || 'General'}</span>
                                                                 <span>•</span>
                                                                 <span>{new Date(video.uploadedAt).toLocaleDateString()}</span>
                                                             </div>
@@ -619,18 +619,18 @@ export default function AnalyticsPage() {
                                                     </div>
                                                 </td>
                                                 <td className="px-4 md:px-6 py-2 md:py-4 flex items-center justify-between md:table-cell">
-                                                    <span className="md:hidden text-xs font-medium">Status</span>
-                                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-white/10 text-white border border-white/20">
+                                                    <span className="md:hidden text-xs font-medium text-[#86868b]">Status</span>
+                                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-[#1d1d1f] text-white shadow-sm">
                                                         <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
                                                         Public
                                                     </span>
                                                 </td>
-                                                <td className="px-4 md:px-6 py-2 md:py-4 text-right font-bold text-[#e7e9ea] font-mono tracking-tight flex items-center justify-between md:table-cell">
-                                                    <span className="md:hidden text-xs font-normal text-gray-500">Views</span>
+                                                <td className="px-4 md:px-6 py-2 md:py-4 text-right font-bold text-[#1d1d1f] font-mono tracking-tight flex items-center justify-between md:table-cell">
+                                                    <span className="md:hidden text-xs font-normal text-[#86868b]">Views</span>
                                                     {formatNumber(parseInt(video.stats?.viewCount || '0'))}
                                                 </td>
-                                                <td className="px-4 md:px-6 py-2 md:py-4 text-right font-mono text-[#71767b] flex items-center justify-between md:table-cell">
-                                                    <span className="md:hidden text-xs font-normal text-gray-500">Likes</span>
+                                                <td className="px-4 md:px-6 py-2 md:py-4 text-right font-mono text-[#86868b] flex items-center justify-between md:table-cell">
+                                                    <span className="md:hidden text-xs font-normal text-[#86868b]">Likes</span>
                                                     {formatNumber(parseInt(video.stats?.likeCount || '0'))}
                                                 </td>
                                                 <td className="px-4 md:px-6 py-2 md:py-4 text-right hidden md:table-cell">
@@ -638,7 +638,7 @@ export default function AnalyticsPage() {
                                                         href={`https://www.youtube.com/watch?v=${video.youtubeId}`}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
-                                                        className="text-[#71767b] hover:text-white p-2 hover:bg-[#16181c] rounded-lg transition-all inline-block"
+                                                        className="text-[#86868b] hover:text-[#1d1d1f] p-2 hover:bg-[#F5F5F7] rounded-lg transition-all inline-block"
                                                         title="Watch on YouTube"
                                                     >
                                                         <ArrowUpRight className="w-4 h-4" />
@@ -700,7 +700,7 @@ function StrategyGenerator() {
             {!suggestions.length && !loading && (
                 <div className="space-y-4">
                     <div>
-                        <label className="text-xs font-semibold text-[#71767b] uppercase tracking-wider mb-2 block">
+                        <label className="text-xs font-semibold text-[#86868b] uppercase tracking-wider mb-2 block">
                             Market Analysis (Optional)
                         </label>
                         <div className="flex gap-2">
@@ -709,30 +709,30 @@ function StrategyGenerator() {
                                 value={competitorInput}
                                 onChange={(e) => setCompetitorInput(e.target.value)}
                                 placeholder="Enter competitor channel (e.g. @MrBeast, @Veritasium)"
-                                className="flex-1 bg-black/40 border border-[#333] rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-white/50 transition-all font-mono text-sm"
+                                className="flex-1 bg-white border border-[#e5e5e7] rounded-xl px-4 py-3 text-[#1d1d1f] placeholder:text-gray-400 focus:outline-none focus:border-[#1d1d1f] transition-all font-mono text-sm"
                             />
                         </div>
-                        <p className="text-xs text-[#555] mt-2">
+                        <p className="text-xs text-[#86868b] mt-2">
                             Leave empty to train on your data only. Enter a handle to combine insights.
                         </p>
                     </div>
 
                     <button
                         onClick={generate}
-                        className="w-full sm:w-auto px-6 py-3 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.5)]"
+                        className="w-full sm:w-auto px-6 py-3 bg-[#1d1d1f] text-white font-bold rounded-xl hover:bg-[#000] transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
                     >
-                        <Zap className="w-5 h-5 fill-black" />
+                        <Zap className="w-5 h-5 fill-white" />
                         {competitorInput ? 'Analyze Market & Generate Strategy' : 'Train Model & Generate Ideas'}
                     </button>
                 </div>
             )}
 
             {loading && (
-                <div className="flex flex-col items-center justify-center py-10 gap-4 text-white">
+                <div className="flex flex-col items-center justify-center py-10 gap-4 text-[#1d1d1f]">
                     <Loader2 className="animate-spin w-8 h-8" />
                     <div className="text-center space-y-1">
                         <span className="font-bold block animate-pulse">Analyzing Pattern Data...</span>
-                        <span className="text-sm text-gray-400 block">
+                        <span className="text-sm text-[#86868b] block">
                             {competitorInput ? `Scraping public trends from ${competitorInput}...` : 'Processing 3,000+ data points...'}
                         </span>
                     </div>
@@ -742,23 +742,23 @@ function StrategyGenerator() {
             {suggestions.length > 0 && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
                     {suggestions.map((idea, i) => (
-                        <div key={i} className="bg-black/40 border border-white/10 p-5 rounded-xl hover:border-white/50 transition-colors group">
+                        <div key={i} className="bg-white border border-[#e5e5e7] p-5 rounded-xl hover:shadow-md transition-shadow group">
                             <div className="flex justify-between items-start mb-3">
-                                <span className="text-xs font-mono text-white bg-white/10 px-2 py-1 rounded border border-white/20">
+                                <span className="text-xs font-mono text-[#1d1d1f] bg-[#F5F5F7] px-2 py-1 rounded border border-[#e5e5e7]">
                                     {idea.topic}
                                 </span>
                                 {idea.predictedPerformance === 'High' && (
-                                    <span className="text-xs font-bold text-white flex items-center gap-1">
+                                    <span className="text-xs font-bold text-[#1d1d1f] flex items-center gap-1">
                                         <TrendingUp className="w-3 h-3" />
                                         High Prob.
                                     </span>
                                 )}
                             </div>
-                            <h3 className="text-white font-bold mb-2 group-hover:text-gray-300 transition-colors">
+                            <h3 className="text-[#1d1d1f] font-bold mb-2 group-hover:text-black transition-colors">
                                 {idea.title}
                             </h3>
-                            <p className="text-sm text-gray-400 border-t border-white/5 pt-3 mt-3">
-                                <span className="text-xs text-gray-500 uppercase tracking-widest block mb-1">Why this works</span>
+                            <p className="text-sm text-[#86868b] border-t border-[#e5e5e7] pt-3 mt-3">
+                                <span className="text-xs text-[#86868b] uppercase tracking-widest block mb-1">Why this works</span>
                                 {idea.reasoning}
                             </p>
                         </div>
@@ -766,7 +766,7 @@ function StrategyGenerator() {
                     <div className="flex items-center justify-center">
                         <button
                             onClick={() => { setSuggestions([]); generate(); }}
-                            className="p-4 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-white transition-all group"
+                            className="p-4 rounded-full bg-white hover:bg-[#F5F5F7] border border-[#e5e5e7] text-[#1d1d1f] transition-all group shadow-sm"
                             title="Regenerate"
                         >
                             <RefreshCw className="w-6 h-6 group-hover:rotate-180 transition-transform duration-500" />
@@ -780,24 +780,24 @@ function StrategyGenerator() {
 
 function KPICard({ title, value, icon, trend, color }: { title: string, value: string, icon: React.ReactNode, trend?: string, color: string }) {
     return (
-        <div className="relative group overflow-hidden bg-black border border-[#333] p-6 rounded-2xl transition-all hover:-translate-y-1 hover:shadow-2xl">
+        <div className="relative group overflow-hidden bg-white border border-[#e5e5e7] p-6 rounded-2xl transition-all hover:-translate-y-1 hover:shadow-lg">
             {/* Gradient Background on Hover */}
             <div className={`absolute inset-0 bg-gradient-to-br ${color} opacity-0 group-hover:opacity-5 transition-opacity duration-500`} />
 
             <div className="relative z-10 flex justify-between items-start mb-4">
-                <div className={`p-3 rounded-xl bg-gradient-to-br ${color} shadow-lg shadow-white/20`}>
+                <div className={`p-3 rounded-xl bg-gradient-to-br ${color} shadow-lg shadow-black/5`}>
                     {icon}
                 </div>
                 {trend && (
-                    <span className="text-xs font-bold text-white bg-white/10 px-2 py-1 rounded-lg border border-white/20 flex items-center gap-1">
+                    <span className="text-xs font-bold text-[#1d1d1f] bg-[#F5F5F7] px-2 py-1 rounded-lg border border-[#e5e5e7] flex items-center gap-1">
                         <TrendingUp className="w-3 h-3" />
                         {trend}
                     </span>
                 )}
             </div>
             <div className="relative z-10">
-                <div className="text-3xl font-bold text-[#e7e9ea] tracking-tight font-mono">{value}</div>
-                <div className="text-sm text-[#71767b] mt-1 font-medium">{title}</div>
+                <div className="text-3xl font-bold text-[#1d1d1f] tracking-tight font-mono">{value}</div>
+                <div className="text-sm text-[#86868b] mt-1 font-medium">{title}</div>
             </div>
         </div>
     );
