@@ -14,7 +14,7 @@ export async function POST(req: Request) {
             return new Response(JSON.stringify({ error: "Server configuration error: Missing API Key" }), { status: 500 });
         }
 
-        const { topic, count = 10, templateId } = await req.json();
+        const { topic, count = 10, templateId, persona = "default" } = await req.json();
 
         const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
@@ -46,12 +46,25 @@ export async function POST(req: Request) {
             ? `\n\n### SUCCESSFUL MEMES (Replicate their energy):\n${topMemes.map(m => `- Topic: ${m.topic} | Text: ${JSON.stringify(m.texts)}`).join('\n')}\n`
             : "";
 
+        const personaPrompts: Record<string, string> = {
+            "default": "relatable, witty, and viral",
+            "edgy": "sarcastic, dark humor, and bold",
+            "wholesome": "positive, cute, and heartwarming",
+            "crypto": "obsessed with gains, volatile markets, and HODLing",
+            "dev": "tech-savvy, hates bugs, loves coffee, slightly jaded",
+            "corporate": "passive-aggressive, meeting-obsessed, 'circled back'",
+            "gymrat": "obsessed with protein, gains, and leg day"
+        };
+
+        const selectedPersona = personaPrompts[persona] || personaPrompts["default"];
+
         const prompt = `
-      You are a world-class meme creator for 2026. Your goal is to create viral, "Gen Z" style, and "Shorts-ready" memes.
+      You are a world-class meme creator. Your goal is to create viral, shareable memes that resonate with current internet culture.
       
       Topic: "${topic}"
+      Target Vibe/Persona: ${selectedPersona}
       Current Date: ${new Date().toLocaleDateString()}
-      Trends to consider: "365 buttons", "delulu", "gym resolutions", "POV", "Me vs. Guy she tells you not to worry about".
+      
       ${performanceContext}
 
       Generate ${count} distinct meme ideas based on this topic.
@@ -64,7 +77,7 @@ export async function POST(req: Request) {
       Each object must have:
       - "index": number (matching the index above)
       - "templateId": string
-      - "texts": string[] (Array of strings matching the required boxCount. Keep them EXTREMELY SHORT. Max 5 words per text box. NO complex sentences. Use ALL CAPS for classic memes.)
+      - "texts": string[] (Array of strings matching the required boxCount. Keep them EXTREMELY SHORT. Max 5-7 words per text box. NO complex sentences. Use ALL CAPS for classic memes.)
 
       Example JSON Structure:
       [

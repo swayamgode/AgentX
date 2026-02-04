@@ -23,6 +23,7 @@ export function UnifiedMemeWorkflow() {
     const { status, refresh } = useSocialConnection();
     const [currentStep, setCurrentStep] = useState<WorkflowStep>('generate');
     const [topic, setTopic] = useState("");
+    const [persona, setPersona] = useState("default");
     const [quantity, setQuantity] = useState(10);
     const [isGenerating, setIsGenerating] = useState(false);
     const [generatedMemes, setGeneratedMemes] = useState<GeneratedMeme[]>([]);
@@ -67,8 +68,9 @@ export function UnifiedMemeWorkflow() {
     const handleGenerate = async (useDefault: boolean = false) => {
         if (!topic) return;
         setIsGenerating(true);
+        setIsGenerating(true);
         try {
-            const payload: any = { topic, count: quantity };
+            const payload: any = { topic, count: quantity, persona };
 
             if (useDefault && defaultDesign) {
                 payload.templateId = defaultDesign.templateId;
@@ -472,12 +474,15 @@ export function UnifiedMemeWorkflow() {
                 addBatchLog(`\n➡️ Processing Account: ${account.channelName}`);
                 addBatchLog(`   Topic: "${topic}"`);
 
+                const personas = ['default', 'edgy', 'wholesome', 'dev', 'corporate', 'gymrat'];
+                const randomPersona = personas[Math.floor(Math.random() * personas.length)];
+
                 // A. Generate Meme
-                addBatchLog("   Generating content...");
+                addBatchLog(`   Generating content (${randomPersona} vibe)...`);
                 const genRes = await fetch("/api/memes/generate", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ topic, count: 1 })
+                    body: JSON.stringify({ topic, count: 1, persona: randomPersona })
                 });
                 const genData = await genRes.json();
 
@@ -647,6 +652,34 @@ export function UnifiedMemeWorkflow() {
                                             className="relative w-full bg-white border border-[#e5e5e7] rounded-xl px-6 py-6 text-xl text-[#1d1d1f] placeholder:text-gray-400 focus:outline-none focus:border-[#1d1d1f] transition-all"
                                             onKeyDown={(e) => e.key === 'Enter' && topic && !isGenerating && handleGenerate(false)}
                                         />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <label className="text-sm font-medium text-[#86868b] uppercase tracking-wider ml-1">Vibe / Persona</label>
+                                    <div className="flex flex-wrap gap-2">
+                                        {[
+                                            { id: 'default', label: '✨ Default', desc: 'Relatable & Viral' },
+                                            { id: 'edgy', label: '💀 Edgy', desc: 'Sarcastic & Bold' },
+                                            { id: 'wholesome', label: '🥰 Wholesome', desc: 'Cute & Positive' },
+                                            { id: 'dev', label: '💻 Dev', desc: 'Tech Savvy' },
+                                            { id: 'crypto', label: '💎 Crypto', desc: 'HODL & Gains' },
+                                            { id: 'corporate', label: '👔 Corporate', desc: 'Office Life' },
+                                            { id: 'gymrat', label: '💪 Gym', desc: 'Gains & Protein' },
+                                        ].map(p => (
+                                            <button
+                                                key={p.id}
+                                                onClick={() => setPersona(p.id)}
+                                                className={`
+                                                    px-4 py-2 rounded-xl text-sm font-semibold transition-all border
+                                                    ${persona === p.id
+                                                        ? 'bg-[#1d1d1f] border-[#1d1d1f] text-white shadow-md'
+                                                        : 'bg-white border-[#e5e5e7] text-gray-500 hover:bg-[#F5F5F7] hover:border-[#d1d1d6]'}
+                                                `}
+                                            >
+                                                {p.label}
+                                            </button>
+                                        ))}
                                     </div>
                                 </div>
 
