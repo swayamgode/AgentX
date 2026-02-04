@@ -5,6 +5,241 @@ import { LeftSidebar } from "@/components/LeftSidebar";
 import { MobileNav } from "@/components/MobileNav";
 import { Rocket, Terminal, Loader2, Settings as SettingsIcon, Zap, TrendingUp, Video } from "lucide-react";
 
+interface Decoration {
+    image: string;
+    x: number; // 0-1 range
+    y: number; // 0-1 range
+    size: number; // 0.15-0.5 range (relative to canvas width)
+}
+
+interface Quote {
+    text: string;
+    author: string;
+    category?: string;
+    decorations?: Decoration[];
+}
+
+interface RenderConfig {
+    backgroundType: 'gradient' | 'image';
+    backgroundImage: string | null;
+    color1: string;
+    color2: string;
+    textColor: string;
+    textAlign: 'left' | 'center' | 'right';
+    fontSizeScale: number;
+}
+
+// Helper to load image for canvas
+const prepareDecoration = async (url: string): Promise<HTMLCanvasElement | null> => {
+    if (!url) return null;
+    try {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.src = url;
+
+        if (!img.complete) {
+            await new Promise((resolve) => {
+                img.onload = resolve;
+                img.onerror = resolve;
+            });
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d')!;
+
+        ctx.drawImage(img, 0, 0);
+        return canvas;
+    } catch (error) {
+        console.error('Failed to prepare decoration:', error);
+        return null;
+    }
+};
+
+const drawCanvas = async (canvas: HTMLCanvasElement, quote: Quote, time: number = 0, preparedDecorations: (HTMLCanvasElement | null)[] = [], config: RenderConfig, watermarkText: string = 'AgentX') => {
+    const ctx = canvas.getContext('2d')!;
+    const width = canvas.width;
+    const height = canvas.height;
+
+    ctx.clearRect(0, 0, width, height);
+
+    // Animation factors (0 to 1 over 10 seconds)
+    const progress = Math.min(time / 10000, 1);
+    const zoom = 1 + (progress * 0.1); // Zoom from 1.0 to 1.1
+
+    // 1. Draw Background
+    if (config.backgroundType === 'image' && config.backgroundImage) {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.src = config.backgroundImage;
+
+        if (!img.complete) {
+            await new Promise((resolve) => {
+                img.onload = resolve;
+                img.onerror = resolve;
+            });
+        }
+
+        // Cover fit with Zoom effect
+        const scale = Math.max(width / img.width, height / img.height) * zoom;
+        const x = (width / 2) - (img.width / 2) * scale;
+        const y = (height / 2) - (img.height / 2) * scale;
+
+        ctx.save();
+        ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+        ctx.restore();
+
+        // Dark overlay
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+        ctx.fillRect(0, 0, width, height);
+    } else {
+        // Gradient Background
+        const grad = ctx.createLinearGradient(0, 0, width, height);
+        grad.addColorStop(0, config.color1);
+        grad.addColorStop(1, config.color2);
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, width, height);
+    }
+
+    // 1.5 Draw Decorations
+    if (quote.decorations && quote.decorations.length > 0) {
+        for (let i = 0; i < quote.decorations.length; i++) {
+            const decoration = quote.decorations[i];
+            try {
+                let canvasToDraw = preparedDecorations[i] || null;
+                if (!canvasToDraw) {
+                    canvasToDraw = await prepareDecoration(decoration.image);
+                }
+
+                if (canvasToDraw) {
+                    const decoSize = width * decoration.size;
+                    const decoX = (width * decoration.x) - (decoSize / 2);
+                    const decoY = (height * decoration.y) - (decoSize / 2);
+
+                    ctx.globalAlpha = 1.0;
+                    ctx.drawImage(canvasToDraw, decoX, decoY, decoSize, decoSize);
+                }
+            } catch (e) {
+                console.error(`Failed to draw decoration ${i}`, e);
+            }
+        }
+    }
+
+    ctx.globalAlpha = 1.0;
+
+    // 2. Draw Text
+    ctx.fillStyle = config.textColor;
+    const isStory = width === 1080 && height === 1920;
+    const baseFontSize = isStory ? 64 : 50;
+    const fontSize = baseFontSize * config.fontSizeScale;
+
+    ctx.font = `bold ${fontSize}px "Inter", Arial, sans-serif`;
+    ctx.textAlign = config.textAlign;
+    ctx.textBaseline = 'middle';
+
+    ctx.shadowColor = 'rgba(0,0,0,0.5)';
+    ctx.shadowBlur = 20;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 4;
+
+    const maxLineWidth = width * 0.8;
+    const words = quote.text.split(' ');
+    const lines: string[] = [];
+    let currentLine = words[0];
+
+    for (let i = 1; i < words.length; i++) {
+        const testLine = currentLine + ' ' + words[i];
+        const metrics = ctx.measureText(testLine);
+        if (metrics.width > maxLineWidth) {
+            lines.push(currentLine);
+            currentLine = words[i];
+        } else {
+            currentLine = testLine;
+        }
+    }
+    lines.push(currentLine);
+
+    const lineHeight = fontSize * 1.4;
+    const totalHeight = lines.length * lineHeight;
+    const startY = (height / 2) - (totalHeight / 2);
+
+    const floatY = Math.sin(time / 2000) * 10;
+
+    let textX = width / 2;
+    if (config.textAlign === 'left') textX = width * 0.1;
+    else if (config.textAlign === 'right') textX = width * 0.9;
+
+    lines.forEach((line, i) => {
+        ctx.fillText(line, textX, startY + i * lineHeight + floatY);
+    });
+
+    // 4. Draw Author
+    ctx.font = `italic ${fontSize * 0.4}px "Inter", Arial, sans-serif`;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+    ctx.fillText(`- ${quote.author}`, width / 2, startY + totalHeight + 40 + floatY);
+
+    // 5. Draw Watermark
+    ctx.font = `500 24px "Inter", sans-serif`;
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.shadowBlur = 0;
+    ctx.fillText(watermarkText, width / 2, height - 80);
+};
+
+const generateVideoBlob = async (quote: Quote, config: RenderConfig, watermarkText: string): Promise<Blob | null> => {
+    return new Promise(async (resolve) => {
+        const canvas = document.createElement('canvas');
+        canvas.width = 1080;
+        canvas.height = 1920;
+
+        const canvasStream = canvas.captureStream(30);
+
+        let mimeType = 'video/webm;codecs=h264';
+        if (!MediaRecorder.isTypeSupported(mimeType)) {
+            mimeType = 'video/webm;codecs=vp9';
+        }
+        if (!MediaRecorder.isTypeSupported(mimeType)) {
+            mimeType = 'video/webm';
+        }
+
+        const mediaRecorder = new MediaRecorder(canvasStream, {
+            mimeType: mimeType,
+            videoBitsPerSecond: 2500000
+        });
+
+        const chunks: BlobPart[] = [];
+        mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+        mediaRecorder.onstop = () => {
+            const blob = new Blob(chunks, { type: 'video/webm' });
+            resolve(blob);
+        };
+
+        mediaRecorder.start();
+
+        const duration = 8000; // 8 seconds
+        const startTime = Date.now();
+
+        const decorations: (HTMLCanvasElement | null)[] = [];
+        if (quote.decorations) {
+            for (const deco of quote.decorations) {
+                const prepared = await prepareDecoration(deco.image);
+                decorations.push(prepared);
+            }
+        }
+
+        const animate = async () => {
+            const elapsed = Date.now() - startTime;
+            if (elapsed < duration) {
+                await drawCanvas(canvas, quote, elapsed, decorations, config, watermarkText);
+                requestAnimationFrame(animate);
+            } else {
+                mediaRecorder.stop();
+            }
+        };
+        animate();
+    });
+};
+
 export default function AutoPilotPage() {
     // Auto-Pilot Configuration State
     const [autoPilotStyle, setAutoPilotStyle] = useState<'random' | 'inspirational' | 'funny' | 'wisdom' | 'success'>('random');
@@ -16,12 +251,28 @@ export default function AutoPilotPage() {
     const [isBatchRunning, setIsBatchRunning] = useState(false);
     const [batchLogs, setBatchLogs] = useState<string[]>([]);
     const logsEndRef = useRef<HTMLDivElement>(null);
+    const [availableGraphics, setAvailableGraphics] = useState<string[]>([]);
 
     useEffect(() => {
         if (logsEndRef.current) {
             logsEndRef.current.scrollIntoView({ behavior: "smooth" });
         }
     }, [batchLogs]);
+
+    useEffect(() => {
+        async function loadGraphics() {
+            try {
+                const response = await fetch('/api/graphics/list');
+                const data = await response.json();
+                if (data.graphics) {
+                    setAvailableGraphics(data.graphics);
+                }
+            } catch (error) {
+                console.error('Failed to load graphics:', error);
+            }
+        }
+        loadGraphics();
+    }, []);
 
     const addBatchLog = (msg: string) => {
         setBatchLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] ${msg}`]);
@@ -126,115 +377,64 @@ export default function AutoPilotPage() {
                         continue;
                     }
 
-                    const quote = qData.quotes[0];
+                    let quote: Quote = qData.quotes[0];
                     addBatchLog(`   ✅ Quote: "${quote.text.substring(0, 50)}..."`);
 
-                    // Determine background type
-                    let bgType = autoPilotBackgroundType;
-                    if (bgType === 'random') {
-                        bgType = ['gradient', 'image'][Math.floor(Math.random() * 2)] as 'gradient' | 'image';
+                    // Enhance with decorations if available
+                    if (availableGraphics.length > 0) {
+                        const decorations: Decoration[] = [];
+                        const numDecorations = Math.floor(Math.random() * 4); // 0-3 decorations
+                        for (let d = 0; d < numDecorations; d++) {
+                            const randomGraphic = availableGraphics[Math.floor(Math.random() * availableGraphics.length)];
+                            decorations.push({
+                                image: randomGraphic,
+                                x: Math.random(),
+                                y: Math.random(),
+                                size: 0.15 + Math.random() * 0.25
+                            });
+                        }
+                        quote.decorations = decorations;
                     }
+
+                    // Determine background type
+                    let bgType: 'gradient' | 'image' = 'gradient';
+                    // Current autopilot doesn't support image upload yet, so default to gradient
+                    // But if it did, we'd use state. For now, gradient.
 
                     // Determine text alignment
-                    let alignment = autoPilotTextAlign;
-                    if (alignment === 'random') {
-                        alignment = ['left', 'center', 'right'][Math.floor(Math.random() * 3)] as 'left' | 'center' | 'right';
+                    let alignment: 'left' | 'center' | 'right';
+                    if (autoPilotTextAlign === 'random') {
+                        const alignments: ('left' | 'center' | 'right')[] = ['left', 'center', 'right'];
+                        alignment = alignments[Math.floor(Math.random() * alignments.length)];
+                    } else {
+                        alignment = autoPilotTextAlign as 'left' | 'center' | 'right';
                     }
 
-                    // Render video (client-side rendering would happen here)
-                    addBatchLog(`   🎨 Rendering video (${bgType} bg, ${alignment} align)...`);
-
-                    // Create a canvas and render the quote video
-                    const canvas = document.createElement('canvas');
-                    canvas.width = 1080;
-                    canvas.height = 1920;
-                    const ctx = canvas.getContext('2d')!;
-
-                    // Function to draw a frame
-                    const drawFrame = (time: number) => {
-                        // Simple black background
-                        ctx.fillStyle = '#000000';
-                        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                        // Draw quote text
-                        ctx.fillStyle = '#ffffff';
-                        ctx.font = 'bold 72px Arial';
-                        ctx.textAlign = alignment as CanvasTextAlign;
-
-                        // Add subtle animation
-                        const floatY = Math.sin(time / 2000) * 10;
-
-                        const x = alignment === 'center' ? canvas.width / 2 : alignment === 'left' ? 100 : canvas.width - 100;
-                        const words = quote.text.split(' ');
-                        let line = '';
-                        let y = canvas.height / 2 - 200 + floatY;
-                        const lineHeight = 90;
-                        const maxWidth = canvas.width - 200;
-
-                        for (let n = 0; n < words.length; n++) {
-                            const testLine = line + words[n] + ' ';
-                            const metrics = ctx.measureText(testLine);
-                            if (metrics.width > maxWidth && n > 0) {
-                                ctx.fillText(line, x, y);
-                                line = words[n] + ' ';
-                                y += lineHeight;
-                            } else {
-                                line = testLine;
-                            }
-                        }
-                        ctx.fillText(line, x, y);
-
-                        // Draw author
-                        if (quote.author) {
-                            ctx.font = '48px Arial';
-                            ctx.fillStyle = '#888888';
-                            y += lineHeight * 2;
-                            ctx.fillText(`- ${quote.author}`, x, y);
-                        }
+                    // Create Config
+                    const renderConfig: RenderConfig = {
+                        backgroundType: bgType,
+                        backgroundImage: null,
+                        color1: '#000000', // Black
+                        color2: '#000000', // Black
+                        textColor: '#ffffff',
+                        textAlign: alignment,
+                        fontSizeScale: 0.5 + (Math.random() * 0.3) // 0.5 to 0.8
                     };
 
-                    // Generate video using MediaRecorder
-                    addBatchLog(`   🎬 Converting to video...`);
-                    const blob = await new Promise<Blob>((resolve) => {
-                        const canvasStream = canvas.captureStream(30);
+                    addBatchLog(`   🎨 Rendering video (${bgType} bg, ${alignment} align)...`);
 
-                        // Try H.264 first (better YouTube compatibility), fallback to VP9
-                        let mimeType = 'video/webm;codecs=h264';
-                        if (!MediaRecorder.isTypeSupported(mimeType)) {
-                            mimeType = 'video/webm;codecs=vp9';
-                        }
-                        if (!MediaRecorder.isTypeSupported(mimeType)) {
-                            mimeType = 'video/webm';
-                        }
+                    // Generate video using shared logic
+                    const blob = await generateVideoBlob(
+                        quote,
+                        renderConfig,
+                        account.watermark || 'AgentX'
+                    );
 
-                        const mediaRecorder = new MediaRecorder(canvasStream, {
-                            mimeType: mimeType,
-                            videoBitsPerSecond: 2500000 // 2.5 Mbps
-                        });
-
-                        const chunks: BlobPart[] = [];
-                        mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
-                        mediaRecorder.onstop = () => {
-                            const videoBlob = new Blob(chunks, { type: 'video/webm' });
-                            resolve(videoBlob);
-                        };
-
-                        mediaRecorder.start();
-
-                        const duration = 8000; // 8 seconds
-                        const startTime = Date.now();
-
-                        const animate = () => {
-                            const elapsed = Date.now() - startTime;
-                            if (elapsed < duration) {
-                                drawFrame(elapsed);
-                                requestAnimationFrame(animate);
-                            } else {
-                                mediaRecorder.stop();
-                            }
-                        };
-                        animate();
-                    });
+                    if (!blob) {
+                        addBatchLog("   ❌ Failed to generate video blob");
+                        failCount++;
+                        continue;
+                    }
 
                     // Upload to YouTube
                     const formData = new FormData();
