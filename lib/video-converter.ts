@@ -11,6 +11,7 @@ export interface VideoOptions {
 //wah
 /**
  * Convert canvas to video blob
+ * created meme pages  with better ui
  * Creates a video from a static canvas image
  */
 export async function canvasToVideoBlob(
