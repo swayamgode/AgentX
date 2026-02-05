@@ -7,12 +7,12 @@ export interface VideoOptions {
     duration?: number; // Duration in seconds (default: 5)
     fps?: number; // Frames per second (default: 30)
     format?: 'webm' | 'mp4'; // Video format
+    onFrame?: (progress: number) => void; // Animation callback (0 to 1)
 }
-//wah
+
 /**
  * Convert canvas to video blob
- * created meme pages  with better ui
- * Creates a video from a static canvas image
+ * creates high-quality video with optional animation support
  */
 export async function canvasToVideoBlob(
     canvas: HTMLCanvasElement,
@@ -21,7 +21,8 @@ export async function canvasToVideoBlob(
     const {
         duration = 5,
         fps = 30,
-        format = 'webm'
+        format = 'webm',
+        onFrame
     } = options;
 
     // Check if MediaRecorder is supported
@@ -44,12 +45,14 @@ export async function canvasToVideoBlob(
 
     const mediaRecorder = new MediaRecorder(stream, {
         mimeType: MediaRecorder.isTypeSupported(mimeType) ? mimeType : undefined,
-        videoBitsPerSecond: 5000000 // 5 Mbps for good quality
+        videoBitsPerSecond: 8000000 // 8 Mbps for high quality
     });
 
     const chunks: Blob[] = [];
 
     return new Promise((resolve, reject) => {
+        let animationFrameId: number;
+
         mediaRecorder.ondataavailable = (event) => {
             if (event.data.size > 0) {
                 chunks.push(event.data);
@@ -57,16 +60,41 @@ export async function canvasToVideoBlob(
         };
 
         mediaRecorder.onstop = () => {
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
             const blob = new Blob(chunks, { type: mimeType });
             resolve(blob);
         };
 
         mediaRecorder.onerror = (error) => {
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
             reject(error);
         };
 
         // Start recording
         mediaRecorder.start();
+
+        // Start animation loop if requested
+        if (onFrame) {
+            const startTime = performance.now();
+
+            const animate = () => {
+                const elapsed = (performance.now() - startTime) / 1000;
+                const rawProgress = elapsed / duration;
+                const progress = Math.min(Math.max(rawProgress, 0), 1);
+
+                onFrame(progress);
+
+                if (elapsed < duration) {
+                    animationFrameId = requestAnimationFrame(animate);
+                }
+            };
+
+            animate();
+        }
 
         // Stop after specified duration
         setTimeout(() => {
