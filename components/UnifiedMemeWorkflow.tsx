@@ -191,8 +191,11 @@ export function UnifiedMemeWorkflow() {
                         successCount++;
                         console.log(`✓ Video ${i + 1} uploaded successfully:`, data.videoUrl);
                     } else {
-                        console.error(`✗ Video ${i + 1} upload failed:`, data.error);
-                        errors.push(`Video ${i + 1}: ${data.error}`);
+                        const errorMsg = data.code === 'AUTH_EXPIRED'
+                            ? `Authentication Expired! Please reconnect YouTube account.`
+                            : data.error;
+                        console.error(`✗ Video ${i + 1} upload failed:`, errorMsg);
+                        errors.push(`Video ${i + 1}: ${errorMsg}`);
                     }
                 } catch (uploadError: any) {
                     console.error(`✗ Video ${i + 1} error:`, uploadError);
@@ -399,7 +402,12 @@ export function UnifiedMemeWorkflow() {
                 if (uploadResponse.ok) {
                     addBatchLog(`   ✅ SUCCESS! Uploaded to ${account.channelName}`);
                 } else {
-                    addBatchLog(`   ❌ UPLOAD FAILED: ${uploadResult.error}`);
+                    if (uploadResult.code === 'AUTH_EXPIRED') {
+                        addBatchLog(`   ⚠️ AUTH EXPIRED: ${account.channelName} needs reconnection.`);
+                        addBatchLog(`   ❗ Please go to Settings and reconnect your account.`);
+                    } else {
+                        addBatchLog(`   ❌ UPLOAD FAILED: ${uploadResult.error}`);
+                    }
                 }
 
                 // Small delay

@@ -68,7 +68,12 @@ export async function POST(request: NextRequest) {
                 };
             } catch (err) {
                 console.error("Failed to refresh token", err);
-                return NextResponse.json({ error: 'Authentication expired' }, { status: 401 });
+                return NextResponse.json({
+                    error: 'Authentication expired',
+                    code: 'AUTH_EXPIRED',
+                    accountId: account.id,
+                    channelName: account.channelName
+                }, { status: 401 });
             }
         }
 
