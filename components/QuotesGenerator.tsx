@@ -70,6 +70,8 @@ export function QuotesGenerator() {
     // Batch Automation State
     const [isBatchRunning, setIsBatchRunning] = useState(false);
     const [batchLogs, setBatchLogs] = useState<string[]>([]);
+    const [livePreviewQuote, setLivePreviewQuote] = useState<Quote | null>(null);
+    const livePreviewCanvasRef = useRef<HTMLCanvasElement>(null);
 
     // Auto-Pilot Configuration State
     const [autoPilotStyle, setAutoPilotStyle] = useState<'random' | 'inspirational' | 'funny' | 'wisdom' | 'success'>('random');
@@ -277,13 +279,16 @@ export function QuotesGenerator() {
 
 
     interface RenderConfig {
-        backgroundType: 'gradient' | 'image';
+        backgroundType: 'gradient' | 'image' | 'mesh' | 'cinematic';
         backgroundImage: string | null;
         color1: string;
         color2: string;
+        color3?: string; // For mesh
         textColor: string;
         textAlign: 'left' | 'center' | 'right';
         fontSizeScale: number;
+        showParticles?: boolean;
+        typewriterEffect?: boolean;
     }
 
     /**
@@ -297,23 +302,24 @@ export function QuotesGenerator() {
     const drawCanvas = async (canvas: HTMLCanvasElement, quote: Quote, time: number = 0, preparedDecorations: (HTMLCanvasElement | null)[] = [], config?: RenderConfig) => {
         const ctx = canvas.getContext('2d')!;
         const width = canvas.width;
+        const height = canvas.height;
 
         // Use config if provided, otherwise use state
-        const cfgBackgroundType = config ? config.backgroundType : backgroundType;
+        const cfgBackgroundType = config ? config.backgroundType : (backgroundType as any);
         const cfgBackgroundImage = config ? config.backgroundImage : backgroundImage;
         const cfgColor1 = config ? config.color1 : color1;
         const cfgColor2 = config ? config.color2 : color2;
+        const cfgColor3 = config ? (config.color3 || '#4f46e5') : '#4f46e5';
         const cfgTextColor = config ? config.textColor : textColor;
         const cfgTextAlign = config ? config.textAlign : textAlign;
         const cfgFontSizeScale = config ? config.fontSizeScale : fontSizeScale;
-
-        const height = canvas.height;
+        const showParticles = config ? config.showParticles : true;
 
         ctx.clearRect(0, 0, width, height);
 
-        // Animation factors (0 to 1 over 10 seconds)
+        // Animation factors
         const progress = Math.min(time / 10000, 1);
-        const zoom = 1 + (progress * 0.1); // Zoom from 1.0 to 1.1
+        const zoom = 1 + (progress * 0.1);
 
         // 1. Draw Background
         if (cfgBackgroundType === 'image' && cfgBackgroundImage) {
@@ -321,7 +327,6 @@ export function QuotesGenerator() {
             img.crossOrigin = "anonymous";
             img.src = cfgBackgroundImage;
 
-            // Ensure image is loaded before drawing
             if (!img.complete) {
                 await new Promise((resolve) => {
                     img.onload = resolve;
@@ -329,7 +334,6 @@ export function QuotesGenerator() {
                 });
             }
 
-            // Cover fit with Zoom effect
             const scale = Math.max(width / img.width, height / img.height) * zoom;
             const x = (width / 2) - (img.width / 2) * scale;
             const y = (height / 2) - (img.height / 2) * scale;
@@ -338,13 +342,33 @@ export function QuotesGenerator() {
             ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
             ctx.restore();
 
-            // Dark overlay for readability
             ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
             ctx.fillRect(0, 0, width, height);
+        } else if (cfgBackgroundType === 'mesh') {
+            // Animated Mesh Gradient
+            const t = time / 3000;
+            const grad = ctx.createRadialGradient(
+                width / 2 + Math.cos(t) * width * 0.3,
+                height / 2 + Math.sin(t) * height * 0.3,
+                0,
+                width / 2,
+                height / 2,
+                width
+            );
+            grad.addColorStop(0, cfgColor1);
+            grad.addColorStop(0.5, cfgColor2);
+            grad.addColorStop(1, cfgColor3);
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, width, height);
+
+            // Subtle moving highlight
+            ctx.globalCompositeOperation = 'screen';
+            ctx.fillStyle = `rgba(255, 255, 255, ${0.05 + Math.sin(t) * 0.02})`;
+            ctx.beginPath();
+            ctx.arc(width * 0.7, height * 0.2, width * 0.5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalCompositeOperation = 'source-over';
         } else {
-            // Gradient Background
-            // We can animate the gradient slightly by shifting the stop points or colors? 
-            // For now, static gradient is clean.
             const grad = ctx.createLinearGradient(0, 0, width, height);
             grad.addColorStop(0, cfgColor1);
             grad.addColorStop(1, cfgColor2);
@@ -352,98 +376,128 @@ export function QuotesGenerator() {
             ctx.fillRect(0, 0, width, height);
         }
 
-        // 1.5 Draw Decorations (Graphics) - Loop through all decorations
-        if (quote.decorations && quote.decorations.length > 0) {
-            for (let i = 0; i < quote.decorations.length; i++) {
-                const decoration = quote.decorations[i];
-
-                try {
-                    // Check if we have a pre-prepared canvas for this decoration
-                    let canvasToDraw = preparedDecorations[i] || null;
-
-                    if (!canvasToDraw) {
-                        canvasToDraw = await prepareDecoration(decoration.image);
-                    }
-
-                    if (canvasToDraw) {
-                        const decoSize = width * decoration.size;
-                        const decoX = (width * decoration.x) - (decoSize / 2);
-                        const decoY = (height * decoration.y) - (decoSize / 2);
-
-                        ctx.globalAlpha = 1.0; // Sharp visibility
-                        ctx.drawImage(canvasToDraw, decoX, decoY, decoSize, decoSize);
-                    }
-                } catch (e) {
-                    console.error(`Failed to draw decoration ${i}`, e);
-                }
+        // 1.2 Floating Particles
+        if (showParticles) {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            const particleCount = 20;
+            const speed = time / 2000;
+            for (let i = 0; i < particleCount; i++) {
+                const px = ((Math.sin(i * 123.45) + 1) / 2 * width + Math.cos(speed + i) * 50) % width;
+                const py = ((Math.cos(i * 543.21) + 1) / 2 * height - speed * 100 - i * 50) % height;
+                const size = (Math.sin(i) + 1) * 2 + 1;
+                ctx.beginPath();
+                ctx.arc(px, py < 0 ? py + height : py, size, 0, Math.PI * 2);
+                ctx.fill();
             }
         }
 
-        // Reset Alpha
+        // 1.5 Draw Decorations
+        if (quote.decorations && quote.decorations.length > 0) {
+            for (let i = 0; i < quote.decorations.length; i++) {
+                const decoration = quote.decorations[i];
+                try {
+                    let canvasToDraw = preparedDecorations[i] || null;
+                    if (!canvasToDraw) {
+                        canvasToDraw = await prepareDecoration(decoration.image);
+                    }
+                    if (canvasToDraw) {
+                        const decoSize = width * decoration.size;
+                        const decoX = (width * decoration.x) - (decoSize / 2);
+                        const decoY = (height * decoration.y) - (decoSize / 2) + Math.sin(time / 1500 + i) * 20;
+
+                        ctx.globalAlpha = 0.8;
+                        ctx.drawImage(canvasToDraw, decoX, decoY, decoSize, decoSize);
+                    }
+                } catch (e) { }
+            }
+        }
+
         ctx.globalAlpha = 1.0;
 
         // 2. Draw Text Configuration
         ctx.fillStyle = cfgTextColor;
         const isStory = width === 1080 && height === 1920;
-        const baseFontSize = isStory ? 64 : 50;
+        const baseFontSize = isStory ? 72 : 55;
         const fontSize = baseFontSize * cfgFontSizeScale;
 
-        ctx.font = `bold ${fontSize}px "Inter", Arial, sans-serif`;
+        ctx.font = `bold ${fontSize}px "Outfit", "Inter", sans-serif`;
         ctx.textAlign = cfgTextAlign;
         ctx.textBaseline = 'middle';
 
-        // Add shadow for better readability
-        ctx.shadowColor = 'rgba(0,0,0,0.5)';
-        ctx.shadowBlur = 20;
-        ctx.shadowOffsetX = 0;
-        ctx.shadowOffsetY = 4;
+        ctx.shadowColor = 'rgba(0,0,0,0.8)';
+        ctx.shadowBlur = 30;
 
-        // Word wrap
-        const maxLineWidth = width * 0.8;
+        const maxLineWidth = width * 0.85;
         const words = quote.text.split(' ');
-        const lines: string[] = [];
-        let currentLine = words[0];
 
-        for (let i = 1; i < words.length; i++) {
-            const testLine = currentLine + ' ' + words[i];
+        // Typewriter logic: Only show partial text based on time if enabled
+        let visibleText = quote.text;
+        if (config?.typewriterEffect) {
+            const charCount = Math.floor(quote.text.length * Math.min(time / 3000, 1));
+            visibleText = quote.text.substring(0, charCount);
+        }
+
+        const visibleWords = visibleText.split(' ');
+        const lines: string[] = [];
+        let currentLine = visibleWords[0];
+
+        for (let i = 1; i < visibleWords.length; i++) {
+            const testLine = currentLine + ' ' + visibleWords[i];
             const metrics = ctx.measureText(testLine);
             if (metrics.width > maxLineWidth) {
                 lines.push(currentLine);
-                currentLine = words[i];
+                currentLine = visibleWords[i];
             } else {
                 currentLine = testLine;
             }
         }
         lines.push(currentLine);
 
-        // 3. Draw Quote Text
-        const lineHeight = fontSize * 1.4;
+        const lineHeight = fontSize * 1.3;
         const totalHeight = lines.length * lineHeight;
         const startY = (height / 2) - (totalHeight / 2);
+        const floatY = Math.sin(time / 2000) * 8;
 
-        // Subtle Float Animation for text
-        const floatY = Math.sin(time / 2000) * 10;
-
-        // Calculate X positioning based on alignment
-        let textX = width / 2; // Default center
+        let textX = width / 2;
         if (cfgTextAlign === 'left') textX = width * 0.1;
         else if (cfgTextAlign === 'right') textX = width * 0.9;
 
         lines.forEach((line, i) => {
+            // Gradient text for premium feel
+            if (i === 0 && !config?.typewriterEffect) {
+                const tGrad = ctx.createLinearGradient(textX - 100, 0, textX + 100, 0);
+                tGrad.addColorStop(0, '#fff');
+                tGrad.addColorStop(0.5, '#fcd34d'); // Gold tint
+                tGrad.addColorStop(1, '#fff');
+                ctx.fillStyle = tGrad;
+            } else {
+                ctx.fillStyle = cfgTextColor;
+            }
             ctx.fillText(line, textX, startY + i * lineHeight + floatY);
         });
 
         // 4. Draw Author
-        ctx.font = `italic ${fontSize * 0.4}px "Inter", Arial, sans-serif`;
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-        ctx.fillText(`- ${quote.author}`, width / 2, startY + totalHeight + 40 + floatY);
+        if (time > 1500 || !config?.typewriterEffect) {
+            const authorAlpha = config?.typewriterEffect ? Math.min((time - 1500) / 1000, 1) : 1;
+            ctx.globalAlpha = authorAlpha;
+            ctx.font = `italic ${fontSize * 0.45}px "Inter", sans-serif`;
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.fillText(`— ${quote.author}`, width / 2, startY + totalHeight + 60 + floatY);
+            ctx.globalAlpha = 1.0;
+        }
 
-        // 5. Draw Watermark/Brand
+        // 5. Progress Bar at bottom (Viral style)
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+        ctx.fillRect(0, height - 10, width, 10);
+        ctx.fillStyle = cfgColor2;
+        ctx.fillRect(0, height - 10, width * progress, 10);
+
+        // 6. Watermark
         const selectedAccount = youtubeAccounts.find(acc => acc.id === selectedAccountId);
-        const watermarkText = selectedAccount?.watermark || 'AgentX';
-        ctx.font = `500 24px "Inter", sans-serif`;
-        ctx.fillStyle = 'rgba(255,255,255,0.5)';
-        ctx.shadowBlur = 0; // Remove shadow for watermark
+        const watermarkText = selectedAccount?.watermark || 'AgentX AI';
+        ctx.font = `600 28px "Inter", sans-serif`;
+        ctx.fillStyle = 'rgba(255,255,255,0.4)';
+        ctx.shadowBlur = 0;
         ctx.fillText(watermarkText, width / 2, height - 80);
     };
 
@@ -524,9 +578,19 @@ export function QuotesGenerator() {
                 const elapsed = Date.now() - startTime;
                 if (elapsed < duration) {
                     await drawCanvas(canvas, quote, elapsed, decorations, config);
+
+                    // Also draw to live preview if this is the active quote being visualized
+                    if (livePreviewQuote === quote && livePreviewCanvasRef.current) {
+                        const pCtx = livePreviewCanvasRef.current.getContext('2d');
+                        if (pCtx) {
+                            pCtx.drawImage(canvas, 0, 0, livePreviewCanvasRef.current.width, livePreviewCanvasRef.current.height);
+                        }
+                    }
+
                     requestAnimationFrame(animate);
                 } else {
                     mediaRecorder.stop();
+                    if (livePreviewQuote === quote) setLivePreviewQuote(null);
                 }
             };
             animate();
@@ -604,7 +668,9 @@ export function QuotesGenerator() {
                         });
 
                         if (!res.ok) {
-                            console.error(`Failed to upload video ${i + 1}`);
+                            const errorData = await res.json().catch(() => ({}));
+                            console.error(`Failed to upload video ${i + 1}:`, errorData);
+                            setScheduleProgress(`Error uploading video ${i + 1}: ${errorData.error || 'Unknown error'}`);
                         }
                     } catch (err) {
                         console.error(`Upload error for video ${i + 1}`, err);
@@ -671,136 +737,128 @@ export function QuotesGenerator() {
             topics = topics.sort(() => 0.5 - Math.random());
             addBatchLog(`Loaded ${topics.length} topics. Assigned unique topics.`);
 
-            // 3. Process loop - for each account, generate multiple videos based on autoPilotGenerationsPerChannel
+            // 3. Process loop
             let topicIndex = 0;
-            for (let i = 0; i < accounts.length; i++) {
-                const account = accounts[i];
+            const quotaExceededAccounts = new Set<string>();
+            let successfulGlobal = 0;
+            let failedGlobal = 0;
 
-                addBatchLog(`\n➡️ Processing Account: ${account.channelName}`);
-                addBatchLog(`   Generating ${autoPilotGenerationsPerChannel} video(s)...`);
-
-                // Generate multiple videos per account
-                for (let genNum = 0; genNum < autoPilotGenerationsPerChannel; genNum++) {
-                    const topic = topics[topicIndex % topics.length];
-                    topicIndex++;
-
-                    addBatchLog(`\n   📹 Video ${genNum + 1}/${autoPilotGenerationsPerChannel}`);
-                    addBatchLog(`   Topic: "${topic}"`);
-
-                    // Determine style
-                    const styles = ['inspirational', 'wisdom', 'success', 'funny'];
-                    let selectedStyle: string;
-                    if (autoPilotStyle === 'random') {
-                        selectedStyle = styles[Math.floor(Math.random() * styles.length)];
-                    } else {
-                        selectedStyle = autoPilotStyle;
-                    }
-
-                    // Generate Quote
-                    addBatchLog(`   Generating quote (${selectedStyle})...`);
-                    const qRes = await fetch("/api/quotes/generate", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ topic, count: 1, style: selectedStyle })
-                    });
-                    const qData = await qRes.json();
-
-                    if (!qData.quotes || qData.quotes.length === 0) {
-                        addBatchLog("   ❌ Failed to generate quote");
-                        continue;
-                    }
-
-                    let quote: Quote = qData.quotes[0];
-
-                    // Add Decorations
-                    if (availableGraphics.length > 0) {
-                        const decorations: Decoration[] = [];
-                        const numDecorations = Math.floor(Math.random() * 4); // 0-3 decorations
-                        for (let d = 0; d < numDecorations; d++) {
-                            const randomGraphic = availableGraphics[Math.floor(Math.random() * availableGraphics.length)];
-                            decorations.push({
-                                image: randomGraphic,
-                                x: Math.random(),
-                                y: Math.random(),
-                                size: 0.15 + Math.random() * 0.25
-                            });
-                        }
-                        quote.decorations = decorations;
-                    }
-
-                    // Determine background type
-                    let bgType: 'gradient' | 'image';
-                    if (autoPilotBackgroundType === 'random') {
-                        bgType = Math.random() > 0.5 ? 'gradient' : 'gradient'; // For now, always gradient since we don't have image
-                    } else if (autoPilotBackgroundType === 'image') {
-                        bgType = backgroundImage ? 'image' : 'gradient'; // Fallback to gradient if no image
-                    } else {
-                        bgType = 'gradient';
-                    }
-
-                    // Determine text alignment
-                    let alignment: 'left' | 'center' | 'right';
-                    if (autoPilotTextAlign === 'random') {
-                        const alignments: ('left' | 'center' | 'right')[] = ['left', 'center', 'right'];
-                        alignment = alignments[Math.floor(Math.random() * alignments.length)];
-                    } else {
-                        alignment = autoPilotTextAlign as 'left' | 'center' | 'right';
-                    }
-
-                    // Create Visual Config with plain black background
-                    const config: RenderConfig = {
-                        backgroundType: bgType,
-                        backgroundImage: bgType === 'image' ? backgroundImage : null,
-                        color1: '#000000', // Black
-                        color2: '#000000', // Black (same as color1 for solid color)
-                        textColor: '#ffffff',
-                        textAlign: alignment,
-                        fontSizeScale: 0.5 + (Math.random() * 0.3) // 0.5 to 0.8
-                    };
-                    addBatchLog(`   Rendering video (Plain black bg, ${alignment} align)...`);
-
-                    // Render Video
-                    const blob = await generateVideoBlob(quote, config);
-
-                    if (!blob) {
-                        addBatchLog("   ❌ Failed to render video");
-                        continue;
-                    }
-
-                    // Upload
-                    addBatchLog("   🚀 Uploading to YouTube...");
-                    const formData = new FormData();
-                    formData.append('video', blob, `quote-batch-${account.id}-${genNum}.webm`);
-
-                    const quotePreview = quote.text.substring(0, 50);
-                    formData.append('title', `${quotePreview}... #shorts`);
-                    formData.append('description', `${quote.text}\n\n- ${quote.author}\n\n#quotes #${topic.replace(/\s/g, '')} #motivation`);
-                    formData.append('tags', JSON.stringify(['shorts', 'quotes', topic, 'motivation']));
-                    formData.append('topic', topic);
-                    formData.append('templateId', 'quote-batch');
-                    formData.append('texts', JSON.stringify([quote.text, quote.author]));
-                    formData.append('accountId', account.id);
-                    formData.append('publishAt', ''); // Publish immediately
-
-                    const uploadRes = await fetch('/api/youtube/upload-video', {
-                        method: 'POST',
-                        body: formData
-                    });
-                    const uploadResult = await uploadRes.json();
-
-                    if (uploadRes.ok) {
-                        addBatchLog(`   ✅ SUCCESS! Uploaded to ${account.channelName}`);
-                    } else {
-                        addBatchLog(`   ❌ UPLOAD FAILED: ${uploadResult.error}`);
-                    }
-
-                    // Wait a bit between uploads
-                    await new Promise(r => setTimeout(r, 2000));
+            // Flatten the work: Create a list of all "tasks" (account, video index)
+            const tasks: { accountId: string, accountName: string, genNum: number }[] = [];
+            accounts.forEach((acc: any) => {
+                for (let n = 0; n < autoPilotGenerationsPerChannel; n++) {
+                    tasks.push({ accountId: acc.id, accountName: acc.channelName, genNum: n });
                 }
+            });
+
+            addBatchLog(`Total tasks: ${tasks.length} videos across ${accounts.length} accounts.`);
+
+            for (let t = 0; t < tasks.length; t++) {
+                const task = tasks[t];
+
+                // If this account hit quota, try to find another account for this specific task
+                if (quotaExceededAccounts.has(task.accountId)) {
+                    const fallbackAccount = accounts.find((a: any) => !quotaExceededAccounts.has(a.id));
+                    if (fallbackAccount) {
+                        addBatchLog(`⚠️ Account ${task.accountName} hit quota. Rerouting task to ${fallbackAccount.channelName}...`);
+                        task.accountId = fallbackAccount.id;
+                        task.accountName = fallbackAccount.channelName;
+                    } else {
+                        addBatchLog(`❌ All accounts have reached their daily quota. Stopping Auto-Pilot.`);
+                        break;
+                    }
+                }
+
+                const topic = topics[topicIndex % topics.length];
+                topicIndex++;
+
+                addBatchLog(`\n📹 [${t + 1}/${tasks.length}] Channel: ${task.accountName} | Topic: "${topic}"`);
+
+                // Generate Quote
+                const qRes = await fetch("/api/quotes/generate", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ topic, count: 1, style: autoPilotStyle === 'random' ? 'inspirational' : autoPilotStyle })
+                });
+                const qData = await qRes.json();
+
+                if (!qData.quotes || qData.quotes.length === 0) {
+                    addBatchLog("   ❌ Generation failed");
+                    failedGlobal++;
+                    continue;
+                }
+
+                const quote: Quote = qData.quotes[0];
+
+                // Visual Config
+                const palettes = [
+                    { c1: '#0f172a', c2: '#1e293b', c3: '#334155' }, { c1: '#450a0a', c2: '#7f1d1d', c3: '#991b1b' },
+                    { c1: '#064e3b', c2: '#065f46', c3: '#047857' }, { c1: '#1e1b4b', c2: '#312e81', c3: '#3730a3' }
+                ];
+                const palette = palettes[Math.floor(Math.random() * palettes.length)];
+
+                const config: RenderConfig = {
+                    backgroundType: 'mesh',
+                    backgroundImage: null,
+                    color1: palette.c1, color2: palette.c2, color3: palette.c3,
+                    textColor: '#ffffff',
+                    textAlign: 'center',
+                    fontSizeScale: 0.7,
+                    showParticles: true,
+                    typewriterEffect: true
+                };
+
+                addBatchLog("   🎨 Rendering Premium Video...");
+                setLivePreviewQuote(quote);
+                const blob = await generateVideoBlob(quote, config);
+
+                if (!blob) {
+                    addBatchLog("   ❌ Rendering failed");
+                    failedGlobal++;
+                    continue;
+                }
+
+                // Upload
+                addBatchLog("   🚀 Uploading...");
+                const formData = new FormData();
+                formData.append('video', blob, `a-p-${task.accountId}-${t}.webm`);
+
+                const quotePreview = quote.text.substring(0, 50);
+                formData.append('title', `${quotePreview}... #shorts`);
+                formData.append('description', `${quote.text}\n\n- ${quote.author}\n\n#quotes #motivation #viral`);
+                formData.append('tags', JSON.stringify(['shorts', 'quotes', topic]));
+                formData.append('topic', topic);
+                formData.append('templateId', 'auto-pilot-v2');
+                formData.append('texts', JSON.stringify([quote.text, quote.author]));
+                formData.append('accountId', task.accountId);
+
+                const uploadRes = await fetch('/api/youtube/upload-video', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (uploadRes.ok) {
+                    addBatchLog(`   ✅ SUCCESS! Posted to ${task.accountName}`);
+                    successfulGlobal++;
+                } else {
+                    const err = await uploadRes.json();
+                    if (uploadRes.status === 429 || err.error?.includes('Limit Reached')) {
+                        addBatchLog(`   ⚠️ QUOTA REACHED for ${task.accountName}.`);
+                        quotaExceededAccounts.add(task.accountId);
+                        // Retry this task in next iteration with a different account
+                        t--;
+                        continue;
+                    } else {
+                        addBatchLog(`   ❌ FAILED: ${err.error}`);
+                        failedGlobal++;
+                    }
+                }
+
+                // Smooth delay to avoid rate limiting
+                await new Promise(r => setTimeout(r, 3000));
             }
 
-            addBatchLog("\n✨ QUOTE AUTO-PILOT COMPLETE! ✨");
-            addBatchLog(`Total videos generated: ${accounts.length * autoPilotGenerationsPerChannel}`);
+            addBatchLog(`\n✨ AUTO-PILOT FINISHED ✨\n📊 Results: ${successfulGlobal} posted, ${failedGlobal} failed.`);
 
         } catch (e: any) {
             console.error(e);
@@ -1642,6 +1700,86 @@ export function QuotesGenerator() {
                     </>
                 )
             }
+            {/* --- AUTO-PILOT OVERLAY --- */}
+            {isBatchRunning && (
+                <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 md:p-8">
+                    <div className="bg-[#1c1c1e] border border-white/10 w-full max-w-5xl h-[85vh] rounded-3xl overflow-hidden flex flex-col md:flex-row shadow-2xl">
+
+                        {/* Left: Live Render Feed */}
+                        <div className="w-full md:w-2/5 bg-black flex flex-col items-center justify-center p-6 border-r border-white/10">
+                            <div className="mb-4 flex items-center gap-2">
+                                <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+                                <span className="text-white font-bold uppercase tracking-widest text-xs">Live Generation Feed</span>
+                            </div>
+
+                            <div className="relative aspect-[9/16] h-full max-h-[60vh] rounded-2xl overflow-hidden shadow-2xl border border-white/5 bg-neutral-900 flex items-center justify-center">
+                                {livePreviewQuote ? (
+                                    <canvas
+                                        ref={livePreviewCanvasRef}
+                                        width={1080}
+                                        height={1920}
+                                        className="h-full w-auto object-contain"
+                                    />
+                                ) : (
+                                    <div className="flex flex-col items-center gap-4 text-white/20">
+                                        <div className="w-12 h-12 border-2 border-dashed border-white/20 rounded-full animate-spin" />
+                                        <p className="text-sm">Preparing Next Viral Clip...</p>
+                                    </div>
+                                )}
+                            </div>
+
+                            {livePreviewQuote && (
+                                <div className="mt-6 w-full max-w-xs text-center">
+                                    <p className="text-white/40 text-[10px] uppercase font-bold mb-1">Author Pick</p>
+                                    <p className="text-white font-medium text-sm line-clamp-2 italic">"{livePreviewQuote.text}"</p>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Right: Modern Console Logs */}
+                        <div className="flex-1 flex flex-col bg-[#1c1c1e]">
+                            <div className="p-6 border-b border-white/5 flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-indigo-500/20 rounded-lg">
+                                        <Terminal className="w-5 h-5 text-indigo-400" />
+                                    </div>
+                                    <h3 className="text-white font-bold text-lg">Auto-Pilot Engine v2.0</h3>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                    <button
+                                        onClick={() => { if (confirm("Stop Auto-Pilot?")) { setIsBatchRunning(false); alert("Auto-Pilot will stop after current video."); } }}
+                                        className="text-xs text-white/40 hover:text-red-400 transition-colors"
+                                    >
+                                        FORCE STOP
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="flex-1 p-6 overflow-y-auto font-mono text-xs space-y-2 custom-scrollbar">
+                                {batchLogs.map((log, i) => {
+                                    const isSuccess = log.includes("✅");
+                                    const isError = log.includes("❌") || log.includes("⚠️");
+                                    const isSummary = log.includes("✨");
+
+                                    return (
+                                        <div key={i} className={`py-1 border-b border-white/5 ${isSuccess ? 'text-emerald-400' : isError ? 'text-amber-400' : isSummary ? 'text-indigo-400 font-bold text-sm pt-4' : 'text-white/60'}`}>
+                                            {log}
+                                        </div>
+                                    )
+                                })}
+                                <div ref={logsEndRef} />
+                            </div>
+
+                            <div className="p-6 bg-black/20 border-t border-white/5">
+                                <p className="text-[10px] text-white/30 text-center">
+                                    SYSTEM: AgentX Cloud AI distributing tasks across {youtubeAccounts.length} accounts.
+                                    Do not close this tab.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div >
     );
 }

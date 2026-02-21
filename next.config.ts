@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
   // Legacy support for older Next.js versions (if needed)
   experimental: {
     serverActions: {
-      bodySizeLimit: "2mb",
+      bodySizeLimit: "50mb",
     },
   },
 };
