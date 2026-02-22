@@ -57,7 +57,7 @@ const prepareDecoration = async (url: string): Promise<HTMLCanvasElement | null>
     }
 };
 
-const drawCanvas = async (canvas: HTMLCanvasElement, quote: Quote, time: number = 0, preparedDecorations: (HTMLCanvasElement | null)[] = [], config: RenderConfig, watermarkText: string = 'AgentX') => {
+const drawCanvas = async (canvas: HTMLCanvasElement, quote: Quote, time: number = 0, preparedDecorations: (HTMLCanvasElement | null)[] = [], config: RenderConfig, watermarkText: string = 'AgentX', effects?: { bgGradient: any, particleSystem: any }) => {
     const ctx = canvas.getContext('2d')!;
     const width = canvas.width;
     const height = canvas.height;
@@ -94,12 +94,25 @@ const drawCanvas = async (canvas: HTMLCanvasElement, quote: Quote, time: number 
         ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
         ctx.fillRect(0, 0, width, height);
     } else {
-        // Gradient Background
-        const grad = ctx.createLinearGradient(0, 0, width, height);
-        grad.addColorStop(0, config.color1);
-        grad.addColorStop(1, config.color2);
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, width, height);
+        // Advanced Gradient Background
+        if (effects?.bgGradient) {
+            ctx.fillStyle = '#0f0f0f';
+            ctx.fillRect(0, 0, width, height);
+            effects.bgGradient.update();
+            effects.bgGradient.draw(ctx);
+        } else {
+            const grad = ctx.createLinearGradient(0, 0, width, height);
+            grad.addColorStop(0, config.color1);
+            grad.addColorStop(1, config.color2);
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, width, height);
+        }
+    }
+
+    // Draw Particles
+    if (effects?.particleSystem) {
+        effects.particleSystem.update();
+        effects.particleSystem.draw(ctx);
     }
 
     // 1.5 Draw Decorations
@@ -187,6 +200,11 @@ const drawCanvas = async (canvas: HTMLCanvasElement, quote: Quote, time: number 
 };
 
 const generateVideoBlob = async (quote: Quote, config: RenderConfig, watermarkText: string): Promise<Blob | null> => {
+    // Import visual effects
+    const { MeshGradient, ParticleSystem } = await import('@/lib/visual-effects');
+    const bgGradient = new MeshGradient(1080, 1920);
+    const particleSystem = new ParticleSystem(1080, 1920, 30);
+
     return new Promise(async (resolve) => {
         const canvas = document.createElement('canvas');
         canvas.width = 1080;
@@ -204,7 +222,7 @@ const generateVideoBlob = async (quote: Quote, config: RenderConfig, watermarkTe
 
         const mediaRecorder = new MediaRecorder(canvasStream, {
             mimeType: mimeType,
-            videoBitsPerSecond: 2500000
+            videoBitsPerSecond: 6000000 // High quality
         });
 
         const chunks: BlobPart[] = [];
@@ -216,7 +234,7 @@ const generateVideoBlob = async (quote: Quote, config: RenderConfig, watermarkTe
 
         mediaRecorder.start();
 
-        const duration = 8000; // 8 seconds
+        const duration = 10000; // 10 seconds
         const startTime = Date.now();
 
         const decorations: (HTMLCanvasElement | null)[] = [];
@@ -230,7 +248,7 @@ const generateVideoBlob = async (quote: Quote, config: RenderConfig, watermarkTe
         const animate = async () => {
             const elapsed = Date.now() - startTime;
             if (elapsed < duration) {
-                await drawCanvas(canvas, quote, elapsed, decorations, config, watermarkText);
+                await drawCanvas(canvas, quote, elapsed, decorations, config, watermarkText, { bgGradient, particleSystem });
                 requestAnimationFrame(animate);
             } else {
                 mediaRecorder.stop();

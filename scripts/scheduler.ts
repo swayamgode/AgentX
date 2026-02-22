@@ -318,8 +318,19 @@ cron.schedule('0 */6 * * *', () => {
     checkAndAutoGenerateContent();
 });
 
+function updateHeartbeat(activity: string) {
+    const statusPath = path.join(process.cwd(), 'scheduler-status.json');
+    const status = {
+        lastHeartbeat: new Date().toISOString(),
+        lastActivity: activity,
+        status: 'RUNNING'
+    };
+    fs.writeFileSync(statusPath, JSON.stringify(status, null, 2));
+}
+
 // Run every minute
 cron.schedule('* * * * *', () => {
+    updateHeartbeat('Checking for content to post');
     checkAndPostTweets();
     checkAndPostYouTubeContent();
 });

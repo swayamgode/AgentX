@@ -143,10 +143,21 @@ export async function renderMemeToVideoBlob(
     // --- 2. RENDER LOOP ---
     // The loop will be called by canvasToVideoBlob
 
+    const { MeshGradient, ParticleSystem } = await import('@/lib/visual-effects');
+    const bgGradient = new MeshGradient(1080, 1920);
+    const particleSystem = new ParticleSystem(1080, 1920, 40);
+
     const renderFrame = (progress: number) => {
         // Clear background
-        ctx.fillStyle = '#000000';
+        ctx.fillStyle = '#0f0f0f';
         ctx.fillRect(0, 0, 1080, 1920);
+
+        // Update and Draw Background Effects
+        bgGradient.update();
+        bgGradient.draw(ctx);
+
+        particleSystem.update();
+        particleSystem.draw(ctx);
 
         // --- ANIMATION PARAMETERS ---
         // Subtle slow zoom (Ken Burns)

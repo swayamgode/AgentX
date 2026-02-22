@@ -69,14 +69,40 @@ export default function Home() {
     fetchAnalytics();
   }, []);
 
-  // --- Data Processing for Charts ---
+  const [schedulerStatus, setSchedulerStatus] = useState<any>(null);
+
+  const fetchSchedulerStatus = async () => {
+    try {
+      const res = await fetch('/api/scheduler/status');
+      const data = await res.json();
+      setSchedulerStatus(data);
+    } catch (e) {
+      console.error('Failed to fetch scheduler status');
+    }
+  };
+
+  useEffect(() => {
+    fetchAnalytics();
+    fetchSchedulerStatus();
+    const interval = setInterval(fetchSchedulerStatus, 30000); // Check every 30s
+    return () => clearInterval(interval);
+  }, []);
+
   const stats = useMemo(() => {
     const totalViews = videos.reduce((acc, v) => acc + parseInt(v.stats?.viewCount || '0'), 0);
     const totalLikes = videos.reduce((acc, v) => acc + parseInt(v.stats?.likeCount || '0'), 0);
     const totalComments = videos.reduce((acc, v) => acc + parseInt(v.stats?.commentCount || '0'), 0);
     const avgViews = videos.length > 0 ? Math.round(totalViews / videos.length) : 0;
 
-    return { totalViews, totalLikes, totalComments, avgViews };
+    const momentum = (() => {
+      if (videos.length < 6) return 0;
+      const last3 = videos.slice(0, 3).reduce((acc, v) => acc + parseInt(v.stats?.viewCount || '0'), 0);
+      const prev3 = videos.slice(3, 6).reduce((acc, v) => acc + parseInt(v.stats?.viewCount || '0'), 0);
+      if (prev3 === 0) return 100;
+      return Math.round(((last3 - prev3) / prev3) * 100);
+    })();
+
+    return { totalViews, totalLikes, totalComments, avgViews, momentum };
   }, [videos]);
 
   const growthData = useMemo(() => {
@@ -127,9 +153,20 @@ export default function Home() {
         {/* Top Header */}
         <div className="sticky top-0 bg-white/80 backdrop-blur-xl z-20 border-b border-[#e5e5e7]">
           <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-xl md:text-2xl font-bold text-[#1d1d1f]">Hello Josh!</h1>
-              <p className="text-xs md:text-sm text-[#86868b] mt-0.5">Here's your performance overview.</p>
+            <div className="flex items-center gap-4">
+              <div>
+                <h1 className="text-xl md:text-2xl font-bold text-[#1d1d1f]">Hello Josh!</h1>
+                <p className="text-xs md:text-sm text-[#86868b] mt-0.5">Here's your performance overview.</p>
+              </div>
+
+              {/* Scheduler Status Indicator */}
+              <div className={`hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full border text-[10px] font-bold uppercase tracking-wider ${schedulerStatus?.status === 'RUNNING'
+                ? 'bg-green-50 text-green-600 border-green-200'
+                : 'bg-red-50 text-red-600 border-red-200'
+                }`}>
+                <div className={`w-1.5 h-1.5 rounded-full ${schedulerStatus?.status === 'RUNNING' ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
+                {schedulerStatus?.status === 'RUNNING' ? 'Automation Active' : 'Automation Offline'}
+              </div>
             </div>
 
             <div className="flex items-center gap-4 self-end md:self-auto">
@@ -196,10 +233,10 @@ export default function Home() {
                   textColor="text-purple-600"
                 />
                 <KPICard
-                  title="Total Interaction"
-                  value={formatNumber(stats.totalLikes + stats.totalComments)}
-                  icon={<ThumbsUp className="w-5 h-5 text-[#1d1d1f]" />}
-                  trend="+8%"
+                  title="Growth Momentum"
+                  value={`${stats.momentum > 0 ? '+' : ''}${stats.momentum}%`}
+                  icon={<Zap className="w-5 h-5 text-[#1d1d1f]" />}
+                  trend={stats.momentum > 0 ? "Gaining" : "Stable"}
                   color="bg-orange-50"
                   textColor="text-orange-600"
                 />
