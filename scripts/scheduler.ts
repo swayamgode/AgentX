@@ -207,7 +207,7 @@ async function checkAndPostYouTubeContent() {
                         categoryId: '23',
                     },
                     status: {
-                        privacyStatus: 'public', // User requested uplaod
+                        privacyStatus: 'public', // User requested upload
                         selfDeclaredMadeForKids: false,
                     },
                 },
@@ -229,18 +229,40 @@ async function checkAndPostYouTubeContent() {
 
             fs.writeFileSync(metadataPath, JSON.stringify(newMetadata, null, 2));
 
-            // Add to analytics starter
-            // We could update analytics-storage here if we wanted immediate record
-
         } catch (error: any) {
             console.error(`Failed to upload ${video.filename}:`, error.message);
-            // Update status to FAILED ?
+
+            // Check for quota exceeded error
+            const isQuotaError = error.code === 403 && (
+                error.message?.includes('quotaExceeded') ||
+                error.message?.includes('dailyLimitExceeded') ||
+                error.errors?.[0]?.reason === 'quotaExceeded'
+            ) || (error.code === 400 && error.message?.includes('exceeded the number of videos'));
+
             const metadataPath = video.path.replace('.webm', '.json');
-            const newMetadata: VideoMetadata = {
-                ...video,
-                status: 'FAILED',
-            };
-            // fs.writeFileSync(metadataPath, JSON.stringify(newMetadata, null, 2));
+
+            if (isQuotaError) {
+                console.log(`Quota reached for ${account.channelName}. Rescheduling video for tomorrow...`);
+                // Reschedule for 24 hours later
+                const newDate = new Date(video.scheduledFor);
+                newDate.setDate(newDate.getDate() + 1);
+
+                const rescheduledMetadata = {
+                    ...video,
+                    status: 'SCHEDULED',
+                    scheduledFor: newDate.toISOString(),
+                    retryCount: (video.retryCount || 0) + 1
+                };
+                fs.writeFileSync(metadataPath, JSON.stringify(rescheduledMetadata, null, 2));
+            } else {
+                // Update status to FAILED for non-quota errors
+                const failedMetadata: VideoMetadata = {
+                    ...video,
+                    status: 'FAILED',
+                    error: error.message
+                };
+                fs.writeFileSync(metadataPath, JSON.stringify(failedMetadata, null, 2));
+            }
         }
     }
 }
@@ -254,10 +276,55 @@ function streamFromBuffer(buffer: Buffer) {
     return stream;
 }
 
+import { exec } from 'child_process';
+
+async function checkAndAutoGenerateContent() {
+    console.log(`[${new Date().toISOString()}] Checking content stock...`);
+
+    const videos = listGeneratedVideos();
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 2); // Look ahead 2 days
+
+    const upcomingVideos = videos.filter(v =>
+        (v.status === 'SCHEDULED' || !v.status) &&
+        new Date(v.scheduledFor) > now &&
+        new Date(v.scheduledFor) < tomorrow
+    );
+
+    console.log(`Upcoming videos (next 48h): ${upcomingVideos.length}`);
+
+    // If we have fewer than 3 videos for the next 2 days, trigger auto-pilot
+    if (upcomingVideos.length < 3) {
+        console.log("Content stock low! Triggering Auto-Pilot generation...");
+
+        // On Windows, use 'start' to open the default browser
+        // We assume the dev server is running on localhost:3000
+        const url = 'http://localhost:3000/autopilot?auto=true';
+        const command = `start "" "${url}"`;
+
+        exec(command, (error) => {
+            if (error) {
+                console.error('Failed to trigger auto-pilot:', error);
+            } else {
+                console.log('Successfully launched Auto-Pilot in browser.');
+            }
+        });
+    }
+}
+
+// Run content check every 6 hours
+cron.schedule('0 */6 * * *', () => {
+    checkAndAutoGenerateContent();
+});
+
 // Run every minute
 cron.schedule('* * * * *', () => {
     checkAndPostTweets();
     checkAndPostYouTubeContent();
 });
+
+// Run initial check
+checkAndAutoGenerateContent();
 
 console.log("Scheduler started. checking every minute...");

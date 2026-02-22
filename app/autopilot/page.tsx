@@ -254,6 +254,14 @@ export default function AutoPilotPage() {
     const [availableGraphics, setAvailableGraphics] = useState<string[]>([]);
 
     useEffect(() => {
+        // Auto-start if requested via query param
+        const searchParams = new URLSearchParams(window.location.search);
+        if ((searchParams.get('auto') === 'true' || searchParams.get('automate') === 'true') && !isBatchRunning) {
+            handleStartAutoPilot();
+        }
+    }, []);
+
+    useEffect(() => {
         if (logsEndRef.current) {
             logsEndRef.current.scrollIntoView({ behavior: "smooth" });
         }
@@ -281,7 +289,10 @@ export default function AutoPilotPage() {
     const handleStartAutoPilot = async () => {
         const settingsInfo = `Auto-Pilot Settings:\n- Style: ${autoPilotStyle}\n- Generations per channel: ${autoPilotGenerationsPerChannel}\n- Background: ${autoPilotBackgroundType}\n- Text align: ${autoPilotTextAlign}`;
 
-        if (!confirm(`Start Auto-Pilot for Quotes?\n\n${settingsInfo}\n\nThis will:\n1. Read topics from topics.txt\n2. Generate ${autoPilotGenerationsPerChannel} quote(s) for EACH connected YouTube account\n3. Use your configured visual styles\n4. Upload automatically as #Shorts.`)) return;
+        const searchParams = new URLSearchParams(window.location.search);
+        const isAuto = searchParams.get('auto') === 'true' || searchParams.get('automate') === 'true';
+
+        if (!isAuto && !confirm(`Start Auto-Pilot for Quotes?\n\n${settingsInfo}\n\nThis will:\n1. Read topics from topics.txt\n2. Generate ${autoPilotGenerationsPerChannel} quote(s) for EACH connected YouTube account\n3. Use your configured visual styles\n4. Upload automatically as #Shorts.`)) return;
 
         setIsBatchRunning(true);
         setBatchLogs(["🚀 Starting Quote Auto-Pilot...", settingsInfo]);
@@ -520,6 +531,11 @@ export default function AutoPilotPage() {
             addBatchLog(`❌ CRITICAL ERROR: ${e.message}`);
         } finally {
             setIsBatchRunning(false);
+            const searchParams = new URLSearchParams(window.location.search);
+            if (searchParams.get('auto') === 'true' || searchParams.get('automate') === 'true') {
+                addBatchLog("🏁 Auto-Pilot finished. Closing window in 5 seconds...");
+                setTimeout(() => window.close(), 5000);
+            }
         }
     };
 

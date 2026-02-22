@@ -5,10 +5,10 @@ This system automates the entire process of generating, scheduling, and uploadin
 
 ## Features
 
-### 1. **Analytics-Based Scheduling**
-- Analyzes historical video performance
-- Identifies peak engagement hours for each account
-- Automatically schedules uploads at optimal times
+### 1. **Hands-Free Posting (New)**
+- **Auto-Quota Recovery**: If YouTube hits an upload limit, the system automatically reschedules the video for the next day.
+- **Auto-Stock Management**: If you have fewer than 2 days of content left, the scheduler automatically opens your browser to generate a fresh batch of videos.
+- **Analytics-Based Scheduling**: Identifies peak engagement hours and spreads uploads to avoid hitting limits.
 
 ### 2. **Multi-Account Support**
 - Manages multiple YouTube accounts simultaneously

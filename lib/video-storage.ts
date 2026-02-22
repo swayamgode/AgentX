@@ -9,15 +9,18 @@ import path from 'path';
 export interface VideoMetadata {
     filename: string;
     path: string;
-    scheduledFor: Date;
+    scheduledFor: Date | string;
     title: string;
     description: string;
     tags: string[];
     templateId: string;
     audioId: string | null;
     accountId?: string;
-    status?: 'SCHEDULED' | 'UPLOADED' | 'FAILED';
+    status?: 'SCHEDULED' | 'UPLOADED' | 'FAILED' | 'PENDING_GENERATION' | 'GENERATING';
     youtubeId?: string;
+    retryCount?: number;
+    error?: string;
+    uploadedAt?: string;
 }
 
 /**
@@ -69,7 +72,7 @@ export async function saveVideoLocally(
         ...metadata
     };
 
-    const filename = generateVideoFilename(metadata.templateId, metadata.scheduledFor);
+    const filename = generateVideoFilename(metadata.templateId, new Date(metadata.scheduledFor));
     const videosDir = getVideosDirectory();
     const filePath = path.join(videosDir, filename);
 
