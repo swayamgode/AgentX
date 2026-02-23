@@ -335,7 +335,20 @@ cron.schedule('* * * * *', () => {
     checkAndPostYouTubeContent();
 });
 
+// Handle process crashes
+process.on('uncaughtException', (error) => {
+    console.error('CRITICAL: Uncaught Exception:', error);
+    updateHeartbeat('ERROR: Uncaught Exception');
+    // Don't exit, let the cron continue if possible
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('CRITICAL: Unhandled Rejection at:', promise, 'reason:', reason);
+    updateHeartbeat('ERROR: Unhandled Rejection');
+});
+
 // Run initial check
 checkAndAutoGenerateContent();
 
 console.log("Scheduler started. checking every minute...");
+updateHeartbeat('Scheduler Started');

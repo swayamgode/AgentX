@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { Play, Clock, CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Play, Clock, CheckCircle, XCircle, Loader2, ShieldCheck, ShieldAlert, ShieldX } from 'lucide-react';
 
 export default function BulkScheduler() {
     const [loading, setLoading] = useState(false);
@@ -9,6 +9,24 @@ export default function BulkScheduler() {
     const [videosPerAccount, setVideosPerAccount] = useState(10);
     const [processing, setProcessing] = useState(false);
     const [progress, setProgress] = useState({ current: 0, total: 0 });
+    const [schedulerStatus, setSchedulerStatus] = useState<any>(null);
+
+    // Poll scheduler status
+    useEffect(() => {
+        const checkStatus = async () => {
+            try {
+                const response = await fetch('/api/scheduler/status');
+                const data = await response.json();
+                setSchedulerStatus(data);
+            } catch (error) {
+                console.error('Failed to fetch scheduler status');
+            }
+        };
+
+        checkStatus();
+        const interval = setInterval(checkStatus, 10000);
+        return () => clearInterval(interval);
+    }, []);
 
     const handleSchedule = async () => {
         setLoading(true);
@@ -131,7 +149,22 @@ export default function BulkScheduler() {
 
     return (
         <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-2xl font-bold mb-4">🚀 Automated Multi-Account Posting</h2>
+            <div className="flex items-center justify-between mb-4">
+                <h2 className="text-2xl font-bold">🚀 Automated Multi-Account Posting</h2>
+
+                {schedulerStatus && (
+                    <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${schedulerStatus.status === 'RUNNING' ? 'bg-green-100 text-green-700 border border-green-200' :
+                            schedulerStatus.status === 'STALLED' ? 'bg-orange-100 text-orange-700 border border-orange-200' :
+                                'bg-red-100 text-red-700 border border-red-200'
+                        }`}>
+                        {schedulerStatus.status === 'RUNNING' ? <ShieldCheck className="w-3.5 h-3.5" /> :
+                            schedulerStatus.status === 'STALLED' ? <ShieldAlert className="w-3.5 h-3.5" /> :
+                                <ShieldX className="w-3.5 h-3.5" />}
+                        Scheduler: {schedulerStatus.status}
+                        {schedulerStatus.status === 'STALLED' && ` (${schedulerStatus.message})`}
+                    </div>
+                )}
+            </div>
 
             <div className="mb-6">
                 <label className="block text-sm font-medium mb-2">
