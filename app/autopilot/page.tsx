@@ -349,11 +349,11 @@ export default function AutoPilotPage() {
             let topicIndex = 0;
             let successCount = 0;
             let failCount = 0;
-            let quotaExceededAccounts = new Set<string>();
-            let accountVideoCount = new Map<string, number>(); // Track videos per account
+            const quotaExceededAccounts = new Set<string>();
+            const accountVideoCount = new Map<string, number>(); // Track videos per account
 
             // Track videos to generate
-            let videosToGenerate: Array<{ account: any; topic: string; videoNum: number }> = [];
+            const videosToGenerate: Array<{ account: any; topic: string; videoNum: number }> = [];
 
             // Build queue of all videos to generate
             for (let i = 0; i < accounts.length; i++) {
@@ -406,7 +406,7 @@ export default function AutoPilotPage() {
                         continue;
                     }
 
-                    let quote: Quote = qData.quotes[0];
+                    const quote: Quote = qData.quotes[0];
                     addBatchLog(`   ✅ Quote: "${quote.text.substring(0, 50)}..."`);
 
                     // Enhance with decorations if available
@@ -426,7 +426,7 @@ export default function AutoPilotPage() {
                     }
 
                     // Determine background type
-                    let bgType: 'gradient' | 'image' = 'gradient';
+                    const bgType: 'gradient' | 'image' = 'gradient';
                     // Current autopilot doesn't support image upload yet, so default to gradient
                     // But if it did, we'd use state. For now, gradient.
 

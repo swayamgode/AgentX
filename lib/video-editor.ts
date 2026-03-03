@@ -87,7 +87,7 @@ export async function createVideoWithOverlays(
         mediaRecorder.start();
 
         // Render loop
-        let startTime = Date.now();
+        const startTime = Date.now();
         const duration = template.duration * 1000;
 
         function render() {

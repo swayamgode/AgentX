@@ -30,7 +30,7 @@ export function calculateSchedule(options: ScheduleOptions): Date[] {
     const hoursRange = endHour - startHour;
     const intervalHours = hoursRange / postsPerDay;
 
-    let currentDate = new Date(startDate);
+    const currentDate = new Date(startDate);
     let postsToday = 0;
 
     for (let i = 0; i < count; i++) {

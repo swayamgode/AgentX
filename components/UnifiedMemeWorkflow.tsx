@@ -165,7 +165,7 @@ export function UnifiedMemeWorkflow() {
 
         try {
             let successCount = 0;
-            let errors: string[] = [];
+            const errors: string[] = [];
 
             const uploadPromises = selectedMemes.map(async (meme, i) => {
                 try {
@@ -235,7 +235,7 @@ export function UnifiedMemeWorkflow() {
 
         try {
             let successCount = 0;
-            let errors: string[] = [];
+            const errors: string[] = [];
 
             // Instagram API has stricter rate limits, so we process serially effectively
             for (let i = 0; i < selectedMemes.length; i++) {

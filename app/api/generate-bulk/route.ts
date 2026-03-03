@@ -56,7 +56,7 @@ export async function POST(req: Request) {
         // Generate tweets in batches of 5 to respect rate limits
         const batchSize = 5;
         const numBatches = Math.ceil(count / batchSize);
-        let allTweets: string[] = [];
+        const allTweets: string[] = [];
 
         console.log(`Generating ${count} tweets in ${numBatches} batches...`);
 

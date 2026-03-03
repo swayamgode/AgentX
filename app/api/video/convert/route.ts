@@ -11,7 +11,7 @@ const execAsync = promisify(exec);
 export async function POST(request: NextRequest) {
     let inputPath: string | null = null;
     let outputPath: string | null = null;
-    let tempAudioPath: string | null = null;
+    const tempAudioPath: string | null = null;
 
     try {
         const formData = await request.formData();
