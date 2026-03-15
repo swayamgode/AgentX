@@ -289,7 +289,15 @@ export function UnifiedMemeWorkflow() {
     };
 
     const handleBatchAutoPilot = async () => {
-        if (!confirm("Start One-Click Auto Pilot?\n\nThis will:\n1. Read topics from topics.txt\n2. Generate a unique meme for EACH connected YouTube account\n3. Render, add audio, and upload automatically.")) return;
+        const generationsPerAccount = 10;
+        
+        // Fetch accounts first to show count
+        const accountsResInitial = await fetch('/api/youtube/accounts');
+        const accountsDataInitial = await accountsResInitial.json();
+        const accountsCount = (accountsDataInitial.accounts || []).length;
+        const totalVideos = accountsCount * generationsPerAccount;
+
+        if (!confirm(`Start One-Click Auto Pilot?\n\nThis will:\n1. Read topics from topics.txt\n2. Generate ${generationsPerAccount} memes for EACH of your ${accountsCount} accounts\n3. Render, mix audio, and upload automatically.\n\nTotal videos to create: ${totalVideos}\n\nProceed?`)) return;
 
         setIsBatchRunning(true);
         setBatchLogs(["Starting Auto-Pilot..."]);
@@ -320,19 +328,46 @@ export function UnifiedMemeWorkflow() {
             topics = topics.sort(() => 0.5 - Math.random());
             addBatchLog(`Loaded ${topics.length} topics. Assigning unique topic to each account.`);
 
-            // 3. Process each account
-            for (let i = 0; i < accounts.length; i++) {
-                const account = accounts[i];
-                const topic = topics[i % topics.length]; // Cycle through topics
+            // 3. Flatten Tasks (Multiple videos per account)
+            const tasks: { accountId: string, accountName: string, genNum: number }[] = [];
+            accounts.forEach((acc: any) => {
+                for (let n = 0; n < generationsPerAccount; n++) {
+                    tasks.push({ accountId: acc.id, accountName: acc.channelName, genNum: n });
+                }
+            });
 
-                addBatchLog(`\n➡️ Processing Account: ${account.channelName}`);
-                addBatchLog(`   Topic: "${topic}"`);
+            addBatchLog(`Total tasks: ${tasks.length} videos across ${accounts.length} accounts.`);
 
-                const personas = ['default', 'edgy', 'wholesome', 'dev', 'corporate', 'gymrat'];
+            const quotaExceededAccounts = new Set<string>();
+            let successful = 0;
+            let failed = 0;
+
+            // 4. Process each task
+            for (let t = 0; t < tasks.length; t++) {
+                const task = tasks[t];
+
+                // Check and Redistribute if hit quota
+                if (quotaExceededAccounts.has(task.accountId)) {
+                    const fallbackAccount = accounts.find((a: any) => !quotaExceededAccounts.has(a.id));
+                    if (fallbackAccount) {
+                        addBatchLog(`⚠️ Account ${task.accountName} hit quota. Rerouting to ${fallbackAccount.channelName}...`);
+                        task.accountId = fallbackAccount.id;
+                        task.accountName = fallbackAccount.channelName;
+                    } else {
+                        addBatchLog(`❌ All accounts have reached quota. Stopping.`);
+                        break;
+                    }
+                }
+
+                const topic = topics[t % topics.length]; // Unique topic for each video
+
+                addBatchLog(`\n📹 [${t + 1}/${tasks.length}] Channel: ${task.accountName} | Topic: "${topic}"`);
+
+                const personas = ['edgy', 'wholesome', 'gymrat', 'success', 'corporate', 'dev'];
                 const randomPersona = personas[Math.floor(Math.random() * personas.length)];
 
                 // A. Generate Meme
-                addBatchLog(`   Generating content (${randomPersona} vibe)...`);
+                addBatchLog(`   Generating content (Gen #${task.genNum + 1})...`);
                 const genRes = await fetch("/api/memes/generate", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -341,27 +376,29 @@ export function UnifiedMemeWorkflow() {
                 const genData = await genRes.json();
 
                 if (!genData.memes || genData.memes.length === 0) {
-                    addBatchLog(`   ❌ Failed to generate meme for ${account.channelName}`);
+                    addBatchLog(`   ❌ Generation failed`);
+                    failed++;
                     continue;
                 }
 
                 const memeCandidate = genData.memes[0];
 
                 // B. Render Video
-                addBatchLog("   Rendering video...");
+                addBatchLog("   Rendering HD Video...");
                 const rawVideoBlob = await renderMemeToVideoBlob(memeCandidate.templateId, memeCandidate.texts);
 
                 if (!rawVideoBlob) {
-                    addBatchLog("   ❌ Failed to render video");
+                    addBatchLog("   ❌ Render failed");
+                    failed++;
                     continue;
                 }
 
                 // C. Add Audio
-                addBatchLog("   Adding audio...");
+                addBatchLog("   Mixing Audio...");
                 let finalVideoBlob = rawVideoBlob;
 
                 const formData = new FormData();
-                formData.append('video', rawVideoBlob, `batch-${account.id}.webm`);
+                formData.append('video', rawVideoBlob, `batch-${task.accountId}.webm`);
                 formData.append('audioId', 'random');
 
                 try {
@@ -373,23 +410,21 @@ export function UnifiedMemeWorkflow() {
                     if (audioResponse.ok) {
                         finalVideoBlob = await audioResponse.blob();
                     } else {
-                        addBatchLog("   ⚠️ Audio mix failed, using silent video.");
+                        addBatchLog("   ⚠️ Using silent video");
                     }
-                } catch (err) {
-                    addBatchLog("   ⚠️ Audio mix error, using silent video.");
-                }
+                } catch (err) { }
 
                 // D. Upload
-                addBatchLog("   🚀 Uploading to YouTube...");
+                addBatchLog("   🚀 Uploading...");
                 const uploadFormData = new FormData();
                 uploadFormData.append('video', finalVideoBlob, `meme-${Date.now()}.mp4`);
-                uploadFormData.append('title', `${topic} #shorts`);
-                uploadFormData.append('description', `Funny meme about ${topic}\n\n#meme #shorts #${topic.replace(/\s/g, '')}`);
-                uploadFormData.append('tags', JSON.stringify([topic, 'meme', 'shorts']));
+                uploadFormData.append('title', `${topic} Meme #shorts`);
+                uploadFormData.append('description', `Another viral meme about ${topic}!\n\n#meme #shorts #${topic.replace(/\s/g, '')} #viral`);
+                uploadFormData.append('tags', JSON.stringify([topic, 'meme', 'shorts', 'viral']));
                 uploadFormData.append('topic', topic);
                 uploadFormData.append('templateId', memeCandidate.templateId);
                 uploadFormData.append('texts', JSON.stringify(memeCandidate.texts));
-                uploadFormData.append('accountId', account.id); // Targeted Upload
+                uploadFormData.append('accountId', task.accountId);
                 uploadFormData.append('publishAt', '');
 
                 const uploadResponse = await fetch('/api/youtube/upload-video', {
@@ -400,21 +435,28 @@ export function UnifiedMemeWorkflow() {
                 const uploadResult = await uploadResponse.json();
 
                 if (uploadResponse.ok) {
-                    addBatchLog(`   ✅ SUCCESS! Uploaded to ${account.channelName}`);
+                    addBatchLog(`   ✅ SUCCESS!`);
+                    successful++;
                 } else {
-                    if (uploadResult.code === 'AUTH_EXPIRED') {
-                        addBatchLog(`   ⚠️ AUTH EXPIRED: ${account.channelName} needs reconnection.`);
-                        addBatchLog(`   ❗ Please go to Settings and reconnect your account.`);
+                    if (uploadResult.error?.toLowerCase().includes('quota') || uploadResult.details?.toLowerCase().includes('quota') || uploadResponse.status === 429) {
+                        addBatchLog(`   🛑 QUOTA EXCEEDED for ${task.accountName}`);
+                        quotaExceededAccounts.add(task.accountId);
+                        t--; // Retry this task with redistribution
+                    } else if (uploadResult.code === 'AUTH_EXPIRED') {
+                        addBatchLog(`   ❌ AUTH EXPIRED for ${task.accountName}`);
+                        quotaExceededAccounts.add(task.accountId); // Treat as offline for now
+                        t--;
                     } else {
-                        addBatchLog(`   ❌ UPLOAD FAILED: ${uploadResult.error}`);
+                        addBatchLog(`   ❌ ERROR: ${uploadResult.error}`);
+                        failed++;
                     }
                 }
 
-                // Small delay
-                await new Promise(r => setTimeout(r, 2000));
+                // Small delay to prevent rate limit
+                await new Promise(r => setTimeout(r, 1500));
             }
 
-            addBatchLog("\n✨ AUTO-PILOT COMPLETE! ✨");
+            addBatchLog(`\n✨ COMPLETE! Success: ${successful}, Failed: ${failed}`);
 
         } catch (e: any) {
             console.error(e);

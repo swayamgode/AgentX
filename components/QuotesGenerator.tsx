@@ -75,7 +75,7 @@ export function QuotesGenerator() {
 
     // Auto-Pilot Configuration State
     const [autoPilotStyle, setAutoPilotStyle] = useState<'random' | 'inspirational' | 'funny' | 'wisdom' | 'success'>('random');
-    const [autoPilotGenerationsPerChannel, setAutoPilotGenerationsPerChannel] = useState(1);
+    const [autoPilotGenerationsPerChannel, setAutoPilotGenerationsPerChannel] = useState(10);
     const [autoPilotBackgroundType, setAutoPilotBackgroundType] = useState<'random' | 'gradient' | 'image'>('random');
     const [autoPilotTextAlign, setAutoPilotTextAlign] = useState<'random' | 'left' | 'center' | 'right'>('random');
     const [showAutoPilotSettings, setShowAutoPilotSettings] = useState(false);
@@ -1061,17 +1061,17 @@ export function QuotesGenerator() {
                                                 <input
                                                     type="range"
                                                     min="1"
-                                                    max="10"
+                                                    max="50"
                                                     value={autoPilotGenerationsPerChannel}
                                                     onChange={(e) => setAutoPilotGenerationsPerChannel(parseInt(e.target.value))}
                                                     className="w-full accent-green-600 h-2 bg-green-100 rounded-lg appearance-none cursor-pointer"
                                                     style={{
-                                                        background: `linear-gradient(to right, rgb(22, 163, 74) 0%, rgb(22, 163, 74) ${(autoPilotGenerationsPerChannel / 10) * 100}%, rgb(220, 252, 231) ${(autoPilotGenerationsPerChannel / 10) * 100}%, rgb(220, 252, 231) 100%)`
+                                                        background: `linear-gradient(to right, rgb(22, 163, 74) 0%, rgb(22, 163, 74) ${(autoPilotGenerationsPerChannel / 50) * 100}%, rgb(220, 252, 231) ${(autoPilotGenerationsPerChannel / 50) * 100}%, rgb(220, 252, 231) 100%)`
                                                     }}
                                                 />
                                                 <div className="flex justify-between text-xs text-green-700 mt-2 font-mono">
                                                     <span>1</span>
-                                                    <span>10</span>
+                                                    <span>50</span>
                                                 </div>
                                             </div>
                                         </div>

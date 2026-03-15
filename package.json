@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "scheduler": "npx tsx scripts/scheduler.ts",
-    "scheduler:keep-alive": "npx tsx scripts/watchdog.ts"
+    "scheduler:keep-alive": "npx tsx scripts/watchdog.ts",
+    "worker:render": "npx tsx scripts/headless-render.ts",
+    "start:auto": "npm run scheduler:keep-alive & npm run worker:render"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
@@ -22,6 +24,7 @@
     "next": "16.1.1",
     "node-cron": "^4.2.1",
     "prisma": "^5.10.0",
+    "puppeteer": "^24.39.1",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "recharts": "^3.6.0",

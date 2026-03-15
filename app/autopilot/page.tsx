@@ -66,7 +66,7 @@ const drawCanvas = async (canvas: HTMLCanvasElement, quote: Quote, time: number 
 
     // Animation factors (0 to 1 over 10 seconds)
     const progress = Math.min(time / 10000, 1);
-    const zoom = 1 + (progress * 0.1); // Zoom from 1.0 to 1.1
+    const zoom = 1 + (progress * 0.15); // Zoom from 1.0 to 1.15
 
     // 1. Draw Background
     if (config.backgroundType === 'image' && config.backgroundImage) {
@@ -94,25 +94,42 @@ const drawCanvas = async (canvas: HTMLCanvasElement, quote: Quote, time: number 
         ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
         ctx.fillRect(0, 0, width, height);
     } else {
-        // Advanced Gradient Background
-        if (effects?.bgGradient) {
-            ctx.fillStyle = '#0f0f0f';
-            ctx.fillRect(0, 0, width, height);
-            effects.bgGradient.update();
-            effects.bgGradient.draw(ctx);
-        } else {
-            const grad = ctx.createLinearGradient(0, 0, width, height);
-            grad.addColorStop(0, config.color1);
-            grad.addColorStop(1, config.color2);
-            ctx.fillStyle = grad;
-            ctx.fillRect(0, 0, width, height);
-        }
+        // Advanced Mesh Gradient Background
+        const t = time / 3000;
+        const grad = ctx.createRadialGradient(
+            width / 2 + Math.cos(t) * width * 0.3,
+            height / 2 + Math.sin(t) * height * 0.3,
+            0,
+            width / 2,
+            height / 2,
+            width
+        );
+        grad.addColorStop(0, config.color1 || '#1a1a1a');
+        grad.addColorStop(0.5, config.color2 || '#000000');
+        grad.addColorStop(1, '#000000');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, width, height);
+
+        // Moving highlights
+        ctx.globalCompositeOperation = 'screen';
+        ctx.fillStyle = `rgba(255, 255, 255, ${0.03 + Math.sin(t) * 0.01})`;
+        ctx.beginPath();
+        ctx.arc(width * 0.8, height * 0.2, width * 0.6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalCompositeOperation = 'source-over';
     }
 
-    // Draw Particles
-    if (effects?.particleSystem) {
-        effects.particleSystem.update();
-        effects.particleSystem.draw(ctx);
+    // Floating Particles (Premium Feel)
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+    const particleCount = 15;
+    const speed = time / 2500;
+    for (let i = 0; i < particleCount; i++) {
+        const px = ((Math.sin(i * 123.45) + 1) / 2 * width + Math.cos(speed + i) * 60) % width;
+        const py = ((Math.cos(i * 543.21) + 1) / 2 * height - speed * 120 - i * 60) % height;
+        const size = (Math.sin(i) + 1) * 2 + 1;
+        ctx.beginPath();
+        ctx.arc(px, py < 0 ? py + height : py, size, 0, Math.PI * 2);
+        ctx.fill();
     }
 
     // 1.5 Draw Decorations
@@ -128,14 +145,12 @@ const drawCanvas = async (canvas: HTMLCanvasElement, quote: Quote, time: number 
                 if (canvasToDraw) {
                     const decoSize = width * decoration.size;
                     const decoX = (width * decoration.x) - (decoSize / 2);
-                    const decoY = (height * decoration.y) - (decoSize / 2);
+                    const decoY = (height * decoration.y) - (decoSize / 2) + Math.sin(time / 1500 + i) * 15;
 
-                    ctx.globalAlpha = 1.0;
+                    ctx.globalAlpha = 0.7;
                     ctx.drawImage(canvasToDraw, decoX, decoY, decoSize, decoSize);
                 }
-            } catch (e) {
-                console.error(`Failed to draw decoration ${i}`, e);
-            }
+            } catch (e) { }
         }
     }
 
@@ -144,19 +159,17 @@ const drawCanvas = async (canvas: HTMLCanvasElement, quote: Quote, time: number 
     // 2. Draw Text
     ctx.fillStyle = config.textColor;
     const isStory = width === 1080 && height === 1920;
-    const baseFontSize = isStory ? 64 : 50;
+    const baseFontSize = isStory ? 72 : 55;
     const fontSize = baseFontSize * config.fontSizeScale;
 
-    ctx.font = `bold ${fontSize}px "Inter", Arial, sans-serif`;
+    ctx.font = `bold ${fontSize}px "Outfit", "Inter", sans-serif`;
     ctx.textAlign = config.textAlign;
     ctx.textBaseline = 'middle';
 
-    ctx.shadowColor = 'rgba(0,0,0,0.5)';
-    ctx.shadowBlur = 20;
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 4;
+    ctx.shadowColor = 'rgba(0,0,0,0.7)';
+    ctx.shadowBlur = 30;
 
-    const maxLineWidth = width * 0.8;
+    const maxLineWidth = width * 0.85;
     const words = quote.text.split(' ');
     const lines: string[] = [];
     let currentLine = words[0];
@@ -173,7 +186,7 @@ const drawCanvas = async (canvas: HTMLCanvasElement, quote: Quote, time: number 
     }
     lines.push(currentLine);
 
-    const lineHeight = fontSize * 1.4;
+    const lineHeight = fontSize * 1.35;
     const totalHeight = lines.length * lineHeight;
     const startY = (height / 2) - (totalHeight / 2);
 
@@ -184,27 +197,38 @@ const drawCanvas = async (canvas: HTMLCanvasElement, quote: Quote, time: number 
     else if (config.textAlign === 'right') textX = width * 0.9;
 
     lines.forEach((line, i) => {
+        // Premium gradient for first line
+        if (i === 0) {
+            const tGrad = ctx.createLinearGradient(textX - 150, 0, textX + 150, 0);
+                tGrad.addColorStop(0, '#fff');
+                tGrad.addColorStop(0.5, '#fcd34d'); // Gold/Amber accent
+                tGrad.addColorStop(1, '#fff');
+                ctx.fillStyle = tGrad;
+        } else {
+            ctx.fillStyle = config.textColor;
+        }
         ctx.fillText(line, textX, startY + i * lineHeight + floatY);
     });
 
     // 4. Draw Author
-    ctx.font = `italic ${fontSize * 0.4}px "Inter", Arial, sans-serif`;
+    ctx.font = `italic ${fontSize * 0.45}px "Inter", sans-serif`;
     ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-    ctx.fillText(`- ${quote.author}`, width / 2, startY + totalHeight + 40 + floatY);
+    ctx.fillText(`— ${quote.author}`, width / 2, startY + totalHeight + 70 + floatY);
 
-    // 5. Draw Watermark
-    ctx.font = `500 24px "Inter", sans-serif`;
-    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    // 5. Visual Progress Bar
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+    ctx.fillRect(0, height - 12, width, 12);
+    ctx.fillStyle = config.color1 || '#8b5cf6';
+    ctx.fillRect(0, height - 12, width * progress, 12);
+
+    // 6. Draw Watermark
+    ctx.font = `600 26px "Inter", sans-serif`;
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
     ctx.shadowBlur = 0;
-    ctx.fillText(watermarkText, width / 2, height - 80);
+    ctx.fillText(watermarkText, width / 2, height - 90);
 };
 
 const generateVideoBlob = async (quote: Quote, config: RenderConfig, watermarkText: string): Promise<Blob | null> => {
-    // Import visual effects
-    const { MeshGradient, ParticleSystem } = await import('@/lib/visual-effects');
-    const bgGradient = new MeshGradient(1080, 1920);
-    const particleSystem = new ParticleSystem(1080, 1920, 30);
-
     return new Promise(async (resolve) => {
         const canvas = document.createElement('canvas');
         canvas.width = 1080;
@@ -222,7 +246,7 @@ const generateVideoBlob = async (quote: Quote, config: RenderConfig, watermarkTe
 
         const mediaRecorder = new MediaRecorder(canvasStream, {
             mimeType: mimeType,
-            videoBitsPerSecond: 6000000 // High quality
+            videoBitsPerSecond: 8000000 // 8 Mbps High Quality
         });
 
         const chunks: BlobPart[] = [];
@@ -248,7 +272,7 @@ const generateVideoBlob = async (quote: Quote, config: RenderConfig, watermarkTe
         const animate = async () => {
             const elapsed = Date.now() - startTime;
             if (elapsed < duration) {
-                await drawCanvas(canvas, quote, elapsed, decorations, config, watermarkText, { bgGradient, particleSystem });
+                await drawCanvas(canvas, quote, elapsed, decorations, config, watermarkText);
                 requestAnimationFrame(animate);
             } else {
                 mediaRecorder.stop();
@@ -261,7 +285,7 @@ const generateVideoBlob = async (quote: Quote, config: RenderConfig, watermarkTe
 export default function AutoPilotPage() {
     // Auto-Pilot Configuration State
     const [autoPilotStyle, setAutoPilotStyle] = useState<'random' | 'inspirational' | 'funny' | 'wisdom' | 'success'>('random');
-    const [autoPilotGenerationsPerChannel, setAutoPilotGenerationsPerChannel] = useState(1);
+    const [autoPilotGenerationsPerChannel, setAutoPilotGenerationsPerChannel] = useState(10);
     const [autoPilotBackgroundType, setAutoPilotBackgroundType] = useState<'random' | 'gradient' | 'image'>('gradient');
     const [autoPilotTextAlign, setAutoPilotTextAlign] = useState<'random' | 'left' | 'center' | 'right'>('center');
 
@@ -443,11 +467,11 @@ export default function AutoPilotPage() {
                     const renderConfig: RenderConfig = {
                         backgroundType: bgType,
                         backgroundImage: null,
-                        color1: '#000000', // Black
-                        color2: '#000000', // Black
+                        color1: '#0f172a', // slate-900
+                        color2: '#000000', // black
                         textColor: '#ffffff',
                         textAlign: alignment,
-                        fontSizeScale: 0.5 + (Math.random() * 0.3) // 0.5 to 0.8
+                        fontSizeScale: 0.7 + (Math.random() * 0.3) // 0.7 to 1.0
                     };
 
                     addBatchLog(`   🎨 Rendering video (${bgType} bg, ${alignment} align)...`);
@@ -646,17 +670,17 @@ export default function AutoPilotPage() {
                                             <input
                                                 type="range"
                                                 min="1"
-                                                max="10"
+                                                max="50"
                                                 value={autoPilotGenerationsPerChannel}
                                                 onChange={(e) => setAutoPilotGenerationsPerChannel(parseInt(e.target.value))}
                                                 className="w-full accent-black h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer"
                                                 style={{
-                                                    background: `linear-gradient(to right, rgb(0, 0, 0) 0%, rgb(0, 0, 0) ${(autoPilotGenerationsPerChannel / 10) * 100}%, rgb(229, 231, 235) ${(autoPilotGenerationsPerChannel / 10) * 100}%, rgb(229, 231, 235) 100%)`
+                                                    background: `linear-gradient(to right, rgb(0, 0, 0) 0%, rgb(0, 0, 0) ${(autoPilotGenerationsPerChannel / 50) * 100}%, rgb(229, 231, 235) ${(autoPilotGenerationsPerChannel / 50) * 100}%, rgb(229, 231, 235) 100%)`
                                                 }}
                                             />
                                             <div className="flex justify-between text-xs text-[#86868b] mt-2 font-mono">
                                                 <span>1</span>
-                                                <span>10</span>
+                                                <span>50</span>
                                             </div>
                                         </div>
                                     </div>

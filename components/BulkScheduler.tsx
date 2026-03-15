@@ -6,7 +6,7 @@ import { Play, Clock, CheckCircle, XCircle, Loader2, ShieldCheck, ShieldAlert, S
 export default function BulkScheduler() {
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState<any>(null);
-    const [videosPerAccount, setVideosPerAccount] = useState(10);
+    const [videosPerAccount, setVideosPerAccount] = useState(20);
     const [processing, setProcessing] = useState(false);
     const [progress, setProgress] = useState({ current: 0, total: 0 });
     const [schedulerStatus, setSchedulerStatus] = useState<any>(null);
@@ -173,7 +173,7 @@ export default function BulkScheduler() {
                 <input
                     type="number"
                     min="1"
-                    max="30"
+                    max="50"
                     value={videosPerAccount}
                     onChange={(e) => setVideosPerAccount(parseInt(e.target.value))}
                     className="w-full px-4 py-2 border rounded-lg"
