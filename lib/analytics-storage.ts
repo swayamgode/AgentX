@@ -1,6 +1,16 @@
 import fs from 'fs';
 import path from 'path';
 
+const USERS_PATH = path.join(process.cwd(), '.users');
+
+if (!fs.existsSync(USERS_PATH)) {
+    fs.mkdirSync(USERS_PATH, { recursive: true });
+}
+
+function getUserAnalyticsFile(userId: string) {
+    return path.join(USERS_PATH, `${userId}-analytics.json`);
+}
+
 const ANALYTICS_FILE = path.join(process.cwd(), '.video-analytics.json');
 
 export interface VideoAnalyticsData {
@@ -22,28 +32,32 @@ export interface VideoAnalyticsData {
 }
 
 class AnalyticsStorage {
-    private loadData(): VideoAnalyticsData[] {
-        if (fs.existsSync(ANALYTICS_FILE)) {
+    private loadData(userId?: string): VideoAnalyticsData[] {
+        if (!userId) return [];
+        
+        const userFile = getUserAnalyticsFile(userId);
+        if (fs.existsSync(userFile)) {
             try {
-                return JSON.parse(fs.readFileSync(ANALYTICS_FILE, 'utf-8'));
+                return JSON.parse(fs.readFileSync(userFile, 'utf-8'));
             } catch (error) {
-                console.error('Failed to parse analytics file:', error);
+                console.error(`Failed to parse analytics file for user ${userId}:`, error);
                 return [];
             }
         }
         return [];
     }
 
-    private saveData(data: VideoAnalyticsData[]): void {
+    private saveData(userId: string, data: VideoAnalyticsData[]): void {
+        const userFile = getUserAnalyticsFile(userId);
         try {
-            fs.writeFileSync(ANALYTICS_FILE, JSON.stringify(data, null, 2));
+            fs.writeFileSync(userFile, JSON.stringify(data, null, 2));
         } catch (error) {
-            console.error('Failed to save analytics file:', error);
+            console.error(`Failed to save analytics file for user ${userId}:`, error);
         }
     }
 
-    addVideo(data: Omit<VideoAnalyticsData, 'uploadedAt' | 'stats'>): void {
-        const allData = this.loadData();
+    addVideo(userId: string, data: Omit<VideoAnalyticsData, 'uploadedAt' | 'stats'>): void {
+        const allData = this.loadData(userId);
         const newEntry: VideoAnalyticsData = {
             ...data,
             uploadedAt: new Date().toISOString(),
@@ -55,33 +69,33 @@ class AnalyticsStorage {
             }
         };
         allData.push(newEntry);
-        this.saveData(allData);
+        this.saveData(userId, allData);
     }
 
-    updateStats(youtubeId: string, stats: VideoAnalyticsData['stats']): void {
-        const allData = this.loadData();
+    updateStats(userId: string, youtubeId: string, stats: VideoAnalyticsData['stats']): void {
+        const allData = this.loadData(userId);
         const index = allData.findIndex(v => v.youtubeId === youtubeId);
         if (index !== -1) {
             allData[index].stats = stats;
-            this.saveData(allData);
+            this.saveData(userId, allData);
         }
     }
 
-    updateData(youtubeId: string, updates: Partial<VideoAnalyticsData>): void {
-        const allData = this.loadData();
+    updateData(userId: string, youtubeId: string, updates: Partial<VideoAnalyticsData>): void {
+        const allData = this.loadData(userId);
         const index = allData.findIndex(v => v.youtubeId === youtubeId);
         if (index !== -1) {
             allData[index] = { ...allData[index], ...updates };
-            this.saveData(allData);
+            this.saveData(userId, allData);
         }
     }
 
-    getAll(): VideoAnalyticsData[] {
-        return this.loadData();
+    getAll(userId: string): VideoAnalyticsData[] {
+        return this.loadData(userId);
     }
 
-    getTopPerforming(limit: number = 5): VideoAnalyticsData[] {
-        const allData = this.loadData();
+    getTopPerforming(userId: string, limit: number = 5): VideoAnalyticsData[] {
+        const allData = this.loadData(userId);
         return allData
             .sort((a, b) => {
                 const viewsA = parseInt(a.stats?.viewCount || '0');

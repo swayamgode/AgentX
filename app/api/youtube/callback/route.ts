@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { google } from 'googleapis';
 import { multiAccountStorage } from '@/lib/token-storage';
+import { getAuthUser } from '@/lib/auth-util';
 
 export async function GET(request: NextRequest) {
     try {
@@ -47,8 +48,15 @@ export async function GET(request: NextRequest) {
         const userInfo = await oauth2.userinfo.get();
         const email = userInfo.data.email || 'unknown';
 
+        const user = await getAuthUser();
+        if (!user) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
+        const userId = user.id;
+
         // Add account to storage
-        const newAccount = multiAccountStorage.addAccount({
+        const newAccount = multiAccountStorage.addAccount(userId, {
             channelName,
             channelId,
             email,

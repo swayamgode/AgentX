@@ -28,65 +28,65 @@ export default function MemePage() {
     };
 
     return (
-        <div className="flex min-h-screen bg-[#F5F5F7]">
+        <div className="flex min-h-screen bg-[#F8F9FA]">
             <LeftSidebar />
 
-            <main className="flex-1 ml-0 md:ml-0 pb-20 md:pb-8">
+            <main className="flex-1 pb-20 md:pb-12">
                 {/* Top Header */}
-                <div className="sticky top-0 bg-white/80 backdrop-blur-xl z-20 border-b border-[#e5e5e7]">
-                    <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-4">
+                <div className="sticky top-5 mx-8 rounded-[2rem] glass-effect z-40 border-white/20 shadow-lg">
+                    <div className="max-w-[1400px] mx-auto px-8 py-6">
                         <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-black rounded-xl">
-                                    <Sparkles className="w-6 h-6 text-white" />
+                            <div className="flex items-center gap-6">
+                                <div className="w-14 h-14 bg-gradient-to-tr from-[#1A1A1E] to-[#333] flex items-center justify-center rounded-2xl shadow-lg animate-float">
+                                    <Sparkles className="w-7 h-7 text-white" />
                                 </div>
                                 <div>
-                                    <h1 className="text-xl md:text-2xl font-bold text-[#1d1d1f]">
+                                    <h1 className="text-2xl font-black text-[#1A1A1E] tracking-tight">
                                         Meme Studio
                                     </h1>
-                                    <p className="text-xs md:text-sm text-[#86868b] mt-0.5">
-                                        Generate memes with AI → Convert to videos → Schedule to YouTube
+                                    <p className="text-sm font-medium text-[#6C757D] mt-1">
+                                        AI-Powered Content Generation & Scheduling
                                     </p>
                                 </div>
                             </div>
                             <button
                                 onClick={refreshAnalytics}
                                 disabled={isRefreshing}
-                                className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-[#F5F5F7] border border-[#e5e5e7] rounded-xl text-sm font-medium text-[#1d1d1f] transition-all disabled:opacity-50"
+                                className="flex items-center gap-2 px-5 py-2.5 bg-white border border-[#E9ECEF] hover:border-[#8B5CF6] rounded-xl text-sm font-bold text-[#1A1A1E] transition-all disabled:opacity-50 shadow-sm"
                             >
                                 <RefreshCw size={16} className={isRefreshing ? "animate-spin" : ""} />
-                                {isRefreshing ? "Updating..." : "Sync Analytics"}
+                                {isRefreshing ? "Syncing..." : "Sync Data"}
                             </button>
                         </div>
                     </div>
                 </div>
 
                 {/* Main Content */}
-                <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-4 md:py-8 space-y-6">
+                <div className="max-w-[1400px] mx-auto px-8 py-10 space-y-10">
                     {/* Feature Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <FeatureCard
-                            icon={<Zap className="w-5 h-5" />}
+                            icon={<Zap className="w-5 h-5 text-white" />}
                             title="AI-Powered Memes"
                             description="Generate viral memes using advanced AI technology"
-                            color="from-[#000] to-[#333]"
+                            color="bg-gradient-to-tr from-[#1A1A1E] to-[#333]"
                         />
                         <FeatureCard
-                            icon={<Video className="w-5 h-5" />}
+                            icon={<Video className="w-5 h-5 text-white" />}
                             title="Video Conversion"
                             description="Transform memes into engaging video content"
-                            color="from-[#1a1a1a] to-[#000]"
+                            color="bg-gradient-to-tr from-[#333] to-[#444]"
                         />
                         <FeatureCard
-                            icon={<TrendingUp className="w-5 h-5" />}
+                            icon={<TrendingUp className="w-5 h-5 text-white" />}
                             title="Smart Scheduling"
                             description="Schedule posts at optimal times for maximum reach"
-                            color="from-[#333] to-[#1a1a1a]"
+                            color="bg-gradient-to-tr from-[#222] to-[#111]"
                         />
                     </div>
 
                     {/* Unified Workflow */}
-                    <div className="bg-white border border-[#e5e5e7] rounded-2xl p-6 shadow-sm">
+                    <div className="bg-white border border-[#E9ECEF] rounded-[2.5rem] p-10 shadow-sm premium-card">
                         <UnifiedMemeWorkflow />
                     </div>
                 </div>
@@ -103,12 +103,12 @@ function FeatureCard({ icon, title, description, color }: {
     color: string;
 }) {
     return (
-        <div className="bg-white border border-[#e5e5e7] rounded-xl p-5 hover:shadow-lg transition-shadow">
-            <div className={`inline-flex p-2.5 rounded-lg bg-gradient-to-br ${color} text-white mb-3`}>
+        <div className="bg-white border border-[#E9ECEF] rounded-[2rem] p-8 hover:shadow-2xl transition-all premium-card">
+            <div className={`inline-flex p-4 rounded-2xl ${color} text-white mb-6 shadow-lg`}>
                 {icon}
             </div>
-            <h3 className="font-bold text-[#1d1d1f] mb-1">{title}</h3>
-            <p className="text-sm text-[#86868b]">{description}</p>
+            <h3 className="text-lg font-black text-[#1A1A1E] mb-2 tracking-tight">{title}</h3>
+            <p className="text-sm font-medium text-[#6C757D] leading-relaxed">{description}</p>
         </div>
     );
 }

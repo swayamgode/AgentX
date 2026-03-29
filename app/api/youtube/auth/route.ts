@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getAuthUser } from '@/lib/auth-util';
 
 export async function GET(request: NextRequest) {
     try {
+        const user = await getAuthUser();
+        if (!user) {
+            return NextResponse.redirect(new URL('/login', request.url));
+        }
+
         const clientId = process.env.YOUTUBE_CLIENT_ID;
         const redirectUri = process.env.YOUTUBE_REDIRECT_URI || 'http://localhost:3000/api/youtube/callback';
 

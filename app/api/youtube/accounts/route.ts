@@ -1,13 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { multiAccountStorage } from '@/lib/token-storage';
+import { getAuthUser } from '@/lib/auth-util';
 
 export async function GET(request: NextRequest) {
     try {
-        const accounts = multiAccountStorage.getAllAccounts();
-        const activeAccount = multiAccountStorage.getActiveAccount();
+        const user = await getAuthUser();
+        if (!user) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+        const userId = user.id;
+
+        const accounts = multiAccountStorage.getAllAccounts(userId);
+        const activeAccount = multiAccountStorage.getActiveAccount(userId);
 
         return NextResponse.json({
-            accounts: accounts.map(acc => ({
+            accounts: accounts.map((acc: any) => ({
                 id: acc.id,
                 channelName: acc.channelName,
                 channelId: acc.channelId,
@@ -27,6 +34,12 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
     try {
+        const user = await getAuthUser();
+        if (!user) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+        const userId = user.id;
+
         const body = await request.json();
         const { action, accountId, updates } = body;
 
@@ -35,7 +48,7 @@ export async function POST(request: NextRequest) {
                 if (!accountId) {
                     return NextResponse.json({ error: 'Account ID required' }, { status: 400 });
                 }
-                const success = multiAccountStorage.setActiveAccount(accountId);
+                const success = multiAccountStorage.setActiveAccount(userId, accountId);
                 if (!success) {
                     return NextResponse.json({ error: 'Account not found' }, { status: 404 });
                 }
@@ -45,7 +58,7 @@ export async function POST(request: NextRequest) {
                 if (!accountId || !updates?.watermark) {
                     return NextResponse.json({ error: 'Account ID and watermark required' }, { status: 400 });
                 }
-                const updated = multiAccountStorage.updateAccount(accountId, { watermark: updates.watermark });
+                const updated = multiAccountStorage.updateAccount(userId, accountId, { watermark: updates.watermark });
                 if (!updated) {
                     return NextResponse.json({ error: 'Account not found' }, { status: 404 });
                 }
@@ -55,7 +68,7 @@ export async function POST(request: NextRequest) {
                 if (!accountId) {
                     return NextResponse.json({ error: 'Account ID required' }, { status: 400 });
                 }
-                const removed = multiAccountStorage.removeAccount(accountId);
+                const removed = multiAccountStorage.removeAccount(userId, accountId);
                 if (!removed) {
                     return NextResponse.json({ error: 'Account not found' }, { status: 404 });
                 }

@@ -86,27 +86,33 @@ export default function SettingsPage() {
     };
 
     return (
-        <div className="flex min-h-screen bg-[#F5F5F7]">
+        <div className="flex min-h-screen bg-[#F8F9FA]">
             <LeftSidebar />
 
-            <main className="flex-1 p-4 md:p-8 pb-20 md:pb-8">
-                <div className="max-w-[1000px] mx-auto space-y-6 md:space-y-8">
+            <main className="flex-1 pb-20 md:pb-12">
+                <div className="max-w-[1200px] mx-auto space-y-12">
                     {/* Header */}
-                    <div className="flex items-center gap-4">
-                        <Link href="/" className="p-2 -ml-2 hover:bg-white rounded-full transition-colors text-[#86868b] hover:text-[#1d1d1f]">
-                            <ArrowLeft size={24} />
-                        </Link>
-                        <div>
-                            <h1 className="text-2xl md:text-3xl font-bold text-[#1d1d1f]">Settings</h1>
-                            <p className="text-sm md:text-base text-[#86868b] mt-1">Manage your account preferences and integrations</p>
+                    <div className="sticky top-5 mx-8 rounded-[2rem] glass-effect z-40 border-white/20 shadow-lg px-8 py-8 flex items-center justify-between">
+                        <div className="flex items-center gap-6">
+                            <Link href="/" className="w-12 h-12 flex items-center justify-center bg-white border border-[#E9ECEF] rounded-2xl text-[#6C757D] hover:text-[#1A1A1E] hover:border-[#8B5CF6] transition-all shadow-sm">
+                                <ArrowLeft size={20} />
+                            </Link>
+                            <div>
+                                <h1 className="text-3xl font-black text-[#1A1A1E] tracking-tight">System Settings</h1>
+                                <p className="text-sm font-medium text-[#6C757D] mt-1">Configure your AI workspace and integrations</p>
+                            </div>
+                        </div>
+                        <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-purple-50 rounded-full border border-purple-100">
+                            <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
+                            <span className="text-[10px] font-black uppercase tracking-widest text-purple-700">Account Active</span>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-6">
+                    <div className="px-8 grid grid-cols-1 gap-10">
                         {/* API Configuration */}
-                        <section className="space-y-4">
-                            <h2 className="text-lg md:text-xl font-semibold text-[#1d1d1f]">General Configuration</h2>
-                            <div className="bg-white border border-[#e5e5e7] rounded-2xl p-4 md:p-6 shadow-sm">
+                        <section className="space-y-6">
+                            <h2 className="text-xl font-black text-[#1A1A1E] tracking-tight ml-2">General Configuration</h2>
+                            <div className="bg-white border border-[#E9ECEF] rounded-[2.5rem] p-8 md:p-10 shadow-sm premium-card">
                                 <div className="flex flex-col md:flex-row gap-6 items-start">
                                     <div className="p-4 bg-[#f5f5f7] rounded-2xl hidden md:block">
                                         <Key size={32} className="text-[#1d1d1f]" />
@@ -127,20 +133,20 @@ export default function SettingsPage() {
                                                 </div>
                                             )}
 
-                                            <div className="flex flex-col md:flex-row gap-3">
+                                            <div className="flex flex-col md:flex-row gap-4">
                                                 <input
                                                     type="password"
                                                     value={apiKey}
                                                     onChange={(e) => setApiKey(e.target.value)}
                                                     placeholder={isConfigured ? "Enter new key to update" : "Paste your API Key here"}
-                                                    className="flex-1 bg-[#f5f5f7] border-0 rounded-xl px-4 py-3 text-[#1d1d1f] focus:ring-2 focus:ring-black/5 outline-none transition-all placeholder-[#86868b]"
+                                                    className="flex-1 bg-[#F8F9FA] border border-[#E9ECEF] rounded-2xl px-6 py-4 text-[#1A1A1E] focus:ring-4 focus:ring-purple-100 focus:border-[#8B5CF6] outline-none transition-all placeholder-[#6C757D] font-mono text-sm"
                                                 />
                                                 <button
                                                     onClick={handleSave}
                                                     disabled={loading || !apiKey.trim()}
-                                                    className="bg-black hover:bg-[#333] text-white font-bold px-6 py-3 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
+                                                    className="bg-black hover:bg-[#1A1A1E] text-white font-black px-8 py-4 rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl whitespace-nowrap"
                                                 >
-                                                    {loading ? "Saving..." : "Save Key"}
+                                                    {loading ? "Saving..." : "Save Config"}
                                                 </button>
                                             </div>
 

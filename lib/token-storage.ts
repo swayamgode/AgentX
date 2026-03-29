@@ -1,6 +1,16 @@
 import fs from 'fs';
 import path from 'path';
 
+const BASE_PATH = path.join(process.cwd(), '.users');
+
+if (!fs.existsSync(BASE_PATH)) {
+    fs.mkdirSync(BASE_PATH, { recursive: true });
+}
+
+function getUserAccountFile(userId: string) {
+    return path.join(BASE_PATH, `${userId}-accounts.json`);
+}
+
 const OLD_TOKEN_FILE = path.join(process.cwd(), '.youtube-tokens.json');
 const ACCOUNTS_FILE = path.join(process.cwd(), '.youtube-accounts.json');
 
@@ -58,31 +68,38 @@ class MultiAccountTokenStorage {
         }
     }
 
-    private loadData(): AccountsData {
-        this.migrateOldTokens();
+    private loadData(userId?: string): AccountsData {
+        if (!userId) {
+            // Check if there's a legacy file we should migrate from root to a specific "default" user or just keep as global
+            // For now, if no userId, we return empty to enforce "not getting my accounts" for new users
+            return { accounts: [], activeAccountId: null };
+        }
+
+        const userFile = getUserAccountFile(userId);
 
         try {
-            if (fs.existsSync(ACCOUNTS_FILE)) {
-                return JSON.parse(fs.readFileSync(ACCOUNTS_FILE, 'utf-8'));
+            if (fs.existsSync(userFile)) {
+                return JSON.parse(fs.readFileSync(userFile, 'utf-8'));
             }
         } catch (error) {
-            console.error('Failed to load accounts:', error);
+            console.error(`Failed to load accounts for user ${userId}:`, error);
         }
 
         return { accounts: [], activeAccountId: null };
     }
 
-    private saveData(data: AccountsData): void {
+    private saveData(userId: string, data: AccountsData): void {
+        const userFile = getUserAccountFile(userId);
         try {
-            fs.writeFileSync(ACCOUNTS_FILE, JSON.stringify(data, null, 2));
-            console.log('YouTube accounts saved');
+            fs.writeFileSync(userFile, JSON.stringify(data, null, 2));
+            console.log(`YouTube accounts saved for user ${userId}`);
         } catch (error) {
-            console.error('Failed to save accounts:', error);
+            console.error(`Failed to save accounts for user ${userId}:`, error);
         }
     }
 
-    addAccount(account: Omit<YouTubeAccount, 'id' | 'createdAt'>): YouTubeAccount {
-        const data = this.loadData();
+    addAccount(userId: string, account: Omit<YouTubeAccount, 'id' | 'createdAt'>): YouTubeAccount {
+        const data = this.loadData(userId);
 
         const newAccount: YouTubeAccount = {
             ...account,
@@ -97,12 +114,12 @@ class MultiAccountTokenStorage {
             data.activeAccountId = newAccount.id;
         }
 
-        this.saveData(data);
+        this.saveData(userId, data);
         return newAccount;
     }
 
-    removeAccount(accountId: string): boolean {
-        const data = this.loadData();
+    removeAccount(userId: string, accountId: string): boolean {
+        const data = this.loadData(userId);
         const index = data.accounts.findIndex(a => a.id === accountId);
 
         if (index === -1) return false;
@@ -114,50 +131,50 @@ class MultiAccountTokenStorage {
             data.activeAccountId = data.accounts.length > 0 ? data.accounts[0].id : null;
         }
 
-        this.saveData(data);
+        this.saveData(userId, data);
         return true;
     }
 
-    updateAccount(accountId: string, updates: Partial<Omit<YouTubeAccount, 'id' | 'createdAt'>>): boolean {
-        const data = this.loadData();
+    updateAccount(userId: string, accountId: string, updates: Partial<Omit<YouTubeAccount, 'id' | 'createdAt'>>): boolean {
+        const data = this.loadData(userId);
         const account = data.accounts.find(a => a.id === accountId);
 
         if (!account) return false;
 
         Object.assign(account, updates);
-        this.saveData(data);
+        this.saveData(userId, data);
         return true;
     }
 
-    setActiveAccount(accountId: string): boolean {
-        const data = this.loadData();
+    setActiveAccount(userId: string, accountId: string): boolean {
+        const data = this.loadData(userId);
         const account = data.accounts.find(a => a.id === accountId);
 
         if (!account) return false;
 
         data.activeAccountId = accountId;
-        this.saveData(data);
+        this.saveData(userId, data);
         return true;
     }
 
-    getActiveAccount(): YouTubeAccount | null {
-        const data = this.loadData();
+    getActiveAccount(userId: string): YouTubeAccount | null {
+        const data = this.loadData(userId);
         if (!data.activeAccountId) return null;
         return data.accounts.find(a => a.id === data.activeAccountId) || null;
     }
 
-    getAccount(accountId: string): YouTubeAccount | null {
-        const data = this.loadData();
+    getAccount(userId: string, accountId: string): YouTubeAccount | null {
+        const data = this.loadData(userId);
         return data.accounts.find(a => a.id === accountId) || null;
     }
 
-    getAllAccounts(): YouTubeAccount[] {
-        const data = this.loadData();
+    getAllAccounts(userId: string): YouTubeAccount[] {
+        const data = this.loadData(userId);
         return data.accounts;
     }
 
-    updateTokens(accountId: string, tokens: Partial<YouTubeTokens>): boolean {
-        const data = this.loadData();
+    updateTokens(userId: string, accountId: string, tokens: Partial<YouTubeTokens>): boolean {
+        const data = this.loadData(userId);
         const account = data.accounts.find(a => a.id === accountId);
 
         if (!account) return false;
@@ -168,7 +185,7 @@ class MultiAccountTokenStorage {
             refresh_token: tokens.refresh_token || account.tokens.refresh_token
         };
 
-        this.saveData(data);
+        this.saveData(userId, data);
         return true;
     }
 }
@@ -178,15 +195,15 @@ export const multiAccountStorage = new MultiAccountTokenStorage();
 
 // Legacy compatibility - uses active account
 export const tokenStorage = {
-    save: (tokens: YouTubeTokens) => {
-        const active = multiAccountStorage.getActiveAccount();
+    save: (userId: string, tokens: YouTubeTokens) => {
+        const active = multiAccountStorage.getActiveAccount(userId);
         if (active) {
-            multiAccountStorage.updateTokens(active.id, tokens);
+            multiAccountStorage.updateTokens(userId, active.id, tokens);
         }
     },
 
-    load: (): YouTubeTokens | null => {
-        const active = multiAccountStorage.getActiveAccount();
+    load: (userId: string): YouTubeTokens | null => {
+        const active = multiAccountStorage.getActiveAccount(userId);
         return active ? active.tokens : null;
     }
 };

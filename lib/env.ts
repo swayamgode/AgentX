@@ -4,9 +4,9 @@ const envSchema = z.object({
     // Supabase
     NEXT_PUBLIC_SUPABASE_URL: z.string().url(),
     SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
-    // Database
-    DATABASE_URL: z.string().url(),
-    DIRECT_URL: z.string().url(),
+    // Database (optional if not using Prisma yet)
+    DATABASE_URL: z.string().url().optional(),
+    DIRECT_URL: z.string().url().optional(),
 
     // Google Gemini
     GOOGLE_API_KEY: z.string().min(1),
@@ -25,10 +25,10 @@ const envSchema = z.object({
     YOUTUBE_CLIENT_SECRET: z.string().min(1),
     YOUTUBE_REDIRECT_URI: z.string().url(),
 
-    // Instagram/Facebook
-    INSTAGRAM_APP_ID: z.string().min(1),
-    INSTAGRAM_APP_SECRET: z.string().min(1),
-    INSTAGRAM_REDIRECT_URI: z.string().url(),
+    // Instagram/Facebook (optional)
+    INSTAGRAM_APP_ID: z.string().min(1).optional(),
+    INSTAGRAM_APP_SECRET: z.string().min(1).optional(),
+    INSTAGRAM_REDIRECT_URI: z.string().url().optional(),
 
     // Next.js
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),

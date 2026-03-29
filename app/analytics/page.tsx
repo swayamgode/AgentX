@@ -230,29 +230,34 @@ export default function AnalyticsPage() {
     }
 
     return (
-        <div className="flex min-h-screen bg-[#F5F5F7] text-[#1d1d1f]">
+        <div className="flex min-h-screen bg-[#F8F9FA] text-[#1A1A1E]">
             <LeftSidebar />
 
             <main className="flex-1 min-h-screen flex flex-col pb-20 md:pb-0">
                 {/* Header */}
-                <div className="sticky top-0 bg-white/80 backdrop-blur-md z-10 border-b border-[#e5e5e7]">
-                    <div className="p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                        <div>
-                            <h1 className="text-xl font-bold text-[#1d1d1f] flex items-center gap-2">
-                                <BarChart3 className="text-[#1d1d1f]" /> Analytics
-                            </h1>
-                            <p className="text-sm text-[#86868b] mt-1">
-                                <Activity className="w-3 h-3 inline mr-1 text-[#1d1d1f]" />
-                                Live performance tracking
-                            </p>
+                <div className="sticky top-5 mx-8 rounded-[2rem] glass-effect z-40 border-white/20 shadow-lg">
+                    <div className="p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div className="flex items-center gap-6">
+                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#1A1A1E] to-[#333] flex items-center justify-center shadow-lg animate-float">
+                                <BarChart3 className="text-white w-7 h-7" />
+                            </div>
+                            <div>
+                                <h1 className="text-2xl font-black text-[#1A1A1E] tracking-tight flex items-center gap-2">
+                                     Analytics Hub
+                                </h1>
+                                <p className="text-sm font-medium text-[#6C757D] mt-1 flex items-center gap-2">
+                                    <Activity className="w-4 h-4 text-[#8B5CF6]" />
+                                    Live performance tracking & insights
+                                </p>
+                            </div>
                         </div>
-                        <div className="flex items-center gap-3 w-full md:w-auto">
+                        <div className="flex items-center gap-4 w-full md:w-auto">
                             {/* Account Filter */}
                             {accounts.length > 1 && (
                                 <select
                                     value={selectedAccount}
                                     onChange={(e) => setSelectedAccount(e.target.value)}
-                                    className="flex-1 md:flex-initial bg-white border border-[#e5e5e7] rounded-lg px-3 py-1.5 text-sm text-[#1d1d1f] focus:outline-none focus:border-[#1d1d1f] transition-colors"
+                                    className="flex-1 md:flex-initial bg-white/50 border border-[#E9ECEF] rounded-xl px-4 py-2 text-sm font-bold text-[#1A1A1E] focus:outline-none focus:border-[#8B5CF6] transition-all hover:bg-white"
                                 >
                                     <option value="all">All Accounts ({accounts.length})</option>
                                     {accounts.map(account => (
@@ -265,16 +270,16 @@ export default function AnalyticsPage() {
                             <button
                                 onClick={() => fetchAnalytics(true)}
                                 disabled={refreshing}
-                                className="flex items-center gap-2 px-3 py-1.5 bg-white hover:bg-[#F5F5F7] border border-[#e5e5e7] rounded-lg text-xs font-medium text-[#1d1d1f] transition-colors disabled:opacity-50 self-end md:self-auto"
+                                className="flex items-center gap-2 px-5 py-2.5 bg-black hover:bg-black/90 text-white border-0 rounded-xl text-sm font-bold transition-all shadow-lg hover:shadow-xl disabled:opacity-50 group"
                             >
-                                <RefreshCw size={14} className={refreshing ? "animate-spin" : ""} />
+                                <RefreshCw size={16} className={`${refreshing ? "animate-spin" : "group-hover:rotate-180 transition-transform duration-500"}`} />
                                 {refreshing ? 'Syncing...' : 'Sync Data'}
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <div className="p-4 md:p-8 space-y-6 md:space-y-8">
+                <div className="p-8 md:p-12 space-y-10">
                     {/* Ambient Background Glow - adjusted z-index to be behind content but inside main */}
                     <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0 opacity-30">
                         <div className="absolute top-[-10%] left-[20%] w-[40%] h-[40%] bg-black/3 rounded-full blur-[120px]" />
@@ -301,34 +306,34 @@ export default function AnalyticsPage() {
                         )}
 
                         {/* KPI Grid */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                             <KPICard
                                 title="Total Views"
                                 value={formatNumber(stats.totalViews)}
-                                icon={<Eye className="w-5 h-5 text-white" />}
+                                icon={<Eye className="w-6 h-6 text-white" />}
                                 trend="+12%"
-                                color="from-[#1d1d1f] to-[#333]"
+                                color="from-[#1A1A1E] to-[#333]"
                             />
                             <KPICard
                                 title="Avg. Views / Video"
                                 value={formatNumber(stats.avgViews)}
-                                icon={<TrendingUp className="w-5 h-5 text-white" />}
+                                icon={<TrendingUp className="w-6 h-6 text-white" />}
                                 trend="+5%"
-                                color="from-[#1d1d1f] to-[#333]"
+                                color="from-[#1A1A1E] to-[#333]"
                             />
                             <KPICard
                                 title="Total Interaction"
                                 value={formatNumber(stats.totalLikes + stats.totalComments)}
-                                icon={<ThumbsUp className="w-5 h-5 text-white" />}
+                                icon={<ThumbsUp className="w-6 h-6 text-white" />}
                                 trend="+8%"
-                                color="from-[#1d1d1f] to-[#333]"
+                                color="from-[#1A1A1E] to-[#333]"
                             />
                             <KPICard
                                 title="Content Library"
                                 value={filteredVideos.length.toString()}
-                                icon={<Video className="w-5 h-5 text-white" />}
+                                icon={<Video className="w-6 h-6 text-white" />}
                                 trend="Videos"
-                                color="from-[#1d1d1f] to-[#333]"
+                                color="from-[#1A1A1E] to-[#333]"
                             />
                         </div>
 
