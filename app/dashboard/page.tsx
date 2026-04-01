@@ -162,26 +162,24 @@ export default function DashboardPage() {
           <div className="max-w-[1400px] mx-auto px-8 py-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div className="flex items-center gap-6">
               <div className="relative">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#8B5CF6] to-[#EC4899] flex items-center justify-center shadow-purple animate-float">
-                  <Activity className="text-white w-8 h-8" />
+                <div className="w-12 h-12 rounded-xl bg-black flex items-center justify-center shadow-md">
+                  <Activity className="text-white w-6 h-6" />
                 </div>
-                <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
               </div>
               <div>
-                <h1 className="text-2xl md:text-3xl font-black text-[#1A1A1E] tracking-tight">Welcome, {user?.email?.split('@')[0] || 'Josh'}</h1>
-                <p className="text-sm font-medium text-[#6C757D] mt-1 flex items-center gap-2">
-                  <Calendar size={14} />
-                  {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+                <h1 className="text-xl md:text-2xl font-bold text-black tracking-tight leading-none">Welcome, {user?.email?.split('@')[0] || 'Josh'}</h1>
+                <p className="text-[11px] font-medium text-gray-500 mt-1 flex items-center gap-1.5 uppercase tracking-wider">
+                  <Calendar size={12} />
+                  {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
                 </p>
               </div>
-
-              {/* Scheduler Status Indicator */}
-              <div className={`hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full border text-[10px] font-bold uppercase tracking-wider ${schedulerStatus?.status === 'RUNNING'
-                ? 'bg-green-50 text-green-600 border-green-200'
-                : 'bg-red-50 text-red-600 border-red-200'
+              
+              <div className={`hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded border text-[9px] font-bold uppercase tracking-wider ${schedulerStatus?.status === 'RUNNING'
+                ? 'bg-black text-white border-black'
+                : 'bg-white text-gray-400 border-gray-200'
                 }`}>
-                <div className={`w-1.5 h-1.5 rounded-full ${schedulerStatus?.status === 'RUNNING' ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
-                {schedulerStatus?.status === 'RUNNING' ? 'Automation Active' : 'Automation Offline'}
+                <div className={`w-1 h-1 rounded-full ${schedulerStatus?.status === 'RUNNING' ? 'bg-white' : 'bg-gray-300'}`} />
+                {schedulerStatus?.status === 'RUNNING' ? 'Active' : 'Offline'}
               </div>
             </div>
 
@@ -189,21 +187,18 @@ export default function DashboardPage() {
               <button
                 onClick={() => fetchAnalytics(true)}
                 disabled={refreshing}
-                className="flex items-center gap-2 px-5 py-2.5 bg-white border border-[#E9ECEF] hover:border-[#8B5CF6] hover:bg-white rounded-xl text-sm font-bold text-[#1A1A1E] transition-all shadow-sm hover:shadow-md disabled:opacity-50 group"
+                className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 hover:border-black rounded-lg text-xs font-bold text-black transition-all shadow-sm disabled:opacity-50"
               >
-                <RefreshCw size={16} className={`${refreshing ? "animate-spin" : "group-hover:rotate-180 transition-transform duration-500"}`} />
-                {refreshing ? 'Syncing...' : 'Sync Data'}
+                <RefreshCw size={14} className={`${refreshing ? "animate-spin" : ""}`} />
+                {refreshing ? 'Syncing' : 'Sync'}
               </button>
-              {/* Profile */}
-              <div className="flex items-center gap-3 cursor-pointer hover:bg-white/50 p-1.5 pr-4 rounded-2xl border border-transparent hover:border-[#E9ECEF] transition-all group">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0D1117] to-[#2D333B] flex items-center justify-center group-hover:scale-105 transition-transform">
-                  <span className="text-white font-black text-sm">{user?.email?.[0].toUpperCase() || 'J.'}</span>
+              <div className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 pr-3 rounded-xl border border-transparent hover:border-gray-200 transition-all group">
+                <div className="w-8 h-8 rounded-lg bg-black flex items-center justify-center">
+                  <span className="text-white font-bold text-xs">{user?.email?.[0].toUpperCase() || 'J.'}</span>
                 </div>
                 <div className="hidden sm:block">
-                    <p className="text-sm font-bold text-[#1A1A1E]">{user?.email?.split('@')[0] || 'Josh M.'}</p>
-                    <p className="text-[10px] uppercase tracking-tighter text-[#6C757D] font-black">Pro Plan</p>
+                    <p className="text-xs font-bold text-black">{user?.email?.split('@')[0] || 'Josh M.'}</p>
                 </div>
-                <ChevronDown size={14} className="text-[#6C757D] group-hover:translate-y-0.5 transition-transform" />
               </div>
             </div>
           </div>
@@ -235,54 +230,54 @@ export default function DashboardPage() {
               )}
 
               {/* KPI Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <KPICard
                   title="Total Views"
                   value={formatNumber(stats.totalViews)}
-                  icon={<Eye className="w-6 h-6 text-[#1A1A1E]" />}
+                  icon={<Eye className="w-5 h-5 text-black" />}
                   trend="+12%"
-                  color="bg-blue-50/50"
-                  textColor="text-blue-600"
+                  color="bg-gray-50"
+                  textColor="text-black"
                 />
                 <KPICard
                   title="Avg. Views / Video"
                   value={formatNumber(stats.avgViews)}
-                  icon={<TrendingUp className="w-6 h-6 text-[#1A1A1E]" />}
+                  icon={<TrendingUp className="w-5 h-5 text-black" />}
                   trend="+5%"
-                  color="bg-purple-50/50"
-                  textColor="text-purple-600"
+                  color="bg-gray-50"
+                  textColor="text-black"
                 />
                 <KPICard
                   title="Growth Momentum"
                   value={`${stats.momentum > 0 ? '+' : ''}${stats.momentum}%`}
-                  icon={<Zap className="w-6 h-6 text-[#1A1A1E]" />}
+                  icon={<Zap className="w-5 h-5 text-black" />}
                   trend={stats.momentum > 0 ? "Gaining" : "Stable"}
-                  color="bg-orange-50/50"
-                  textColor="text-orange-600"
+                  color="bg-gray-50"
+                  textColor="text-black"
                 />
                 <KPICard
                   title="Content Library"
                   value={videos.length.toString()}
-                  icon={<Video className="w-6 h-6 text-[#1A1A1E]" />}
+                  icon={<Video className="w-5 h-5 text-black" />}
                   trend="Videos"
-                  color="bg-emerald-50/50"
-                  textColor="text-emerald-600"
+                  color="bg-gray-50"
+                  textColor="text-black"
                 />
               </div>
 
               {/* Charts Row 1: Growth Trend */}
               <div className="bg-white border border-[#E9ECEF] rounded-[2.5rem] p-8 md:p-10 shadow-sm overflow-hidden premium-card">
-                <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-10 gap-4">
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
                   <div>
-                    <h2 className="text-xl md:text-2xl font-black text-[#1A1A1E] flex items-center gap-3 tracking-tight">
-                      <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center">
-                        <Activity className="w-5 h-5 text-purple-600" />
+                    <h2 className="text-lg md:text-xl font-bold text-black flex items-center gap-2 tracking-tight">
+                      <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center border border-gray-100">
+                        <Activity className="w-4 h-4 text-black" />
                       </div>
                       Growth Trajectory
                     </h2>
-                    <p className="text-sm font-medium text-[#6C757D] mt-1 ml-13">View count progression over recent uploads</p>
+                    <p className="text-xs font-medium text-gray-500 mt-1 ml-10">View count progression over recent uploads</p>
                   </div>
-                  <div className="text-[10px] font-black uppercase tracking-widest text-[#6C757D] bg-[#F8F9FA] px-4 py-2 rounded-full border border-[#E9ECEF]">
+                  <div className="text-[9px] font-black uppercase tracking-widest text-gray-500 bg-gray-50 px-3 py-1.5 rounded border border-gray-100">
                     Cycle: Last {growthData.length} Videos
                   </div>
                 </div>
@@ -313,8 +308,8 @@ export default function DashboardPage() {
                       <Area
                         type="monotone"
                         dataKey="views"
-                        stroke="#8b5cf6"
-                        strokeWidth={3}
+                        stroke="#000000"
+                        strokeWidth={2}
                         fillOpacity={1}
                         fill="url(#colorViews)"
                       />
@@ -503,25 +498,20 @@ export default function DashboardPage() {
 
 function KPICard({ title, value, icon, trend, color, textColor }: { title: string, value: string, icon: React.ReactNode, trend?: string, color: string, textColor: string }) {
   return (
-    <div className="relative group overflow-hidden bg-white border border-[#E9ECEF] p-8 rounded-[2rem] transition-all hover:-translate-y-2 hover:shadow-2xl shadow-sm premium-card">
-      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-transparent to-gray-50/50 rounded-bl-[100px] pointer-events-none transition-transform group-hover:scale-110"></div>
-      
-      <div className="relative z-10 flex justify-between items-start mb-8">
-        <div className={`p-4 rounded-2xl ${color} shadow-inner`}>
+    <div className="relative overflow-hidden bg-white border border-gray-200 p-6 rounded-2xl transition-all hover:border-black shadow-sm">
+      <div className="relative z-10 flex justify-between items-start mb-4">
+        <div className={`p-3 rounded-xl bg-gray-50 border border-gray-100`}>
           {icon}
         </div>
         {trend && (
-          <span className={`text-xs font-black px-3 py-1.5 rounded-full flex items-center gap-1.5 border ${
-            trend.startsWith('+') ? 'bg-green-50 text-green-600 border-green-100' : 'bg-blue-50 text-blue-600 border-blue-100'
-          }`}>
-            <TrendingUp className="w-3.5 h-3.5" />
+          <span className={`text-[10px] font-bold px-2 py-1 rounded border bg-white text-black border-gray-200`}>
             {trend}
           </span>
         )}
       </div>
       <div className="relative z-10">
-        <div className="text-4xl font-black text-[#1A1A1E] tracking-tighter font-mono leading-none">{value}</div>
-        <div className="text-xs uppercase tracking-widest text-[#6C757D] mt-3 font-black">{title}</div>
+        <div className="text-2xl font-bold text-black tracking-tighter leading-none">{value}</div>
+        <div className="text-[10px] uppercase tracking-widest text-gray-400 mt-2 font-bold">{title}</div>
       </div>
     </div>
   );

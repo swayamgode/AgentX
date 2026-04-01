@@ -18,7 +18,7 @@ export class CompetitorAnalyzer {
     constructor() {
         // We use the active account's credentials to make these public API calls
         // This avoids needing a separate API Key if we already have OAuth
-        const account = multiAccountStorage.getActiveAccount();
+        const account = multiAccountStorage.getActiveAccount('dev-id-001');
         if (account && account.tokens) {
             const oauth2Client = new google.auth.OAuth2(
                 process.env.YOUTUBE_CLIENT_ID,

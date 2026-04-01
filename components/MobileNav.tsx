@@ -17,24 +17,22 @@ export function MobileNav() {
     ];
 
     return (
-        <div className="fixed bottom-6 left-6 right-6 bg-[#0D1117]/90 backdrop-blur-2xl border border-white/10 z-50 md:hidden rounded-[2rem] shadow-2xl overflow-hidden pb-safe">
-            <div className="flex justify-around items-center p-4">
+        <div className="fixed bottom-4 left-4 right-4 bg-black border border-white/20 z-50 md:hidden rounded-2xl shadow-xl overflow-hidden">
+            <div className="flex justify-around items-center p-2">
                 {navItems.map((item) => {
                     const isActive = pathname === item.href;
                     return (
                         <Link
                             key={item.label}
                             href={item.href}
-                            className={`flex flex-col items-center gap-1.5 transition-all duration-300 ${isActive ? "text-white scale-110" : "text-white/40 hover:text-white/70"
-                                }`}
+                            className={`flex flex-col items-center gap-1 p-2 transition-all ${isActive ? "text-white" : "text-white/40"}`}
                         >
-                            <div className={`p-2.5 rounded-2xl transition-all ${isActive ? "bg-white/10 shadow-[inner_0_0_10px_rgba(255,255,255,0.05)]" : ""
-                                }`}>
-                                <item.icon size={22} strokeWidth={isActive ? 3 : 2} />
+                            <div className={`p-1.5 rounded-lg transition-all ${isActive ? "bg-white/20" : ""}`}>
+                                <item.icon size={18} strokeWidth={isActive ? 2.5 : 2} />
                             </div>
-                            <span className={`text-[9px] font-black uppercase tracking-tighter ${isActive ? "opacity-100" : "opacity-0"}`}>{item.label}</span>
+                            <span className={`text-[8px] font-bold uppercase tracking-wider ${isActive ? "opacity-100" : "opacity-0 h-0 w-0 overflow-hidden"}`}>{item.label}</span>
                         </Link>
-                    );
+                    )
                 })}
             </div>
         </div>

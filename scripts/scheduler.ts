@@ -144,9 +144,10 @@ async function checkAndPostYouTubeContent() {
     console.log(`Found ${pendingVideos.length} YouTube videos to post.`);
 
     for (const video of pendingVideos) {
+        const userId = 'dev-id-001';
         // Assume default account if not specified, or skip
         if (!video.accountId) {
-            const active = multiAccountStorage.getActiveAccount();
+            const active = multiAccountStorage.getActiveAccount(userId);
             if (active) video.accountId = active.id;
             else {
                 console.error(`Skipping video ${video.filename}: No account ID`);
@@ -154,7 +155,7 @@ async function checkAndPostYouTubeContent() {
             }
         }
 
-        const account = multiAccountStorage.getAccount(video.accountId!);
+        const account = multiAccountStorage.getAccount(userId, video.accountId!);
         if (!account) {
             console.error(`Account not found: ${video.accountId}`);
             continue;
@@ -178,7 +179,7 @@ async function checkAndPostYouTubeContent() {
             if (tokenInfo.token) {
                 // Save new tokens if refreshed
                 if (tokenInfo.token !== account.tokens.access_token && tokenInfo.res?.data) {
-                    multiAccountStorage.updateTokens(account.id, {
+                    multiAccountStorage.updateTokens('dev-id-001', account.id, {
                         access_token: tokenInfo.token,
                         expiry_date: tokenInfo.res.data.expiry_date,
                         refresh_token: tokenInfo.res.data.refresh_token // might be undefined, that's ok
@@ -243,8 +244,9 @@ async function checkAndPostYouTubeContent() {
             if (isQuotaError) {
                 console.log(`🛑 Quota reached for ${account.channelName}. Attempting redistribution...`);
                 
+                const accounts = multiAccountStorage.getAllAccounts(userId);
                 // Find alternative account
-                const alternative = accounts.find(a => a.id !== account.id);
+                const alternative = accounts.find((a: any) => a.id !== account.id);
                 if (alternative) {
                     console.log(`🔀 Rerouting video to alternative: ${alternative.channelName}`);
                     video.accountId = alternative.id;
@@ -285,7 +287,8 @@ import { exec } from 'child_process';
 async function checkAndAutoGenerateContent() {
     console.log(`[${new Date().toISOString()}] 🔍 Running Autonomous Stock Audit...`);
 
-    const accounts = multiAccountStorage.getAllAccounts();
+    const userId = 'dev-id-001';
+    const accounts = multiAccountStorage.getAllAccounts(userId);
     const pendingFile = path.join(process.cwd(), 'public', 'pending-batch.json');
     const existingPending = fs.existsSync(pendingFile)
         ? JSON.parse(fs.readFileSync(pendingFile, 'utf-8'))

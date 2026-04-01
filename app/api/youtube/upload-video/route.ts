@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { google } from 'googleapis';
 import { tokenStorage, multiAccountStorage } from '@/lib/token-storage';
 import { analyticsStorage } from '@/lib/analytics-storage';
+import { getAuthUser } from '@/lib/auth-util';
 import { Readable } from 'stream';
 
 export async function POST(request: NextRequest) {
@@ -18,6 +19,12 @@ export async function POST(request: NextRequest) {
         const templateId = formData.get('templateId') as string;
         const texts = JSON.parse(formData.get('texts') as string || '[]');
 
+        const user = await getAuthUser();
+        if (!user) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+        const userId = user.id;
+
         if (!videoFile) {
             return NextResponse.json({ error: 'Video file is required' }, { status: 400 });
         }
@@ -25,13 +32,13 @@ export async function POST(request: NextRequest) {
         // Load account-specific tokens
         let account;
         if (accountId) {
-            account = multiAccountStorage.getAccount(accountId);
+            account = multiAccountStorage.getAccount(userId, accountId);
             if (!account) {
                 return NextResponse.json({ error: 'Account not found' }, { status: 404 });
             }
         } else {
             // Use active account if no accountId specified
-            account = multiAccountStorage.getActiveAccount();
+            account = multiAccountStorage.getActiveAccount(userId);
             if (!account) {
                 return NextResponse.json({ error: 'No YouTube account connected' }, { status: 401 });
             }
@@ -54,7 +61,7 @@ export async function POST(request: NextRequest) {
         if (tokens.expiry_date && tokens.expiry_date < Date.now() && tokens.refresh_token) {
             try {
                 const { credentials } = await oauth2Client.refreshAccessToken();
-                multiAccountStorage.updateTokens(account.id, {
+                multiAccountStorage.updateTokens(userId, account.id, {
                     access_token: credentials.access_token!,
                     refresh_token: credentials.refresh_token || tokens.refresh_token,
                     expiry_date: credentials.expiry_date || undefined
@@ -121,7 +128,7 @@ export async function POST(request: NextRequest) {
             // Track upload for analytics
             if (response.data.id) {
                 try {
-                    analyticsStorage.addVideo({
+                    analyticsStorage.addVideo(userId, {
                         youtubeId: response.data.id,
                         title,
                         topic: topic || 'unknown',
@@ -146,7 +153,7 @@ export async function POST(request: NextRequest) {
                     const { credentials } = await oauth2Client.refreshAccessToken();
 
                     // Update tokens in account storage
-                    multiAccountStorage.updateTokens(account.id, {
+                    multiAccountStorage.updateTokens(userId, account.id, {
                         access_token: credentials.access_token!,
                         refresh_token: credentials.refresh_token || tokens.refresh_token,
                         expiry_date: credentials.expiry_date || undefined
@@ -166,7 +173,7 @@ export async function POST(request: NextRequest) {
                     // Track upload for analytics (retry case)
                     if (response.data.id) {
                         try {
-                            analyticsStorage.addVideo({
+                            analyticsStorage.addVideo(userId, {
                                 youtubeId: response.data.id,
                                 title,
                                 topic: topic || 'unknown',

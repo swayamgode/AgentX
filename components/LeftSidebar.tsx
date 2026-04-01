@@ -17,18 +17,18 @@ export function LeftSidebar() {
     ];
 
     return (
-        <div className="flex flex-col h-[calc(100vh-2.5rem)] sticky top-5 w-[100px] bg-[#0D1117]/95 backdrop-blur-2xl border border-white/5 overflow-y-auto hidden md:flex shrink-0 rounded-[2.5rem] m-5 mr-0 shadow-2xl transition-all duration-500">
+        <div className="flex flex-col h-[calc(100vh-2.5rem)] sticky top-5 w-16 bg-black border border-white/10 overflow-y-auto hidden md:flex shrink-0 rounded-2xl m-5 mr-0 shadow-xl transition-all">
             {/* Logo */}
-            <div className="p-6 my-4 flex justify-center">
-                <Link href="/" className="flex items-center justify-center group">
-                    <div className="w-14 h-14 bg-gradient-to-br from-white to-gray-200 rounded-2xl flex items-center justify-center hover:rotate-6 transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.15)] group-hover:shadow-[0_0_30px_rgba(255,255,255,0.3)]">
-                        <span className="text-black font-black text-2xl tracking-tighter">A.</span>
+            <div className="p-3 my-2 flex justify-center">
+                <Link href="/" className="flex items-center justify-center">
+                    <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+                        <span className="text-black font-black text-xl tracking-tighter">A.</span>
                     </div>
                 </Link>
             </div>
 
             {/* Nav Items - Icon Only */}
-            <nav className="flex-1 flex flex-col items-center gap-8 mb-6 mt-10">
+            <nav className="flex-1 flex flex-col items-center gap-6 mb-6 mt-8">
                 {navItems.map((item) => {
                     const isActive = pathname === item.href;
                     return (
@@ -38,31 +38,26 @@ export function LeftSidebar() {
                             className="group relative flex items-center"
                             title={item.label}
                         >
-                            {/* Active Indicator Pulse */}
-                            {isActive && (
-                                <div className="absolute -left-6 w-2 h-8 bg-[#8B5CF6] rounded-r-full shadow-[0_0_20px_rgba(139,92,246,0.6)] animate-pulse" />
-                            )}
-
-                            <div className={`flex items-center justify-center w-14 h-14 rounded-2xl transition-all duration-400 ${isActive
-                                ? "bg-white text-black shadow-[0_10px_20px_rgba(255,255,255,0.1)] scale-110"
-                                : "hover:bg-white/5 text-white/40 hover:text-white hover:scale-105"
+                            <div className={`flex items-center justify-center w-10 h-10 rounded-lg transition-all ${isActive
+                                ? "bg-white text-black shadow-md"
+                                : "text-white/40 hover:text-white"
                                 }`}>
-                                <item.icon size={24} strokeWidth={isActive ? 2.5 : 2} />
+                                <item.icon size={20} strokeWidth={isActive ? 2.5 : 2} />
                             </div>
 
-                            {/* Enhanced Tooltip */}
-                            <div className="absolute left-full ml-6 px-4 py-2 bg-black/90 border border-white/10 text-white text-xs font-bold uppercase tracking-widest rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition-all duration-300 translate-x-[-15px] group-hover:translate-x-0 z-50 backdrop-blur-md">
+                            {/* Simple Tooltip */}
+                            <div className="absolute left-full ml-4 px-2 py-1 bg-black border border-white/20 text-white text-[10px] font-bold uppercase tracking-wider rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition-all z-50">
                                 {item.label}
                             </div>
                         </Link>
-                    );
+                    )
                 })}
             </nav>
 
-            {/* Settings Icon at Bottom */}
-            <div className="mt-auto mb-8 flex justify-center">
-                <Link href="/settings" className="w-14 h-14 rounded-2xl hover:bg-white/5 flex items-center justify-center text-white/40 hover:text-white transition-all duration-300 group">
-                    <Settings size={24} className="group-hover:rotate-90 transition-transform duration-500" />
+            {/* Settings at Bottom */}
+            <div className="mt-auto mb-6 flex justify-center">
+                <Link href="/settings" className="w-10 h-10 rounded-lg flex items-center justify-center text-white/40 hover:text-white transition-all">
+                    <Settings size={20} />
                 </Link>
             </div>
         </div>

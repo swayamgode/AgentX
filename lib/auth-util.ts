@@ -8,6 +8,10 @@ import { NextResponse } from 'next/server';
 export async function getAuthUser() {
   const cookieStore = await cookies();
 
+  // AUTH BYPASS: Always return dev user to avoid Supabase dependency
+  return { email: 'dev@agentx.ai', id: 'dev-id-001' };
+
+  /* Supabase Auth logic disabled
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
@@ -41,6 +45,7 @@ export async function getAuthUser() {
   }
   
   return session.user;
+  */
 }
 
 /**

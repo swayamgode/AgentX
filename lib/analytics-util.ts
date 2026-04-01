@@ -2,8 +2,8 @@
 import { analyticsStorage, VideoAnalyticsData } from './analytics-storage';
 
 // Extension to AnalyticsStorage to support finding optimal times
-export function getOptimalUploadHour(accountId: string): number {
-    const allData = analyticsStorage.getAll();
+export function getOptimalUploadHour(accountId: string, userId: string = 'dev-id-001'): number {
+    const allData = analyticsStorage.getAll(userId);
 
     // Filter stats for this account (if we could map them, but analytics currently doesn't map to accountId strictly without checking token storage)
     // For now, we will use GLOBAL heuristics because mapping youtubeId -> accountId requires more lookups.

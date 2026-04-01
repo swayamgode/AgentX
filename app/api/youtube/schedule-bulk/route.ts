@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { multiAccountStorage } from '@/lib/token-storage';
 import { generateBulkMemes, MemeIdea } from '@/lib/ai-meme-generator';
 import { getOptimalUploadHour } from '@/lib/analytics-util';
+import { getAuthUser } from '@/lib/auth-util';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -10,7 +11,14 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
         const { videosPerAccount = 10 } = body;
 
-        // Get API key
+        // 1. Get current user
+        const user = await getAuthUser();
+        if (!user) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+        const userId = user.id;
+
+        // 2. Get API key
         const apiKey = process.env.GOOGLE_API_KEY;
         if (!apiKey) {
             return NextResponse.json(
@@ -19,8 +27,8 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Get all accounts
-        const accounts = multiAccountStorage.getAllAccounts();
+        // 3. Get all accounts for this user
+        const accounts = multiAccountStorage.getAllAccounts(userId);
         if (accounts.length === 0) {
             return NextResponse.json(
                 { error: 'No YouTube accounts connected' },
@@ -47,7 +55,7 @@ export async function POST(request: NextRequest) {
         for (const account of accounts) {
             try {
                 // Get optimal upload hour based on analytics
-                const optimalHour = getOptimalUploadHour(account.id);
+                const optimalHour = getOptimalUploadHour(account.id, userId);
 
                 // Pick random topic for this account
                 const topic = topics[Math.floor(Math.random() * topics.length)];

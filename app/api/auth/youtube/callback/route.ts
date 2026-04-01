@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { multiAccountStorage } from '@/lib/token-storage';
+import { getAuthUser } from '@/lib/auth-util';
 
 export async function GET(request: NextRequest) {
     try {
@@ -80,13 +81,20 @@ export async function GET(request: NextRequest) {
         const channelName = validChannel.snippet.title;
         const thumbnailUrl = validChannel.snippet.thumbnails?.default?.url;
 
+        const user = await getAuthUser();
+        if (!user) {
+            return NextResponse.redirect(new URL('/login?error=session_lost', request.url));
+        }
+
+        const userId = user.id;
+
         // 4. Check if account already exists
-        const allAccounts = multiAccountStorage.getAllAccounts();
+        const allAccounts = multiAccountStorage.getAllAccounts(userId);
         const existingAccount = allAccounts.find(acc => acc.channelId === channelId);
 
         if (existingAccount) {
             // Update existing account
-            multiAccountStorage.updateAccount(existingAccount.id, {
+            multiAccountStorage.updateAccount(userId, existingAccount.id, {
                 channelName,
                 email, // Update email in case it changed
                 thumbnailUrl,
@@ -97,11 +105,11 @@ export async function GET(request: NextRequest) {
             });
             // Ensure we update the refresh token if provided
             if (tokens.refresh_token) {
-                multiAccountStorage.updateTokens(existingAccount.id, { refresh_token: tokens.refresh_token });
+                multiAccountStorage.updateTokens(userId, existingAccount.id, { refresh_token: tokens.refresh_token });
             }
         } else {
             // Add new account
-            multiAccountStorage.addAccount({
+            multiAccountStorage.addAccount(userId, {
                 channelName,
                 channelId,
                 email,

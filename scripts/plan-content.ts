@@ -29,7 +29,8 @@ async function run() {
         process.exit(1);
     }
 
-    const accounts = multiAccountStorage.getAllAccounts();
+    const userId = 'dev-id-001';
+    const accounts = multiAccountStorage.getAllAccounts(userId);
     console.log(`Found ${accounts.length} accounts.`);
 
     const allPending: BatchItem[] = [];

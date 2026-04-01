@@ -38,4 +38,24 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
-next-env.d.ts
+
+# Local Storage
+.users/
+.video-analytics.json
+.youtube-accounts.json
+.youtube-tokens.json.backup
+
+# Automation & Logs
+scheduler-status.json
+scheduler.log
+server.log
+env-debug-report.txt
+lint-results.txt
+lint_output.txt
+models-report.txt
+available-models.txt
+*.log
+
+# Project Specific
+topics.txt
+available-models.txt

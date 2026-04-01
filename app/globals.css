@@ -1,27 +1,27 @@
 @import "tailwindcss";
 
 :root {
-  /* Premium Light Theme */
-  --background: #F8F9FA;
-  --foreground: #1A1A1E;
-  --border: #E9ECEF;
-  --accent: #8B5CF6;
-  --accent-hover: #7C3AED;
-  --secondary-text: #6C757D;
+  /* Monochrome Theme */
+  --background: #FFFFFF;
+  --foreground: #000000;
+  --border: #E5E5E5;
+  --accent: #000000;
+  --accent-hover: #333333;
+  --secondary-text: #666666;
   --card-bg: #FFFFFF;
-  --card-hover: #F8F9FA;
-  --sidebar-bg: #0D1117;
-  --sidebar-text: #F8F9FA;
+  --card-hover: #F9F9F9;
+  --sidebar-bg: #000000;
+  --sidebar-text: #FFFFFF;
 
   /* Refined Shadows */
-  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
-  --shadow-purple: 0 10px 15px -3px rgba(139, 92, 246, 0.1), 0 4px 6px -2px rgba(139, 92, 246, 0.05);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+  --shadow-accent: 0 4px 6px -1px rgba(0, 0, 0, 0.1); 
 
-  /* Glassmorphism */
-  --glass-bg: rgba(255, 255, 255, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.2);
+  /* Glassmorphism (Neutral) */
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(0, 0, 0, 0.05);
 }
 
 @theme inline {
@@ -30,7 +30,12 @@
   --color-border: var(--border);
   --color-accent: var(--accent);
   --color-muted: var(--secondary-text);
-  --shadow-purple: var(--shadow-purple);
+  --shadow-accent: var(--shadow-accent);
+}
+
+.compact-ui {
+  font-size: 0.875rem;
+  --spacing-scale: 0.75;
 }
 
 body {
