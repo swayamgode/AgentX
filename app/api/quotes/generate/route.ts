@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { analyticsStorage } from '@/lib/analytics-storage';
+import { getAuthUser } from '@/lib/auth-util';
 
 export async function POST(req: NextRequest) {
     let topic = '';
@@ -26,7 +27,9 @@ export async function POST(req: NextRequest) {
         const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
         // --- 1. Prepare Analytics Data (The "XL File") ---
-        const allVideos = analyticsStorage.getAll();
+        const user = await getAuthUser();
+        const userId = user?.id || 'dev-id-001';
+        const allVideos = analyticsStorage.getAll(userId);
 
         // Filter for meaningful data and limit to recent 50 to avoid token overload
         const relevantData = allVideos
