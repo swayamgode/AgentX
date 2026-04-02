@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { LeftSidebar } from "@/components/LeftSidebar";
 import { MobileNav } from "@/components/MobileNav";
-import { Rocket, Terminal, Loader2, Settings as SettingsIcon, Zap, TrendingUp, Video } from "lucide-react";
+import { Rocket, Terminal, Loader2, Settings as SettingsIcon, Zap, TrendingUp, Video, Clock } from "lucide-react";
 
 interface Decoration {
     image: string;
@@ -288,6 +288,17 @@ export default function AutoPilotPage() {
     const [autoPilotGenerationsPerChannel, setAutoPilotGenerationsPerChannel] = useState(10);
     const [autoPilotBackgroundType, setAutoPilotBackgroundType] = useState<'random' | 'gradient' | 'image'>('gradient');
     const [autoPilotTextAlign, setAutoPilotTextAlign] = useState<'random' | 'left' | 'center' | 'right'>('center');
+    
+    // Scheduling State
+    const [isScheduled, setIsScheduled] = useState(false);
+    const [scheduleStartTime, setScheduleStartTime] = useState(() => {
+        const d = new Date();
+        d.setMinutes(d.getMinutes() + 60); // Default to 1 hour from now
+        d.setSeconds(0);
+        d.setMilliseconds(0);
+        return d.toISOString().slice(0, 16); // format for datetime-local
+    });
+    const [scheduleInterval, setScheduleInterval] = useState(180); // 3 hours in minutes
 
     // Batch Automation State
     const [isBatchRunning, setIsBatchRunning] = useState(false);
@@ -295,10 +306,38 @@ export default function AutoPilotPage() {
     const logsEndRef = useRef<HTMLDivElement>(null);
     const [availableGraphics, setAvailableGraphics] = useState<string[]>([]);
 
+    // Execution Delay State
+    const [delayUntil, setDelayUntil] = useState<string>('');
+    const [isWaitingForDelay, setIsWaitingForDelay] = useState(false);
+    const [timeLeftMessage, setTimeLeftMessage] = useState('');
+
+    useEffect(() => {
+        let timer: NodeJS.Timeout;
+        if (isWaitingForDelay && delayUntil) {
+            timer = setInterval(() => {
+                const now = new Date();
+                const target = new Date(delayUntil);
+                const diff = target.getTime() - now.getTime();
+
+                if (diff <= 0) {
+                    setIsWaitingForDelay(false);
+                    clearInterval(timer);
+                    handleStartAutoPilot();
+                } else {
+                    const hours = Math.floor(diff / 3600000);
+                    const mins = Math.floor((diff % 3600000) / 60000);
+                    const secs = Math.floor((diff % 60000) / 1000);
+                    setTimeLeftMessage(`⏳ Starting in ${hours}h ${mins}m ${secs}s...`);
+                }
+            }, 1000);
+        }
+        return () => clearInterval(timer);
+    }, [isWaitingForDelay, delayUntil]);
+
     useEffect(() => {
         // Auto-start if requested via query param
         const searchParams = new URLSearchParams(window.location.search);
-        if ((searchParams.get('auto') === 'true' || searchParams.get('automate') === 'true') && !isBatchRunning) {
+        if ((searchParams.get('auto') === 'true' || searchParams.get('automate') === 'true') && !isBatchRunning && !isWaitingForDelay) {
             handleStartAutoPilot();
         }
     }, []);
@@ -329,12 +368,16 @@ export default function AutoPilotPage() {
     };
 
     const handleStartAutoPilot = async () => {
-        const settingsInfo = `Auto-Pilot Settings:\n- Style: ${autoPilotStyle}\n- Generations per channel: ${autoPilotGenerationsPerChannel}\n- Background: ${autoPilotBackgroundType}\n- Text align: ${autoPilotTextAlign}`;
+        const scheduleInfo = isScheduled 
+            ? `\n- Scheduling: ENABLED (Starting ${new Date(scheduleStartTime).toLocaleString()}, every ${scheduleInterval}m)`
+            : `\n- Scheduling: DISABLED (Post immediately)`;
+
+        const settingsInfo = `Auto-Pilot Settings:\n- Style: ${autoPilotStyle}\n- Generations per channel: ${autoPilotGenerationsPerChannel}\n- Background: ${autoPilotBackgroundType}\n- Text align: ${autoPilotTextAlign}${scheduleInfo}`;
 
         const searchParams = new URLSearchParams(window.location.search);
         const isAuto = searchParams.get('auto') === 'true' || searchParams.get('automate') === 'true';
 
-        if (!isAuto && !confirm(`Start Auto-Pilot for Quotes?\n\n${settingsInfo}\n\nThis will:\n1. Read topics from topics.txt\n2. Generate ${autoPilotGenerationsPerChannel} quote(s) for EACH connected YouTube account\n3. Use your configured visual styles\n4. Upload automatically as #Shorts.`)) return;
+        if (!isAuto && !confirm(`Start Auto-Pilot for Quotes?\n\n${settingsInfo}\n\nThis will:\n1. Read topics from topics.txt\n2. Generate ${autoPilotGenerationsPerChannel} quote(s) for EACH connected YouTube account\n3. Use your configured visual styles\n4. ${isScheduled ? 'Schedule videos on YouTube via publishAt' : 'Upload automatically as #Shorts'}.`)) return;
 
         setIsBatchRunning(true);
         setBatchLogs(["🚀 Starting Quote Auto-Pilot...", settingsInfo]);
@@ -499,6 +542,15 @@ export default function AutoPilotPage() {
                     formData.append('topic', topic);
                     formData.append('templateId', 'quote-autopilot');
                     formData.append('texts', JSON.stringify([quote.text]));
+
+                    // Add scheduling if enabled
+                    if (isScheduled) {
+                        const baseTime = new Date(scheduleStartTime).getTime();
+                        // Spread videos across the interval. i is the current video index in the global loop.
+                        const publishTime = new Date(baseTime + (i * scheduleInterval * 60000));
+                        formData.append('publishAt', publishTime.toISOString());
+                        addBatchLog(`   📅 Scheduled for: ${publishTime.toLocaleString()}`);
+                    }
 
                     // Upload to YouTube
                     addBatchLog(`   📤 Uploading to YouTube...`);
@@ -732,21 +784,135 @@ export default function AutoPilotPage() {
                                         </div>
                                     </div>
 
+                                    {/* Scheduling Options */}
+                                    <div className="pt-4 border-t border-[#e5e5e7]">
+                                        <div className="flex items-center justify-between mb-4">
+                                            <div>
+                                                <label className="text-sm font-bold text-[#1d1d1f] block">
+                                                    YouTube Native Scheduling
+                                                </label>
+                                                <p className="text-xs text-[#86868b]">Upload now, publish automatically later</p>
+                                            </div>
+                                            <button
+                                                onClick={() => setIsScheduled(!isScheduled)}
+                                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${isScheduled ? 'bg-black' : 'bg-gray-200'}`}
+                                            >
+                                                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isScheduled ? 'translate-x-6' : 'translate-x-1'}`} />
+                                            </button>
+                                        </div>
+
+                                        {isScheduled && (
+                                            <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                                                <div>
+                                                    <label className="text-xs font-bold text-[#86868b] uppercase tracking-wider mb-2 block">
+                                                        First Video Publish Time
+                                                    </label>
+                                                    <input
+                                                        type="datetime-local"
+                                                        value={scheduleStartTime}
+                                                        onChange={(e) => setScheduleStartTime(e.target.value)}
+                                                        className="w-full bg-[#F5F5F7] border-transparent rounded-lg px-4 py-2.5 text-sm font-medium focus:ring-0 focus:border-black"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="text-xs font-bold text-[#86868b] uppercase tracking-wider mb-2 block">
+                                                        Post Interval (Minutes)
+                                                    </label>
+                                                    <div className="flex items-center gap-3">
+                                                        <input
+                                                            type="number"
+                                                            min="15"
+                                                            max="1440"
+                                                            value={scheduleInterval}
+                                                            onChange={(e) => setScheduleInterval(parseInt(e.target.value))}
+                                                            className="flex-1 bg-[#F5F5F7] border-transparent rounded-lg px-4 py-2.5 text-sm font-medium focus:ring-0 focus:border-black"
+                                                        />
+                                                        <span className="text-xs font-medium text-[#86868b] min-w-[60px]">
+                                                            {Math.floor(scheduleInterval / 60)}h {scheduleInterval % 60}m
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Execution Delay Options */}
+                                    <div className="pt-4 border-t border-[#e5e5e7]">
+                                        <div className="flex items-center justify-between mb-4">
+                                            <div>
+                                                <label className="text-sm font-bold text-[#1d1d1f] block">
+                                                    Delayed Execution
+                                                </label>
+                                                <p className="text-xs text-[#86868b]">Wait for a specific time to start the process</p>
+                                            </div>
+                                            <button
+                                                onClick={() => {
+                                                    if (!delayUntil) {
+                                                        const d = new Date();
+                                                        d.setMinutes(d.getMinutes() + 5);
+                                                        setDelayUntil(d.toISOString().slice(0, 16));
+                                                    } else {
+                                                        setDelayUntil('');
+                                                        setIsWaitingForDelay(false);
+                                                    }
+                                                }}
+                                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${delayUntil ? 'bg-indigo-600' : 'bg-gray-200'}`}
+                                            >
+                                                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${delayUntil ? 'translate-x-6' : 'translate-x-1'}`} />
+                                            </button>
+                                        </div>
+
+                                        {delayUntil && (
+                                            <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                                                <div>
+                                                    <label className="text-xs font-bold text-[#86868b] uppercase tracking-wider mb-2 block">
+                                                        Start Execution At
+                                                    </label>
+                                                    <input
+                                                        type="datetime-local"
+                                                        value={delayUntil}
+                                                        onChange={(e) => setDelayUntil(e.target.value)}
+                                                        disabled={isWaitingForDelay}
+                                                        className="w-full bg-[#F5F5F7] border-transparent rounded-lg px-4 py-2.5 text-sm font-medium focus:ring-0 focus:border-black disabled:opacity-50"
+                                                    />
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+
                                     {/* Start Button */}
                                     <button
-                                        onClick={handleStartAutoPilot}
+                                        onClick={() => {
+                                            if (delayUntil && !isWaitingForDelay) {
+                                                setIsWaitingForDelay(true);
+                                                addBatchLog(`⏲️ Execution scheduled for ${new Date(delayUntil).toLocaleString()}`);
+                                            } else if (isWaitingForDelay) {
+                                                setIsWaitingForDelay(false);
+                                                addBatchLog(`🛑 Execution schedule cancelled.`);
+                                            } else {
+                                                handleStartAutoPilot();
+                                            }
+                                        }}
                                         disabled={isBatchRunning}
-                                        className="w-full bg-black hover:bg-[#333] text-white font-bold py-4 rounded-xl transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 transform hover:scale-[1.02] active:scale-[0.98]"
+                                        className={`w-full font-bold py-4 rounded-xl transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 transform hover:scale-[1.02] active:scale-[0.98] ${
+                                            isWaitingForDelay ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 
+                                            isBatchRunning ? 'bg-gray-800 text-white' : 'bg-black hover:bg-[#333] text-white'
+                                        }`}
                                     >
                                         {isBatchRunning ? (
                                             <>
                                                 <Loader2 className="animate-spin" size={20} />
                                                 Auto-Pilot Running...
                                             </>
+                                        ) : isWaitingForDelay ? (
+                                            <>
+                                                <Clock className="animate-pulse" size={20} />
+                                                {timeLeftMessage || 'Waiting for scheduled time...'}
+                                            </>
                                         ) : (
                                             <>
-                                                <Rocket size={20} />
-                                                Start Auto-Pilot
+                                                {delayUntil ? <Clock size={20} /> : <Rocket size={20} />}
+                                                {delayUntil ? 'Schedule Execution' : 'Start Auto-Pilot'}
                                             </>
                                         )}
                                     </button>
