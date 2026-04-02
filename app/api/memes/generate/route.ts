@@ -2,6 +2,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { MEME_TEMPLATES } from "@/lib/memes";
 import { analyticsStorage } from "@/lib/analytics-storage";
+import { getAuthUser } from "@/lib/auth-util";
 
 // Ensure API Key exists
 const apiKey = process.env.GOOGLE_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
@@ -41,7 +42,9 @@ export async function POST(req: Request) {
         }
 
         // Get high performing memes for context
-        const topMemes = analyticsStorage.getTopPerforming(3);
+        const user = await getAuthUser();
+        const userId = user?.id || "dev-id-001";
+        const topMemes = analyticsStorage.getTopPerforming(userId, 3);
         const performanceContext = topMemes.length > 0
             ? `\n\n### SUCCESSFUL MEMES (Replicate their energy):\n${topMemes.map(m => `- Topic: ${m.topic} | Text: ${JSON.stringify(m.texts)}`).join('\n')}\n`
             : "";
