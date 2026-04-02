@@ -420,16 +420,22 @@ export default function AutoPilotPage() {
             const accountVideoCount = new Map<string, number>(); // Track videos per account
 
             // Track videos to generate
-            const videosToGenerate: Array<{ account: any; topic: string; videoNum: number }> = [];
+            const videosToGenerate: Array<{ account: any; topic: string; videoNum: number; displayNum: number }> = [];
 
-            // Build queue of all videos to generate
-            for (let i = 0; i < accounts.length; i++) {
-                const account = accounts[i];
-                accountVideoCount.set(account.id, 0); // Initialize counter
-                for (let genNum = 0; genNum < autoPilotGenerationsPerChannel; genNum++) {
+            // Build queue of all videos to generate (Parallel Round-Robin)
+            for (let genNum = 0; genNum < autoPilotGenerationsPerChannel; genNum++) {
+                for (let i = 0; i < accounts.length; i++) {
+                    const account = accounts[i];
+                    if (genNum === 0) accountVideoCount.set(account.id, 0); // Initialize counter on first round
+                    
                     const topic = topics[topicIndex % topics.length];
                     topicIndex++;
-                    videosToGenerate.push({ account, topic, videoNum: genNum + 1 });
+                    videosToGenerate.push({ 
+                        account, 
+                        topic, 
+                        videoNum: genNum, // Use genNum as the "Round Index" for scheduling
+                        displayNum: genNum + 1 
+                    });
                 }
             }
 
@@ -437,7 +443,7 @@ export default function AutoPilotPage() {
 
             // Process each video
             for (let i = 0; i < videosToGenerate.length; i++) {
-                const { account, topic, videoNum } = videosToGenerate[i];
+                const { account, topic, videoNum, displayNum } = videosToGenerate[i];
 
                 // Skip if account quota exceeded
                 if (quotaExceededAccounts.has(account.id)) {
@@ -445,7 +451,7 @@ export default function AutoPilotPage() {
                     continue;
                 }
 
-                addBatchLog(`\n➡️  Video ${i + 1}/${videosToGenerate.length} - ${account.channelName}`);
+                addBatchLog(`\n➡️  Video ${i + 1}/${videosToGenerate.length} (Round ${videoNum + 1}) - ${account.channelName}`);
                 addBatchLog(`   📝 Topic: "${topic}"`);
 
                 try {
@@ -546,10 +552,10 @@ export default function AutoPilotPage() {
                     // Add scheduling if enabled
                     if (isScheduled) {
                         const baseTime = new Date(scheduleStartTime).getTime();
-                        // Spread videos across the interval. i is the current video index in the global loop.
-                        const publishTime = new Date(baseTime + (i * scheduleInterval * 60000));
+                        // Use videoNum (the Round Index) to group across channels
+                        const publishTime = new Date(baseTime + (videoNum * scheduleInterval * 60000));
                         formData.append('publishAt', publishTime.toISOString());
-                        addBatchLog(`   📅 Scheduled for: ${publishTime.toLocaleString()}`);
+                        addBatchLog(`   📅 Scheduled for: ${publishTime.toLocaleString()} (Round ${videoNum + 1})`);
                     }
 
                     // Upload to YouTube
