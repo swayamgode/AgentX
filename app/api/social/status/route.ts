@@ -1,9 +1,12 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { tokenStorage } from '@/lib/token-storage';
+import { getAuthUser } from '@/lib/auth-util';
 
 export async function GET(req: NextRequest) {
     try {
-        const youtubeTokens = tokenStorage.load();
+        const user = await getAuthUser();
+        const userId = user?.id || 'dev-id-001';
+        const youtubeTokens = tokenStorage.load(userId);
         const isYoutubeConnected = !!(youtubeTokens && youtubeTokens.access_token);
 
         const instagramToken = req.cookies.get('instagram_access_token')?.value;

@@ -85,8 +85,8 @@ export class StrategyEngine {
      * Uses the LLM + Local Insights to generate suggestions.
      * This effectively "RAGs" the analytics data into the prompt.
      */
-    async generateSuggestions(competitorVideos: any[] = []): Promise<VideoSuggestion[]> {
-        const allData = analyticsStorage.getAll();
+    async generateSuggestions(competitorVideos: any[] = [], userId: string = 'dev-id-001'): Promise<VideoSuggestion[]> {
+        const allData = analyticsStorage.getAll(userId);
 
         // Ensure we have some data sources
         if (allData.length === 0 && competitorVideos.length === 0) {
