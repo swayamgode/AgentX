@@ -1,15 +1,12 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
+import { authTables } from "@convex-dev/auth/server";
 
 export default defineSchema({
-  users: defineTable({
-    email: v.string(),
-    name: v.optional(v.string()),
-    token: v.optional(v.string()), // For YouTube/Twitter auth
-  }).index("by_email", ["email"]),
-  
+  ...authTables,
+
   videos: defineTable({
-    userId: v.string(), // Link to user
+    userId: v.string(),
     youtubeId: v.string(),
     title: v.string(),
     topic: v.string(),

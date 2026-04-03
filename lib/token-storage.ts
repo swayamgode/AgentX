@@ -87,25 +87,7 @@ class MultiAccountTokenStorage {
             console.error(`Failed to load accounts for user ${userId}:`, error);
         }
 
-        // Always ensure mock account for Dev User if missing
-        if (userId === 'dev-id-001') {
-            const hasMock = result.accounts.some(a => a.id === 'yt-dev-001');
-            if (!hasMock) {
-                const mockAccount: YouTubeAccount = {
-                    id: 'yt-dev-001',
-                    channelName: 'AgentX Dev Channel',
-                    channelId: 'UC_DEV_001',
-                    email: 'dev@agentx.ai',
-                    watermark: 'AgentX',
-                    tokens: { access_token: 'mock-token' },
-                    createdAt: new Date().toISOString()
-                };
-                result.accounts.unshift(mockAccount);
-                if (!result.activeAccountId) {
-                    result.activeAccountId = mockAccount.id;
-                }
-            }
-        }
+
 
         return result;
     }

@@ -16,7 +16,9 @@ export async function GET(req: NextRequest) {
 
     const clientId = process.env.CANVA_CLIENT_ID;
     const clientSecret = process.env.CANVA_CLIENT_SECRET;
-    const redirectUri = process.env.CANVA_REDIRECT_URI || "http://localhost:3000/api/canva/callback";
+    const redirectUri = process.env.CANVA_REDIRECT_URI?.includes('localhost')
+        ? `${req.nextUrl.origin}/api/canva/callback`
+        : (process.env.CANVA_REDIRECT_URI || `${req.nextUrl.origin}/api/canva/callback`);
 
     try {
         const credentials = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");

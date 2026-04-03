@@ -9,7 +9,9 @@ export async function GET(request: NextRequest) {
         }
 
         const clientId = process.env.YOUTUBE_CLIENT_ID;
-        const redirectUri = process.env.YOUTUBE_REDIRECT_URI || 'http://localhost:3000/api/youtube/callback';
+        const redirectUri = process.env.YOUTUBE_REDIRECT_URI?.includes('localhost') 
+            ? `${request.nextUrl.origin}/api/youtube/callback` 
+            : (process.env.YOUTUBE_REDIRECT_URI || `${request.nextUrl.origin}/api/youtube/callback`);
 
         if (!clientId) {
             return NextResponse.json(

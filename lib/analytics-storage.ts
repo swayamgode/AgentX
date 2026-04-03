@@ -45,44 +45,7 @@ class AnalyticsStorage {
             }
         }
 
-        // Mock data for Dev User
-        if (userId === 'dev-id-001') {
-            return [
-                {
-                    youtubeId: 'v1',
-                    title: 'The Future of AI Automation',
-                    topic: 'AI Technology',
-                    templateId: 'modern',
-                    texts: ['Build Agents', 'Scale Fast'],
-                    uploadedAt: new Date(Date.now() - 86400000 * 2).toISOString(),
-                    channelId: 'UC_DEV_001',
-                    channelName: 'AgentX Dev Channel',
-                    stats: { viewCount: '12540', likeCount: '840', commentCount: '124', lastUpdated: new Date().toISOString() }
-                },
-                {
-                    youtubeId: 'v2',
-                    title: 'Next.js 16 + Convex Tutorial',
-                    topic: 'Web Dev',
-                    templateId: 'tech',
-                    texts: ['Fast Backend', 'Easy Auth'],
-                    uploadedAt: new Date(Date.now() - 86400000 * 5).toISOString(),
-                    channelId: 'UC_DEV_001',
-                    channelName: 'AgentX Dev Channel',
-                    stats: { viewCount: '8750', likeCount: '620', commentCount: '89', lastUpdated: new Date().toISOString() }
-                },
-                {
-                    youtubeId: 'v3',
-                    title: 'Why I Switched to AgentX',
-                    topic: 'Productivity',
-                    templateId: 'minimal',
-                    texts: ['Save 10h/week', 'Automate 100%'],
-                    uploadedAt: new Date(Date.now() - 86400000 * 10).toISOString(),
-                    channelId: 'UC_DEV_001',
-                    channelName: 'AgentX Dev Channel',
-                    stats: { viewCount: '24300', likeCount: '1900', commentCount: '340', lastUpdated: new Date().toISOString() }
-                }
-            ];
-        }
+
 
         return [];
     }

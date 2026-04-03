@@ -646,16 +646,16 @@ export default function AutoPilotPage() {
             <main className="flex-1 ml-0 md:ml-0 pb-20 md:pb-8">
                 {/* Top Header */}
                 <div className="sticky top-0 bg-white/80 backdrop-blur-xl z-20 border-b border-[#e5e5e7]">
-                    <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-4">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-gradient-to-br from-[#000] to-[#333] rounded-xl">
-                                <Rocket className="w-6 h-6 text-white" />
+                    <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-3">
+                        <div className="flex items-center gap-2">
+                            <div className="p-1.5 bg-gradient-to-br from-[#000] to-[#333] rounded-lg">
+                                <Rocket className="w-4 h-4 text-white" />
                             </div>
                             <div>
-                                <h1 className="text-xl md:text-2xl font-bold text-[#1d1d1f]">
+                                <h1 className="text-sm md:text-base font-bold text-[#1d1d1f]">
                                     Auto-Pilot
                                 </h1>
-                                <p className="text-xs md:text-sm text-[#86868b] mt-0.5">
+                                <p className="text-[10px] md:text-xs text-[#86868b]">
                                     Automated content generation and posting
                                 </p>
                             </div>
@@ -664,23 +664,23 @@ export default function AutoPilotPage() {
                 </div>
 
                 {/* Main Content */}
-                <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-4 md:py-8 space-y-6">
+                <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-3 md:py-5 space-y-4">
                     {/* Feature Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <FeatureCard
-                            icon={<Zap className="w-5 h-5" />}
+                            icon={<Zap className="w-3.5 h-3.5" />}
                             title="Smart Generation"
                             description="Automatically generates unique content for each channel"
                             color="from-[#000] to-[#333]"
                         />
                         <FeatureCard
-                            icon={<TrendingUp className="w-5 h-5" />}
+                            icon={<TrendingUp className="w-3.5 h-3.5" />}
                             title="Configurable Styles"
                             description="Choose design preferences or let AI randomize"
                             color="from-[#1a1a1a] to-[#000]"
                         />
                         <FeatureCard
-                            icon={<Video className="w-5 h-5" />}
+                            icon={<Video className="w-3.5 h-3.5" />}
                             title="Bulk Upload"
                             description="Upload multiple videos across all accounts at once"
                             color="from-[#333] to-[#1a1a1a]"
@@ -688,28 +688,28 @@ export default function AutoPilotPage() {
                     </div>
 
                     {/* Settings and Control Panel */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                         {/* Left: Settings */}
-                        <div className="space-y-6">
-                            <div className="bg-white border border-[#e5e5e7] rounded-2xl p-6 shadow-sm">
-                                <div className="flex items-center gap-2 mb-6">
-                                    <SettingsIcon className="text-[#1d1d1f]" size={20} />
-                                    <h2 className="text-lg font-bold text-[#1d1d1f]">Auto-Pilot Settings</h2>
+                        <div className="space-y-4">
+                            <div className="bg-white border border-[#e5e5e7] rounded-xl p-4 shadow-sm">
+                                <div className="flex items-center gap-1.5 mb-4">
+                                    <SettingsIcon className="text-[#1d1d1f]" size={14} />
+                                    <h2 className="text-xs font-bold text-[#1d1d1f] uppercase tracking-wider">Auto-Pilot Settings</h2>
                                 </div>
 
-                                <div className="space-y-5">
+                                <div className="space-y-4">
                                     {/* Style Selection */}
                                     <div>
-                                        <label className="text-xs font-bold text-[#86868b] uppercase tracking-wider mb-2 block">
+                                        <label className="text-[10px] font-bold text-[#86868b] uppercase tracking-wider mb-1.5 block">
                                             Design Style
                                         </label>
-                                        <div className="grid grid-cols-2 gap-2">
+                                        <div className="grid grid-cols-2 gap-1.5">
                                             {(['random', 'inspirational', 'funny', 'wisdom', 'success'] as const).map(s => (
                                                 <button
                                                     key={s}
                                                     onClick={() => setAutoPilotStyle(s)}
-                                                    className={`py-2.5 px-3 rounded-lg font-medium text-sm transition-all border ${autoPilotStyle === s
-                                                        ? 'bg-black text-white border-black shadow-md'
+                                                    className={`py-1.5 px-2 rounded-md font-medium text-[11px] transition-all border ${autoPilotStyle === s
+                                                        ? 'bg-black text-white border-black shadow-sm'
                                                         : 'bg-[#F5F5F7] text-[#86868b] border-transparent hover:bg-[#e5e5e7] hover:text-[#1d1d1f]'
                                                         }`}
                                                 >
@@ -721,22 +721,22 @@ export default function AutoPilotPage() {
 
                                     {/* Generations Per Channel */}
                                     <div>
-                                        <label className="text-xs font-bold text-[#86868b] uppercase tracking-wider mb-2 block">
-                                            Generations Per Channel <span className="text-[#1d1d1f] font-mono ml-2">{autoPilotGenerationsPerChannel}</span>
+                                        <label className="text-[10px] font-bold text-[#86868b] uppercase tracking-wider mb-1.5 block">
+                                            Generations Per Channel <span className="text-[#1d1d1f] font-mono ml-1">{autoPilotGenerationsPerChannel}</span>
                                         </label>
-                                        <div className="bg-[#F5F5F7] rounded-xl px-4 py-4">
+                                        <div className="bg-[#F5F5F7] rounded-lg px-3 py-3">
                                             <input
                                                 type="range"
                                                 min="1"
                                                 max="50"
                                                 value={autoPilotGenerationsPerChannel}
                                                 onChange={(e) => setAutoPilotGenerationsPerChannel(parseInt(e.target.value))}
-                                                className="w-full accent-black h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer"
+                                                className="w-full accent-black h-1.5 bg-gray-300 rounded-lg appearance-none cursor-pointer"
                                                 style={{
                                                     background: `linear-gradient(to right, rgb(0, 0, 0) 0%, rgb(0, 0, 0) ${(autoPilotGenerationsPerChannel / 50) * 100}%, rgb(229, 231, 235) ${(autoPilotGenerationsPerChannel / 50) * 100}%, rgb(229, 231, 235) 100%)`
                                                 }}
                                             />
-                                            <div className="flex justify-between text-xs text-[#86868b] mt-2 font-mono">
+                                            <div className="flex justify-between text-[10px] text-[#86868b] mt-1.5 font-mono">
                                                 <span>1</span>
                                                 <span>50</span>
                                             </div>
@@ -745,16 +745,16 @@ export default function AutoPilotPage() {
 
                                     {/* Background Type */}
                                     <div>
-                                        <label className="text-xs font-bold text-[#86868b] uppercase tracking-wider mb-2 block">
+                                        <label className="text-[10px] font-bold text-[#86868b] uppercase tracking-wider mb-1.5 block">
                                             Background Type
                                         </label>
-                                        <div className="grid grid-cols-3 gap-2">
+                                        <div className="grid grid-cols-3 gap-1.5">
                                             {(['random', 'gradient', 'image'] as const).map(bg => (
                                                 <button
                                                     key={bg}
                                                     onClick={() => setAutoPilotBackgroundType(bg)}
-                                                    className={`py-2.5 px-3 rounded-lg font-medium text-sm transition-all border ${autoPilotBackgroundType === bg
-                                                        ? 'bg-black text-white border-black shadow-md'
+                                                    className={`py-1.5 px-2 rounded-md font-medium text-[11px] transition-all border ${autoPilotBackgroundType === bg
+                                                        ? 'bg-black text-white border-black shadow-sm'
                                                         : 'bg-[#F5F5F7] text-[#86868b] border-transparent hover:bg-[#e5e5e7] hover:text-[#1d1d1f]'
                                                         }`}
                                                 >
@@ -762,7 +762,7 @@ export default function AutoPilotPage() {
                                                 </button>
                                             ))}
                                         </div>
-                                        <p className="text-xs text-[#86868b] mt-2">
+                                        <p className="text-[10px] text-[#86868b] mt-1.5">
                                             {autoPilotBackgroundType === 'gradient' && '✓ Using plain black background'}
                                             {autoPilotBackgroundType === 'random' && 'Will randomize between available options'}
                                             {autoPilotBackgroundType === 'image' && 'Will use uploaded background images'}
@@ -771,16 +771,16 @@ export default function AutoPilotPage() {
 
                                     {/* Text Alignment */}
                                     <div>
-                                        <label className="text-xs font-bold text-[#86868b] uppercase tracking-wider mb-2 block">
+                                        <label className="text-[10px] font-bold text-[#86868b] uppercase tracking-wider mb-1.5 block">
                                             Text Alignment
                                         </label>
-                                        <div className="grid grid-cols-4 gap-2">
+                                        <div className="grid grid-cols-4 gap-1.5">
                                             {(['random', 'left', 'center', 'right'] as const).map(align => (
                                                 <button
                                                     key={align}
                                                     onClick={() => setAutoPilotTextAlign(align)}
-                                                    className={`py-2.5 px-3 rounded-lg font-medium text-sm transition-all border ${autoPilotTextAlign === align
-                                                        ? 'bg-black text-white border-black shadow-md'
+                                                    className={`py-1.5 px-2 rounded-md font-medium text-[11px] transition-all border ${autoPilotTextAlign === align
+                                                        ? 'bg-black text-white border-black shadow-sm'
                                                         : 'bg-[#F5F5F7] text-[#86868b] border-transparent hover:bg-[#e5e5e7] hover:text-[#1d1d1f]'
                                                         }`}
                                                 >
@@ -791,49 +791,49 @@ export default function AutoPilotPage() {
                                     </div>
 
                                     {/* Scheduling Options */}
-                                    <div className="pt-4 border-t border-[#e5e5e7]">
-                                        <div className="flex items-center justify-between mb-4">
+                                    <div className="pt-3 border-t border-[#e5e5e7]">
+                                        <div className="flex items-center justify-between mb-3">
                                             <div>
-                                                <label className="text-sm font-bold text-[#1d1d1f] block">
+                                                <label className="text-[11px] font-bold text-[#1d1d1f] block">
                                                     YouTube Native Scheduling
                                                 </label>
-                                                <p className="text-xs text-[#86868b]">Upload now, publish automatically later</p>
+                                                <p className="text-[10px] text-[#86868b]">Upload now, publish automatically later</p>
                                             </div>
                                             <button
                                                 onClick={() => setIsScheduled(!isScheduled)}
-                                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${isScheduled ? 'bg-black' : 'bg-gray-200'}`}
+                                                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none ${isScheduled ? 'bg-black' : 'bg-gray-200'}`}
                                             >
-                                                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isScheduled ? 'translate-x-6' : 'translate-x-1'}`} />
+                                                <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${isScheduled ? 'translate-x-4' : 'translate-x-0.5'}`} />
                                             </button>
                                         </div>
 
                                         {isScheduled && (
-                                            <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                                            <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
                                                 <div>
-                                                    <label className="text-xs font-bold text-[#86868b] uppercase tracking-wider mb-2 block">
+                                                    <label className="text-[10px] font-bold text-[#86868b] uppercase tracking-wider mb-1.5 block">
                                                         First Video Publish Time
                                                     </label>
                                                     <input
                                                         type="datetime-local"
                                                         value={scheduleStartTime}
                                                         onChange={(e) => setScheduleStartTime(e.target.value)}
-                                                        className="w-full bg-[#F5F5F7] border-transparent rounded-lg px-4 py-2.5 text-sm font-medium focus:ring-0 focus:border-black"
+                                                        className="w-full bg-[#F5F5F7] border-transparent rounded-md px-3 py-2 text-xs font-medium focus:ring-0 focus:border-black"
                                                     />
                                                 </div>
                                                 <div>
-                                                    <label className="text-xs font-bold text-[#86868b] uppercase tracking-wider mb-2 block">
+                                                    <label className="text-[10px] font-bold text-[#86868b] uppercase tracking-wider mb-1.5 block">
                                                         Post Interval (Minutes)
                                                     </label>
-                                                    <div className="flex items-center gap-3">
+                                                    <div className="flex items-center gap-2">
                                                         <input
                                                             type="number"
                                                             min="15"
                                                             max="1440"
                                                             value={scheduleInterval}
                                                             onChange={(e) => setScheduleInterval(parseInt(e.target.value))}
-                                                            className="flex-1 bg-[#F5F5F7] border-transparent rounded-lg px-4 py-2.5 text-sm font-medium focus:ring-0 focus:border-black"
+                                                            className="flex-1 bg-[#F5F5F7] border-transparent rounded-md px-3 py-2 text-xs font-medium focus:ring-0 focus:border-black"
                                                         />
-                                                        <span className="text-xs font-medium text-[#86868b] min-w-[60px]">
+                                                        <span className="text-[10px] font-medium text-[#86868b] min-w-[50px]">
                                                             {Math.floor(scheduleInterval / 60)}h {scheduleInterval % 60}m
                                                         </span>
                                                     </div>
@@ -843,13 +843,13 @@ export default function AutoPilotPage() {
                                     </div>
 
                                     {/* Execution Delay Options */}
-                                    <div className="pt-4 border-t border-[#e5e5e7]">
-                                        <div className="flex items-center justify-between mb-4">
+                                    <div className="pt-3 border-t border-[#e5e5e7]">
+                                        <div className="flex items-center justify-between mb-3">
                                             <div>
-                                                <label className="text-sm font-bold text-[#1d1d1f] block">
+                                                <label className="text-[11px] font-bold text-[#1d1d1f] block">
                                                     Delayed Execution
                                                 </label>
-                                                <p className="text-xs text-[#86868b]">Wait for a specific time to start the process</p>
+                                                <p className="text-[10px] text-[#86868b]">Wait for a specific time to start the process</p>
                                             </div>
                                             <button
                                                 onClick={() => {
@@ -862,16 +862,16 @@ export default function AutoPilotPage() {
                                                         setIsWaitingForDelay(false);
                                                     }
                                                 }}
-                                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${delayUntil ? 'bg-indigo-600' : 'bg-gray-200'}`}
+                                                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none ${delayUntil ? 'bg-indigo-600' : 'bg-gray-200'}`}
                                             >
-                                                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${delayUntil ? 'translate-x-6' : 'translate-x-1'}`} />
+                                                <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${delayUntil ? 'translate-x-4' : 'translate-x-0.5'}`} />
                                             </button>
                                         </div>
 
                                         {delayUntil && (
-                                            <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                                            <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
                                                 <div>
-                                                    <label className="text-xs font-bold text-[#86868b] uppercase tracking-wider mb-2 block">
+                                                    <label className="text-[10px] font-bold text-[#86868b] uppercase tracking-wider mb-1.5 block">
                                                         Start Execution At
                                                     </label>
                                                     <input
@@ -879,7 +879,7 @@ export default function AutoPilotPage() {
                                                         value={delayUntil}
                                                         onChange={(e) => setDelayUntil(e.target.value)}
                                                         disabled={isWaitingForDelay}
-                                                        className="w-full bg-[#F5F5F7] border-transparent rounded-lg px-4 py-2.5 text-sm font-medium focus:ring-0 focus:border-black disabled:opacity-50"
+                                                        className="w-full bg-[#F5F5F7] border-transparent rounded-md px-3 py-2 text-xs font-medium focus:ring-0 focus:border-black disabled:opacity-50"
                                                     />
                                                 </div>
                                             </div>
@@ -900,24 +900,24 @@ export default function AutoPilotPage() {
                                             }
                                         }}
                                         disabled={isBatchRunning}
-                                        className={`w-full font-bold py-4 rounded-xl transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 transform hover:scale-[1.02] active:scale-[0.98] ${
+                                        className={`w-full font-bold py-2.5 rounded-lg text-xs transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transform hover:scale-[1.01] active:scale-[0.99] ${
                                             isWaitingForDelay ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 
                                             isBatchRunning ? 'bg-gray-800 text-white' : 'bg-black hover:bg-[#333] text-white'
                                         }`}
                                     >
                                         {isBatchRunning ? (
                                             <>
-                                                <Loader2 className="animate-spin" size={20} />
+                                                <Loader2 className="animate-spin" size={14} />
                                                 Auto-Pilot Running...
                                             </>
                                         ) : isWaitingForDelay ? (
                                             <>
-                                                <Clock className="animate-pulse" size={20} />
+                                                <Clock className="animate-pulse" size={14} />
                                                 {timeLeftMessage || 'Waiting for scheduled time...'}
                                             </>
                                         ) : (
                                             <>
-                                                {delayUntil ? <Clock size={20} /> : <Rocket size={20} />}
+                                                {delayUntil ? <Clock size={14} /> : <Rocket size={14} />}
                                                 {delayUntil ? 'Schedule Execution' : 'Start Auto-Pilot'}
                                             </>
                                         )}
@@ -927,16 +927,16 @@ export default function AutoPilotPage() {
                         </div>
 
                         {/* Right: Logs */}
-                        <div className="space-y-6">
-                            <div className="bg-white border border-[#e5e5e7] rounded-2xl p-6 shadow-sm">
-                                <div className="flex items-center gap-2 mb-4">
-                                    <Terminal className="text-[#1d1d1f]" size={20} />
-                                    <h2 className="text-lg font-bold text-[#1d1d1f]">System Logs</h2>
+                        <div className="space-y-4">
+                            <div className="bg-white border border-[#e5e5e7] rounded-xl p-4 shadow-sm">
+                                <div className="flex items-center gap-1.5 mb-3">
+                                    <Terminal className="text-[#1d1d1f]" size={14} />
+                                    <h2 className="text-xs font-bold text-[#1d1d1f] uppercase tracking-wider">System Logs</h2>
                                 </div>
 
                                 {batchLogs.length > 0 ? (
-                                    <div className="bg-[#111] border border-[#333] rounded-xl p-4 font-mono text-xs text-[#86868b] h-[500px] overflow-y-auto shadow-inner">
-                                        <div className="space-y-1">
+                                    <div className="bg-[#111] border border-[#333] rounded-lg p-3 font-mono text-[10px] text-[#86868b] h-[400px] overflow-y-auto shadow-inner">
+                                        <div className="space-y-0.5">
                                             {batchLogs.map((log, i) => (
                                                 <div key={i} className="whitespace-pre-wrap text-white">{log}</div>
                                             ))}
@@ -944,9 +944,9 @@ export default function AutoPilotPage() {
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="bg-[#F5F5F7] border border-[#e5e5e7] rounded-xl p-8 text-center">
-                                        <Terminal className="w-12 h-12 text-[#86868b] mx-auto mb-3 opacity-50" />
-                                        <p className="text-sm text-[#86868b]">No logs yet. Start Auto-Pilot to see activity.</p>
+                                    <div className="bg-[#F5F5F7] border border-[#e5e5e7] rounded-lg p-6 text-center">
+                                        <Terminal className="w-8 h-8 text-[#86868b] mx-auto mb-2 opacity-50" />
+                                        <p className="text-xs text-[#86868b]">No logs yet. Start Auto-Pilot to see activity.</p>
                                     </div>
                                 )}
                             </div>
@@ -954,28 +954,28 @@ export default function AutoPilotPage() {
                     </div>
 
                     {/* Info Section */}
-                    <div className="bg-[#F5F5F7] border border-[#e5e5e7] rounded-2xl p-6">
-                        <h3 className="text-lg font-bold text-[#1d1d1f] mb-3">
+                    <div className="bg-[#F5F5F7] border border-[#e5e5e7] rounded-xl p-4">
+                        <h3 className="text-xs font-bold text-[#1d1d1f] mb-2">
                             📚 How Auto-Pilot Works
                         </h3>
-                        <ol className="space-y-2 text-sm text-[#86868b]">
-                            <li className="flex gap-2">
+                        <ol className="space-y-1.5 text-[11px] text-[#86868b]">
+                            <li className="flex gap-1.5">
                                 <span className="font-bold text-[#1d1d1f]">1.</span>
                                 <span>Configure your preferences above (style, generations per channel, etc.)</span>
                             </li>
-                            <li className="flex gap-2">
+                            <li className="flex gap-1.5">
                                 <span className="font-bold text-[#1d1d1f]">2.</span>
                                 <span>Ensure you have connected YouTube accounts in Settings</span>
                             </li>
-                            <li className="flex gap-2">
+                            <li className="flex gap-1.5">
                                 <span className="font-bold text-[#1d1d1f]">3.</span>
-                                <span>Edit <code className="bg-white px-2 py-0.5 rounded border border-[#e5e5e7]">topics.txt</code> to customize content themes</span>
+                                <span>Edit <code className="bg-white px-1.5 py-0.5 rounded border border-[#e5e5e7] text-[10px]">topics.txt</code> to customize content themes</span>
                             </li>
-                            <li className="flex gap-2">
+                            <li className="flex gap-1.5">
                                 <span className="font-bold text-[#1d1d1f]">4.</span>
                                 <span>Click "Start Auto-Pilot" to begin automated generation and upload</span>
                             </li>
-                            <li className="flex gap-2">
+                            <li className="flex gap-1.5">
                                 <span className="font-bold text-[#1d1d1f]">5.</span>
                                 <span>Monitor progress in the System Logs panel</span>
                             </li>
@@ -996,12 +996,12 @@ function FeatureCard({ icon, title, description, color }: {
     color: string;
 }) {
     return (
-        <div className="bg-white border border-[#e5e5e7] rounded-xl p-5 hover:shadow-lg transition-shadow">
-            <div className={`inline-flex p-2.5 rounded-lg bg-gradient-to-br ${color} text-white mb-3`}>
+        <div className="bg-white border border-[#e5e5e7] rounded-lg p-3 hover:shadow-md transition-shadow">
+            <div className={`inline-flex p-1.5 rounded-md bg-gradient-to-br ${color} text-white mb-2`}>
                 {icon}
             </div>
-            <h3 className="font-bold text-[#1d1d1f] mb-1">{title}</h3>
-            <p className="text-sm text-[#86868b]">{description}</p>
+            <h3 className="font-bold text-[11px] text-[#1d1d1f] mb-0.5">{title}</h3>
+            <p className="text-[10px] text-[#86868b]">{description}</p>
         </div>
     );
 }

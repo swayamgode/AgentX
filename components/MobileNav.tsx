@@ -2,13 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Settings, Sparkles, Smile, BarChart3, Rocket } from "lucide-react";
+import { Home, Settings, Sparkles, Smile, BarChart3, Rocket, LogOut } from "lucide-react";
+import { useAuthActions } from "@convex-dev/auth/react";
 
 export function MobileNav() {
     const pathname = usePathname();
+    const { signOut } = useAuthActions();
 
     const navItems = [
-        { icon: Home, label: "Home", href: "/" },
+        { icon: Home, label: "Home", href: "/dashboard" },
         { icon: Sparkles, label: "Quotes", href: "/quotes" },
         { icon: Smile, label: "Memes", href: "/memes" },
         { icon: Rocket, label: "Auto-Pilot", href: "/autopilot" },
@@ -34,6 +36,14 @@ export function MobileNav() {
                         </Link>
                     )
                 })}
+                <button
+                    onClick={() => void signOut()}
+                    className="flex flex-col items-center gap-1 p-2 transition-all text-rose-500/60 hover:text-rose-500"
+                >
+                    <div className="p-1.5 rounded-lg transition-all">
+                        <LogOut size={18} strokeWidth={2} />
+                    </div>
+                </button>
             </div>
         </div>
     );

@@ -1,44 +1,28 @@
-import { query, mutation } from "./_generated/server";
+import { query } from "./_generated/server";
 import { v } from "convex/values";
 
 /**
- * Get or create a basic user (mock for direct dashboard entry)
+ * Get the currently authenticated user's identity
  */
-export const getOrCreateUser = mutation({
-  args: { email: v.string() },
-  handler: async (ctx, args) => {
-    const existing = await ctx.db
-      .query("users")
-      .withIndex("by_email", (q) => q.eq("email", args.email))
-      .unique();
-    
-    if (existing) return existing;
-    
-    const id = await ctx.db.insert("users", {
-       email: args.email,
-       name: args.email.split("@")[0],
-    });
-    
-    return await ctx.db.get(id);
-  },
-});
-
-export const getCurrentUser = query({
-  args: { email: v.string() },
-  handler: async (ctx, args) => {
-    return await ctx.db
-      .query("users")
-      .withIndex("by_email", (q) => q.eq("email", args.email))
-      .unique();
+export const getMe = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return null;
+    return {
+      name: identity.name ?? identity.email ?? "User",
+      email: identity.email ?? "",
+      tokenIdentifier: identity.tokenIdentifier,
+    };
   },
 });
 
 export const getVideos = query({
-  args: { userId: v.id("users") },
+  args: { userId: v.string() },
   handler: async (ctx, args) => {
     return await ctx.db
       .query("videos")
       .withIndex("by_user", (q) => q.eq("userId", args.userId))
-      .collect();
+      .take(100);
   },
 });

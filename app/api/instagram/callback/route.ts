@@ -16,7 +16,9 @@ export async function GET(request: NextRequest) {
 
         const appId = process.env.INSTAGRAM_APP_ID;
         const appSecret = process.env.INSTAGRAM_APP_SECRET;
-        const redirectUri = process.env.INSTAGRAM_REDIRECT_URI || 'http://localhost:3000/api/instagram/callback';
+        const redirectUri = process.env.INSTAGRAM_REDIRECT_URI?.includes('localhost')
+            ? `${request.nextUrl.origin}/api/instagram/callback`
+            : (process.env.INSTAGRAM_REDIRECT_URI || `${request.nextUrl.origin}/api/instagram/callback`);
 
         if (!appId || !appSecret) {
             return NextResponse.redirect('/?error=instagram_config_missing');

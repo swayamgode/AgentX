@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { useAuthActions } from "@convex-dev/auth/react";
 import { 
   Zap, 
   Mail, 
@@ -14,14 +13,16 @@ import {
   ShieldCheck,
   Smartphone,
   CheckCircle,
-  Video
+  Video,
+  User
 } from "lucide-react";
 import Link from "next/link";
 
 export default function LoginPage() {
-  const router = useRouter();
+  const { signIn } = useAuthActions();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSignUp, setIsSignUp] = useState(false);
@@ -33,22 +34,23 @@ export default function LoginPage() {
 
     try {
       if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-        });
-        if (error) throw error;
-        setError("Success! Check your email for confirmation.");
+        await signIn("password", { email, password, name, flow: "signUp" });
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        if (error) throw error;
-        router.push("/dashboard");
+        await signIn("password", { email, password, flow: "signIn" });
       }
+      // Convex Auth will redirect automatically via the provider
+      window.location.href = "/dashboard";
     } catch (err: any) {
-      setError(err.message);
+      console.error("Auth error:", err);
+      let errorMessage = "An error occurred during authentication.";
+      if (err?.message && !err.message.includes("Server Error")) {
+        errorMessage = err.message;
+      } else if (isSignUp) {
+        errorMessage = "An account with this email already exists! Please click 'Sign In' below.";
+      } else {
+        errorMessage = "Invalid email or password.";
+      }
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -75,9 +77,9 @@ export default function LoginPage() {
                 </h2>
                 <div className="space-y-6">
                     <FeatureItem icon={<Activity size={18} />} text="Unified Multiagent Dashboard" />
-                    <FeatureItem icon={<Smartphone size={18} />} text="Persistent Device Authentication" />
-                    <FeatureItem icon={<ShieldCheck size={18} />} text="Isolated Social Account Storage" />
-                    <FeatureItem icon={<Video size={18} />} text="Dynamic Content Synthesis" />
+                    <FeatureItem icon={<Smartphone size={18} />} text="Works on Any Device" />
+                    <FeatureItem icon={<ShieldCheck size={18} />} text="Secure Account Isolation" />
+                    <FeatureItem icon={<Video size={18} />} text="AI Content Generation" />
                 </div>
             </div>
          </div>
@@ -94,23 +96,45 @@ export default function LoginPage() {
       </div>
 
       {/* Right Side - Login Form */}
-      <div className="flex flex-col items-center justify-center p-10 bg-[#F8F9FA]">
-        <div className="w-full max-w-md bg-white p-12 rounded-[2.5rem] border border-[#E9ECEF] shadow-[0_20px_50px_rgba(0,0,0,0.05)]">
+      <div className="flex flex-col items-center justify-center p-6 sm:p-10 bg-[#F8F9FA]">
+        {/* Mobile Logo */}
+        <div className="lg:hidden flex items-center gap-3 mb-10">
+          <div className="w-10 h-10 bg-[#1A1A1E] rounded-xl flex items-center justify-center">
+            <span className="text-white font-black text-xl">A.</span>
+          </div>
+          <span className="font-black text-xl tracking-tight">AgentX</span>
+        </div>
+
+        <div className="w-full max-w-md bg-white p-8 sm:p-12 rounded-[2.5rem] border border-[#E9ECEF] shadow-[0_20px_50px_rgba(0,0,0,0.05)]">
           <div className="mb-10 text-center">
-            <h3 className="text-3xl font-black tracking-tight text-[#1A1A1E] mb-2">
+            <h3 className="text-2xl sm:text-3xl font-black tracking-tight text-[#1A1A1E] mb-2">
               {isSignUp ? "Create Account" : "Welcome Back"}
             </h3>
-            <p className="text-[#6C757D] font-medium">Enter your credentials to access the swarm.</p>
+            <p className="text-[#6C757D] font-medium text-sm">
+              {isSignUp ? "Set up your agent swarm." : "Enter your credentials to continue."}
+            </p>
           </div>
 
-          <form onSubmit={handleAuth} className="space-y-6">
+          <form onSubmit={handleAuth} className="space-y-5">
             <div className="space-y-4">
+              {isSignUp && (
+                <div className="relative">
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                  <input
+                    type="text"
+                    placeholder="Your name"
+                    className="w-full pl-12 pr-4 py-4 bg-[#F8F9FA] border border-[#E9ECEF] rounded-2xl text-sm font-bold focus:outline-none focus:border-black transition-all"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                  />
+                </div>
+              )}
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                 <input
                   type="email"
                   placeholder="Email address"
-                  className="w-full pl-12 pr-4 py-4 bg-[#F8F9FA] border border-[#E9ECEF] rounded-2xl text-sm font-bold focus:outline-none focus:border-[#8B5CF6] transition-all"
+                  className="w-full pl-12 pr-4 py-4 bg-[#F8F9FA] border border-[#E9ECEF] rounded-2xl text-sm font-bold focus:outline-none focus:border-black transition-all"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -121,17 +145,18 @@ export default function LoginPage() {
                 <input
                   type="password"
                   placeholder="Password"
-                  className="w-full pl-12 pr-4 py-4 bg-[#F8F9FA] border border-[#E9ECEF] rounded-2xl text-sm font-bold focus:outline-none focus:border-[#8B5CF6] transition-all"
+                  className="w-full pl-12 pr-4 py-4 bg-[#F8F9FA] border border-[#E9ECEF] rounded-2xl text-sm font-bold focus:outline-none focus:border-black transition-all"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  minLength={6}
                 />
               </div>
             </div>
 
             {error && (
-              <div className={`p-4 rounded-xl text-xs font-bold flex items-center gap-3 ${error.includes('Success') ? 'bg-green-50 text-green-600 border border-green-200' : 'bg-red-50 text-red-600 border border-red-200'}`}>
-                {error.includes('Success') ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
+              <div className="p-4 rounded-xl text-xs font-bold flex items-center gap-3 bg-red-50 text-red-600 border border-red-200">
+                <AlertCircle size={16} />
                 {error}
               </div>
             )}
@@ -143,7 +168,7 @@ export default function LoginPage() {
             >
               {loading ? <Loader2 className="animate-spin" size={20} /> : (
                 <>
-                  {isSignUp ? "Initialize Agent Swarm" : "Launch Dashboard"}
+                  {isSignUp ? "Create Account" : "Sign In"}
                   <ArrowRight size={18} />
                 </>
               )}
@@ -152,7 +177,7 @@ export default function LoginPage() {
 
           <div className="mt-8 pt-8 border-t border-gray-100 text-center">
             <button
-              onClick={() => setIsSignUp(!isSignUp)}
+              onClick={() => { setIsSignUp(!isSignUp); setError(null); }}
               className="text-sm font-bold text-[#6D7280] hover:text-[#1A1A1E] transition-colors"
             >
               {isSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up"}

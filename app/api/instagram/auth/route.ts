@@ -3,7 +3,9 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function GET(request: NextRequest) {
     try {
         const appId = process.env.INSTAGRAM_APP_ID;
-        const redirectUri = process.env.INSTAGRAM_REDIRECT_URI || 'http://localhost:3000/api/instagram/callback';
+        const redirectUri = process.env.INSTAGRAM_REDIRECT_URI?.includes('localhost')
+            ? `${request.nextUrl.origin}/api/instagram/callback`
+            : (process.env.INSTAGRAM_REDIRECT_URI || `${request.nextUrl.origin}/api/instagram/callback`);
 
         if (!appId) {
             return NextResponse.json(

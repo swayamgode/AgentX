@@ -18,7 +18,9 @@ export async function GET(request: NextRequest) {
 
         const clientId = process.env.YOUTUBE_CLIENT_ID;
         const clientSecret = process.env.YOUTUBE_CLIENT_SECRET;
-        const redirectUri = process.env.YOUTUBE_REDIRECT_URI || 'http://localhost:3000/api/auth/youtube/callback';
+        const redirectUri = process.env.YOUTUBE_REDIRECT_URI?.includes('localhost')
+            ? `${request.nextUrl.origin}/api/auth/youtube/callback`
+            : (process.env.YOUTUBE_REDIRECT_URI || `${request.nextUrl.origin}/api/auth/youtube/callback`);
 
         if (!clientId || !clientSecret) {
             return NextResponse.redirect(new URL('/settings?error=youtube_config_missing', request.url));
