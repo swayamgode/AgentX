@@ -16,7 +16,9 @@ import {
     Activity,
     Zap,
     Loader2,
-    Clock
+    Clock,
+    Users,
+    Globe
 } from 'lucide-react';
 import Link from 'next/link';
 import { LeftSidebar } from "@/components/LeftSidebar";
@@ -61,6 +63,9 @@ interface AccountInfo {
     id: string;
     channelName: string;
     channelId: string;
+    subscriberCount?: string;
+    videoCount?: string;
+    viewCount?: string;
 }
 
 const COLORS = ['#1d1d1f', '#333333', '#666666', '#999999', '#cccccc'];
@@ -126,6 +131,28 @@ export default function AnalyticsPage() {
 
         return { totalViews, totalLikes, totalComments, avgViews };
     }, [filteredVideos]);
+
+    const channelStats = useMemo(() => {
+        let subs = 0;
+        let channelViews = 0;
+        let channelVideos = 0;
+
+        if (selectedAccount === 'all') {
+            accounts.forEach(a => {
+                subs += parseInt(a.subscriberCount || '0');
+                channelViews += parseInt(a.viewCount || '0');
+                channelVideos += parseInt(a.videoCount || '0');
+            });
+        } else {
+            const acc = accounts.find(a => a.channelId === selectedAccount);
+            if (acc) {
+                subs = parseInt(acc.subscriberCount || '0');
+                channelViews = parseInt(acc.viewCount || '0');
+                channelVideos = parseInt(acc.videoCount || '0');
+            }
+        }
+        return { subs, channelViews, channelVideos };
+    }, [accounts, selectedAccount]);
 
     const growthData = useMemo(() => {
         // Reverse for chronological order (oldest to newest)
@@ -305,7 +332,42 @@ export default function AnalyticsPage() {
                             </div>
                         )}
 
-                        {/* KPI Grid */}
+                        {/* Channel Summary Grid */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <KPICard
+                                title="Channel Subscribers"
+                                value={formatNumber(channelStats.subs)}
+                                icon={<Users className="w-6 h-6 text-white" />}
+                                trend="Total Audience"
+                                color="from-[#8B5CF6] to-[#6D28D9]"
+                            />
+                            <KPICard
+                                title="Lifetime Channel Views"
+                                value={formatNumber(channelStats.channelViews)}
+                                icon={<Globe className="w-6 h-6 text-white" />}
+                                trend="All Time"
+                                color="from-[#10B981] to-[#047857]"
+                            />
+                            <KPICard
+                                title="Lifetime Uploads"
+                                value={formatNumber(channelStats.channelVideos)}
+                                icon={<Video className="w-6 h-6 text-white" />}
+                                trend="Total Content"
+                                color="from-[#F59E0B] to-[#B45309]"
+                            />
+                            <KPICard
+                                title="Data Points Tracked"
+                                value={formatNumber(filteredVideos.length)}
+                                icon={<Activity className="w-6 h-6 text-white" />}
+                                trend="App Memory"
+                                color="from-[#3B82F6] to-[#1D4ED8]"
+                            />
+                        </div>
+
+                        {/* Recent API Tracked Stats Grid */}
+                        <div className="flex flex-col md:flex-row items-center justify-between mt-2 pt-4 border-t border-[#e5e5e7]">
+                             <h2 className="text-xl font-bold text-[#1d1d1f]">Tracked Upload Insights</h2>
+                        </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                             <KPICard
                                 title="Total Views"
@@ -582,10 +644,10 @@ export default function AnalyticsPage() {
                         {/* Recent Videos Table */}
                         <div className="bg-white border border-[#e5e5e7] rounded-2xl overflow-hidden shadow-sm">
                             <div className="p-4 md:p-6 border-b border-[#e5e5e7] flex justify-between items-center">
-                                <h2 className="text-lg md:text-xl font-bold text-[#1d1d1f]">Recent Uploads</h2>
-                                <button className="text-xs font-semibold text-[#1d1d1f] hover:text-black transition-colors uppercase tracking-wider">
-                                    View All
-                                </button>
+                                <h2 className="text-lg md:text-xl font-bold text-[#1d1d1f]">Recent Uploads Matrix</h2>
+                                <Link href="/analytics-detailed" className="text-xs font-semibold text-[#8B5CF6] hover:text-[#6D28D9] transition-colors uppercase tracking-wider flex items-center gap-1">
+                                    Deep Dive <ArrowUpRight className="w-4 h-4"/>
+                                </Link>
                             </div>
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left text-sm text-[#71767b]">

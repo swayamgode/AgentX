@@ -27,6 +27,9 @@ export interface YouTubeAccount {
     email: string;                      
     watermark: string;
     thumbnailUrl?: string;
+    subscriberCount?: string;
+    videoCount?: string;
+    viewCount?: string;
     tokens: YouTubeTokens;
     createdAt: string;
 }

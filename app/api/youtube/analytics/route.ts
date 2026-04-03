@@ -65,6 +65,23 @@ export async function GET() {
             const youtube = google.youtube({ version: 'v3', auth: oauth2Client });
             const chunkSize = 50;
 
+            // Fetch channel stats (subscribers, total views, total video count)
+            try {
+                const channelRes = await youtube.channels.list({
+                    part: ['statistics'],
+                    id: [account.channelId]
+                });
+                if (channelRes.data.items && channelRes.data.items.length > 0) {
+                    const stats = channelRes.data.items[0].statistics;
+                    account.subscriberCount = stats?.subscriberCount || '0';
+                    account.videoCount = stats?.videoCount || '0';
+                    account.viewCount = stats?.viewCount || '0';
+                }
+            } catch (err) {
+                console.error(`Failed to fetch channel stats for ${account.channelName}`, err);
+            }
+
+
             for (let i = 0; i < accountVideoIds.length; i += chunkSize) {
                 const chunk = accountVideoIds.slice(i, i + chunkSize);
                 try {
@@ -122,7 +139,14 @@ export async function GET() {
             success: true,
             updated: totalUpdated,
             videos: updatedVideos,
-            accounts: accounts.map((a: any) => ({ id: a.id, channelName: a.channelName, channelId: a.channelId }))
+            accounts: accounts.map((a: any) => ({
+                id: a.id,
+                channelName: a.channelName,
+                channelId: a.channelId,
+                subscriberCount: a.subscriberCount,
+                videoCount: a.videoCount,
+                viewCount: a.viewCount
+            }))
         });
 
     } catch (error: any) {
