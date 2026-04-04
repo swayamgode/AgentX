@@ -18,7 +18,12 @@ import {
     Loader2,
     Clock,
     Users,
-    Globe
+    Globe,
+    Upload,
+    Timer,
+    CheckCircle2,
+    XCircle,
+    Hourglass
 } from 'lucide-react';
 import Link from 'next/link';
 import { LeftSidebar } from "@/components/LeftSidebar";
@@ -49,14 +54,22 @@ interface VideoAnalytics {
     texts: string[];
     thumbnailUrl?: string;
     uploadedAt: string;
+    scheduledFor?: string;
     channelId?: string;
     channelName?: string;
+    status?: string;
     stats?: {
         viewCount: string;
         likeCount: string;
         commentCount: string;
         lastUpdated: string;
     };
+}
+
+// Helper: get the effective posting date for a video
+// Use scheduledFor (the intended post date) if available, otherwise uploadedAt
+function getEffectiveDate(v: VideoAnalytics): Date {
+    return new Date(v.scheduledFor || v.uploadedAt);
 }
 
 interface AccountInfo {
@@ -68,6 +81,32 @@ interface AccountInfo {
     viewCount?: string;
 }
 
+interface ScheduledCounts {
+    scheduled: number;
+    pendingGeneration: number;
+    generating: number;
+    uploaded: number;
+    failed: number;
+    totalRemaining: number;
+    totalAll: number;
+}
+
+interface UpcomingVideo {
+    filename: string;
+    title: string;
+    scheduledFor: string;
+    status: string;
+    accountId?: string;
+    templateId?: string;
+}
+
+interface ScheduledData {
+    counts: ScheduledCounts;
+    upcoming: UpcomingVideo[];
+    overdue: UpcomingVideo[];
+    nextUpload: { title: string; scheduledFor: string; status: string } | null;
+}
+
 const COLORS = ['#1d1d1f', '#333333', '#666666', '#999999', '#cccccc'];
 
 export default function AnalyticsPage() {
@@ -77,6 +116,7 @@ export default function AnalyticsPage() {
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [scheduledData, setScheduledData] = useState<ScheduledData | null>(null);
 
     const fetchAnalytics = async (isRefresh = false) => {
         if (isRefresh) setRefreshing(true);
@@ -93,13 +133,23 @@ export default function AnalyticsPage() {
 
             if (data.videos) {
                 const sorted = data.videos.sort((a: VideoAnalytics, b: VideoAnalytics) =>
-                    new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime()
+                    getEffectiveDate(b).getTime() - getEffectiveDate(a).getTime()
                 );
                 setVideos(sorted);
             }
 
             if (data.accounts) {
                 setAccounts(data.accounts);
+            }
+
+            // Merge scheduledCounts from main API into scheduledData
+            if (data.scheduledCounts) {
+                setScheduledData(prev => ({
+                    counts: data.scheduledCounts,
+                    upcoming: prev?.upcoming || [],
+                    overdue: prev?.overdue || [],
+                    nextUpload: prev?.nextUpload || null,
+                }));
             }
         } catch (err: any) {
             setError(err.message);
@@ -109,8 +159,21 @@ export default function AnalyticsPage() {
         }
     };
 
+    const fetchScheduledVideos = async () => {
+        try {
+            const res = await fetch('/api/youtube/scheduled');
+            const data = await res.json();
+            if (data.success) {
+                setScheduledData(data);
+            }
+        } catch (err) {
+            console.error('Failed to fetch scheduled videos:', err);
+        }
+    };
+
     useEffect(() => {
         fetchAnalytics();
+        fetchScheduledVideos();
     }, []);
 
     // Filter videos by selected account
@@ -157,7 +220,7 @@ export default function AnalyticsPage() {
     const growthData = useMemo(() => {
         // Reverse for chronological order (oldest to newest)
         return [...filteredVideos].reverse().map(v => {
-            const date = new Date(v.uploadedAt);
+            const date = getEffectiveDate(v);
             return {
                 name: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }), // e.g. "Jan 21 14:30"
                 shortName: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), // for X Axis if we prefer short
@@ -187,7 +250,7 @@ export default function AnalyticsPage() {
         const hourMap: { [key: number]: { views: number, count: number } } = {};
 
         filteredVideos.forEach(v => {
-            const date = new Date(v.uploadedAt);
+            const date = getEffectiveDate(v);
             const hour = date.getHours();
             const views = parseInt(v.stats?.viewCount || '0');
 
@@ -212,7 +275,7 @@ export default function AnalyticsPage() {
         const dayMap: { [key: string]: { views: number, count: number } } = {};
 
         filteredVideos.forEach(v => {
-            const date = new Date(v.uploadedAt);
+            const date = getEffectiveDate(v);
             const dayKey = date.toISOString().split('T')[0];
             const views = parseInt(v.stats?.viewCount || '0');
 
@@ -363,6 +426,116 @@ export default function AnalyticsPage() {
                                 color="from-[#3B82F6] to-[#1D4ED8]"
                             />
                         </div>
+
+                        {/* Upload Pipeline Section */}
+                        <div className="flex flex-col md:flex-row items-center justify-between mt-2 pt-4 border-t border-[#e5e5e7]">
+                             <h2 className="text-xl font-bold text-[#1d1d1f] flex items-center gap-2">
+                                 <Upload className="w-5 h-5 text-[#8B5CF6]" />
+                                 Upload Pipeline
+                             </h2>
+                             <button
+                                 onClick={() => fetchScheduledVideos()}
+                                 className="text-xs font-semibold text-[#8B5CF6] hover:text-[#6D28D9] transition-colors uppercase tracking-wider flex items-center gap-1"
+                             >
+                                 <RefreshCw className="w-3 h-3" /> Refresh
+                             </button>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <KPICard
+                                title="Remaining to Upload"
+                                value={(scheduledData?.counts.totalRemaining ?? 0).toString()}
+                                icon={<Hourglass className="w-6 h-6 text-white" />}
+                                trend="Scheduled"
+                                color="from-[#F97316] to-[#C2410C]"
+                            />
+                            <KPICard
+                                title="Successfully Uploaded"
+                                value={(scheduledData?.counts.uploaded ?? 0).toString()}
+                                icon={<CheckCircle2 className="w-6 h-6 text-white" />}
+                                trend="Complete"
+                                color="from-[#10B981] to-[#047857]"
+                            />
+                            <KPICard
+                                title="Failed Uploads"
+                                value={(scheduledData?.counts.failed ?? 0).toString()}
+                                icon={<XCircle className="w-6 h-6 text-white" />}
+                                trend={scheduledData?.counts.failed ? 'Needs Attention' : 'All Clear'}
+                                color="from-[#EF4444] to-[#B91C1C]"
+                            />
+                            <KPICard
+                                title="Next Upload"
+                                value={scheduledData?.nextUpload ? getTimeUntil(scheduledData.nextUpload.scheduledFor) : 'None'}
+                                icon={<Timer className="w-6 h-6 text-white" />}
+                                trend={scheduledData?.nextUpload?.status || 'No Queue'}
+                                color="from-[#8B5CF6] to-[#6D28D9]"
+                            />
+                        </div>
+
+                        {/* Upcoming Scheduled Videos List */}
+                        {scheduledData && (scheduledData.upcoming.length > 0 || scheduledData.overdue.length > 0) && (
+                            <div className="bg-white border border-[#e5e5e7] rounded-2xl overflow-hidden shadow-sm">
+                                <div className="p-4 md:p-6 border-b border-[#e5e5e7] flex justify-between items-center">
+                                    <h2 className="text-lg md:text-xl font-bold text-[#1d1d1f] flex items-center gap-2">
+                                        <Calendar className="w-5 h-5" />
+                                        Scheduled Queue
+                                    </h2>
+                                    <span className="text-xs font-mono text-[#86868b] bg-[#F5F5F7] px-3 py-1 rounded-full border border-[#e5e5e7]">
+                                        {scheduledData.counts.totalRemaining} remaining
+                                    </span>
+                                </div>
+
+                                {/* Overdue Items */}
+                                {scheduledData.overdue.length > 0 && (
+                                    <div className="px-4 md:px-6 py-3 bg-red-50 border-b border-red-100">
+                                        <div className="flex items-center gap-2 text-red-700 text-sm font-bold mb-2">
+                                            <AlertCircle className="w-4 h-4" />
+                                            Overdue ({scheduledData.overdue.length})
+                                        </div>
+                                        <div className="space-y-2">
+                                            {scheduledData.overdue.map((vid, i) => (
+                                                <div key={i} className="flex items-center justify-between text-sm">
+                                                    <span className="text-red-800 font-medium truncate max-w-[250px]">{vid.title}</span>
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="text-red-600 text-xs">
+                                                            Was due {new Date(vid.scheduledFor).toLocaleString()}
+                                                        </span>
+                                                        <StatusBadge status={vid.status} />
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Upcoming Items */}
+                                <div className="divide-y divide-[#e5e5e7]">
+                                    {scheduledData.upcoming.map((vid, i) => (
+                                        <div key={i} className="px-4 md:px-6 py-4 flex items-center justify-between hover:bg-[#F5F5F7] transition-colors group">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#8B5CF6]/10 to-[#6D28D9]/10 border border-[#8B5CF6]/20 flex items-center justify-center text-[#8B5CF6] font-bold text-sm">
+                                                    {i + 1}
+                                                </div>
+                                                <div>
+                                                    <div className="font-semibold text-[#1d1d1f] text-sm truncate max-w-[300px]">{vid.title}</div>
+                                                    <div className="text-xs text-[#86868b] mt-0.5 flex items-center gap-2">
+                                                        <Clock className="w-3 h-3" />
+                                                        {new Date(vid.scheduledFor).toLocaleString()}
+                                                        <span className="text-[#8B5CF6] font-medium">• {getTimeUntil(vid.scheduledFor)}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <StatusBadge status={vid.status} />
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {scheduledData.upcoming.length === 0 && scheduledData.overdue.length === 0 && (
+                                    <div className="p-8 text-center text-[#86868b] text-sm">
+                                        No scheduled videos in the queue
+                                    </div>
+                                )}
+                            </div>
+                        )}
 
                         {/* Recent API Tracked Stats Grid */}
                         <div className="flex flex-col md:flex-row items-center justify-between mt-2 pt-4 border-t border-[#e5e5e7]">
@@ -680,17 +853,21 @@ export default function AnalyticsPage() {
                                                             <div className="text-xs text-[#86868b] mt-1 flex items-center gap-2">
                                                                 <span className="px-1.5 py-0.5 rounded bg-[#F5F5F7] border border-[#e5e5e7] text-[#86868b]">{video.topic || 'General'}</span>
                                                                 <span>•</span>
-                                                                <span>{new Date(video.uploadedAt).toLocaleDateString()}</span>
+                                                                <span>{getEffectiveDate(video).toLocaleDateString()}</span>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </td>
                                                 <td className="px-4 md:px-6 py-2 md:py-4 flex items-center justify-between md:table-cell">
                                                     <span className="md:hidden text-xs font-medium text-[#86868b]">Status</span>
-                                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-[#1d1d1f] text-white shadow-sm">
-                                                        <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
-                                                        Public
-                                                    </span>
+                                                    {video.status === 'SCHEDULED' || video.status === 'PENDING_GENERATION' || video.status === 'GENERATING' ? (
+                                                        <StatusBadge status={video.status} />
+                                                    ) : (
+                                                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-[#1d1d1f] text-white shadow-sm">
+                                                            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+                                                            Public
+                                                        </span>
+                                                    )}
                                                 </td>
                                                 <td className="px-4 md:px-6 py-2 md:py-4 text-right font-bold text-[#1d1d1f] font-mono tracking-tight flex items-center justify-between md:table-cell">
                                                     <span className="md:hidden text-xs font-normal text-[#86868b]">Views</span>
@@ -868,4 +1045,37 @@ function KPICard({ title, value, icon, trend, color }: { title: string, value: s
             </div>
         </div>
     );
+}
+
+function StatusBadge({ status }: { status: string }) {
+    const config: Record<string, { bg: string; text: string; dot: string; label: string }> = {
+        SCHEDULED: { bg: 'bg-amber-50', text: 'text-amber-700', dot: 'bg-amber-400', label: 'Scheduled' },
+        PENDING_GENERATION: { bg: 'bg-blue-50', text: 'text-blue-700', dot: 'bg-blue-400', label: 'Pending' },
+        GENERATING: { bg: 'bg-purple-50', text: 'text-purple-700', dot: 'bg-purple-400 animate-pulse', label: 'Generating' },
+        UPLOADED: { bg: 'bg-green-50', text: 'text-green-700', dot: 'bg-green-400', label: 'Uploaded' },
+        FAILED: { bg: 'bg-red-50', text: 'text-red-700', dot: 'bg-red-400', label: 'Failed' },
+    };
+    const c = config[status] || config.SCHEDULED;
+    return (
+        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${c.bg} ${c.text} border border-current/10`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${c.dot}`} />
+            {c.label}
+        </span>
+    );
+}
+
+function getTimeUntil(dateStr: string): string {
+    const target = new Date(dateStr).getTime();
+    const now = Date.now();
+    const diff = target - now;
+
+    if (diff <= 0) return 'Overdue';
+
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (days > 0) return `${days}d ${hours % 24}h`;
+    if (hours > 0) return `${hours}h ${minutes % 60}m`;
+    return `${minutes}m`;
 }

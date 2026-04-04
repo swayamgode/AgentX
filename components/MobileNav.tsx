@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Settings, Sparkles, Smile, BarChart3, Rocket, LogOut } from "lucide-react";
+import { Home, Settings, Sparkles, Smile, BarChart3, Rocket, LogOut, Repeat } from "lucide-react";
 import { useAuthActions } from "@convex-dev/auth/react";
 
 export function MobileNav() {
@@ -13,6 +13,7 @@ export function MobileNav() {
         { icon: Home, label: "Home", href: "/dashboard" },
         { icon: Sparkles, label: "Quotes", href: "/quotes" },
         { icon: Smile, label: "Memes", href: "/memes" },
+        { icon: Repeat, label: "Repost", href: "/repost" },
         { icon: Rocket, label: "Auto-Pilot", href: "/autopilot" },
         { icon: BarChart3, label: "Analytics", href: "/analytics" },
         { icon: Settings, label: "Settings", href: "/settings" },

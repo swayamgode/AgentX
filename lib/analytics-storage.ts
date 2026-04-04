@@ -21,8 +21,10 @@ export interface VideoAnalyticsData {
     texts: string[];
     thumbnailUrl?: string;
     uploadedAt: string;
+    scheduledFor?: string;
     channelId?: string;
     channelName?: string;
+    status?: 'SCHEDULED' | 'UPLOADED' | 'FAILED' | 'PENDING_GENERATION' | 'GENERATING';
     stats?: {
         viewCount: string;
         likeCount: string;

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Settings, MoreHorizontal, Smile, Calendar, Sparkles, BarChart3, Rocket, LogOut } from "lucide-react";
+import { Home, Settings, MoreHorizontal, Smile, Calendar, Sparkles, BarChart3, Rocket, LogOut, Repeat } from "lucide-react";
 import { useAuthActions } from "@convex-dev/auth/react";
 
 export function LeftSidebar() {
@@ -13,6 +13,7 @@ export function LeftSidebar() {
         { icon: Home, label: "Dashboard", href: "/dashboard" },
         { icon: Sparkles, label: "Quotes", href: "/quotes" },
         { icon: Smile, label: "Meme Studio", href: "/memes" },
+        { icon: Repeat, label: "Trend Repost", href: "/repost" },
         { icon: Rocket, label: "Auto-Pilot", href: "/autopilot" },
         { icon: BarChart3, label: "Analytics", href: "/analytics" },
         { icon: Settings, label: "Settings", href: "/settings" },
