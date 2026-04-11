@@ -101,7 +101,7 @@ export async function GET(req: NextRequest) {
 
                     // 3) Recent Videos for the feed
                     const searchRes = await youtube.search.list({
-                        channelId: ch.id,
+                        channelId: ch.id as string,
                         part: ['snippet'],
                         order: 'date',
                         maxResults: 5,
