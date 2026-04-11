@@ -5,6 +5,7 @@ import { getAuthUser } from '@/lib/auth-util';
 import { Readable } from 'stream';
 
 export async function POST(request: NextRequest) {
+    let account: any = null;
     try {
         const formData = await request.formData();
         const videoFile = formData.get('video') as File;
@@ -28,8 +29,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Video file is required' }, { status: 400 });
         }
 
-        // Load account-specific tokens
-        let account: any = null;
+
         if (accountId) {
             account = multiAccountStorage.getAccount(userId, accountId);
             if (!account) {
