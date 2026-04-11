@@ -15,7 +15,16 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "AgentX | AI-Powered Content Automation",
   description: "Automate your social media presence with AI-generated memes, videos, and automated scheduling.",
+  manifest: "/manifest.json",
+  themeColor: "#000000",
+  viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "AgentX",
+  },
 };
+
 
 import { ConvexClientProvider } from "@/components/ConvexClientProvider";
 

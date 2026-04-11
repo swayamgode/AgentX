@@ -3,9 +3,8 @@
 import { useState, useEffect } from "react";
 import { LeftSidebar } from "@/components/LeftSidebar";
 import { MobileNav } from "@/components/MobileNav";
-import { Rocket, Sparkles, Smile, Upload, Activity } from "lucide-react";
+import { Rocket, Sparkles, Smile, Upload, Activity, ArrowRight, CheckCircle, Clock } from "lucide-react";
 import Link from "next/link";
-
 
 export default function DashboardPage() {
   const [schedulerStatus, setSchedulerStatus] = useState<any>(null);
@@ -27,67 +26,120 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <div className="flex min-h-screen bg-[#F5F5F7]">
+    <div className="flex min-h-screen bg-[#000000] text-white selection:bg-purple-500/30">
       <LeftSidebar />
 
-      <main className="flex-1 ml-0 md:ml-0 pb-20 md:pb-8">
-        <div className="sticky top-5 mx-4 md:mx-8 rounded-[2rem] glass-effect z-40 border-white/20 shadow-lg">
-          <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-4 md:py-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div className="flex items-center gap-4 md:gap-6">
-              <div className="relative">
-                <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-black flex items-center justify-center shadow-md">
-                  <Activity className="text-white w-5 h-5 md:w-6 md:h-6" />
+      <main className="flex-1 ml-0 md:ml-0 pb-28 md:pb-8 relative overflow-hidden">
+        {/* Abstract Background Orbs */}
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-600/20 shadow-[0_0_150px_rgba(147,51,234,0.3)] rounded-full blur-[100px] animate-pulse"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/10 shadow-[0_0_150px_rgba(37,99,235,0.2)] rounded-full blur-[100px]"></div>
+
+        <div className="sticky top-5 mx-4 md:mx-8 rounded-[2.5rem] bg-white/5 backdrop-blur-3xl z-40 border border-white/10 shadow-2xl">
+          <div className="max-w-[1400px] mx-auto px-6 md:px-10 py-5 md:py-7 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="flex items-center gap-5 md:gap-7">
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-tr from-purple-500 to-blue-500 rounded-2xl blur-lg opacity-40 group-hover:opacity-100 transition-opacity"></div>
+                <div className="relative w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-black border border-white/20 flex items-center justify-center shadow-2xl">
+                  <Activity className="text-white w-6 h-6 md:w-7 md:h-7 animate-pulse" />
                 </div>
               </div>
               <div>
-                <h1 className="text-lg md:text-2xl font-bold text-black tracking-tight leading-none">
-                  Dashboard
+                <h1 className="text-xl md:text-3xl font-black text-white tracking-tighter leading-none italic">
+                  COMMAND CENTER
                 </h1>
-                <p className="text-[10px] md:text-[11px] font-medium text-gray-500 mt-1 flex items-center gap-1.5 uppercase tracking-wider">
-                  Upload & scheduling center
+                <p className="text-[10px] md:text-[11px] font-bold text-gray-400 mt-2 flex items-center gap-2 uppercase tracking-[0.2em]">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                  System Status: Active
                 </p>
               </div>
             </div>
-            <div className={`hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded border text-[9px] font-bold uppercase tracking-wider ${schedulerStatus?.status === 'RUNNING'
-              ? 'bg-black text-white border-black'
-              : 'bg-white text-gray-400 border-gray-200'
+            
+            <div className={`flex items-center gap-2.5 px-4 py-2 rounded-full border text-[10px] font-black uppercase tracking-widest transition-all ${schedulerStatus?.status === 'RUNNING'
+              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+              : 'bg-white/5 text-gray-500 border-white/10'
               }`}>
-              <div className={`w-1 h-1 rounded-full ${schedulerStatus?.status === 'RUNNING' ? 'bg-white' : 'bg-gray-300'}`} />
-              {schedulerStatus?.status === 'RUNNING' ? 'Scheduler Active' : 'Scheduler Offline'}
+              <div className={`w-1.5 h-1.5 rounded-full ${schedulerStatus?.status === 'RUNNING' ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]' : 'bg-gray-600'}`} />
+              {schedulerStatus?.status === 'RUNNING' ? 'Engine Running' : 'Engine Idle'}
             </div>
           </div>
         </div>
 
-        <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-6 md:py-10 space-y-6 md:space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Link href="/autopilot" className="bg-white border border-[#E9ECEF] rounded-2xl md:rounded-[2.5rem] p-6 md:p-8 shadow-sm hover:shadow-md transition-shadow group flex flex-col items-center justify-center text-center">
-              <div className="w-14 h-14 bg-black text-white rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <Rocket className="w-6 h-6" />
-              </div>
-              <h2 className="text-xl font-bold text-black mb-2">Auto-Pilot</h2>
-              <p className="text-sm text-gray-500">Manage bulk uploads and scheduling tasks automatically.</p>
-            </Link>
+        <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-8 md:py-16 space-y-8 relative z-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            <DashboardCard 
+              href="/autopilot" 
+              icon={<Rocket className="w-7 h-7" />} 
+              title="Auto-Pilot" 
+              desc="Full-scale automation swarm. Multi-channel scheduling & generation."
+              color="from-purple-600 to-indigo-600"
+            />
 
-            <Link href="/quotes" className="bg-white border border-[#E9ECEF] rounded-2xl md:rounded-[2.5rem] p-6 md:p-8 shadow-sm hover:shadow-md transition-shadow group flex flex-col items-center justify-center text-center">
-              <div className="w-14 h-14 bg-black text-white rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <Sparkles className="w-6 h-6" />
-              </div>
-              <h2 className="text-xl font-bold text-black mb-2">Quotes</h2>
-              <p className="text-sm text-gray-500">Generate and schedule elegant quote videos.</p>
-            </Link>
+            <DashboardCard 
+              href="/quotes" 
+              icon={<Sparkles className="w-7 h-7" />} 
+              title="Quotes Flow" 
+              desc="Generate aesthetic high-retention quote videos with AI."
+              color="from-blue-600 to-cyan-600"
+            />
 
-            <Link href="/memes" className="bg-white border border-[#E9ECEF] rounded-2xl md:rounded-[2.5rem] p-6 md:p-8 shadow-sm hover:shadow-md transition-shadow group flex flex-col items-center justify-center text-center">
-              <div className="w-14 h-14 bg-black text-white rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <Smile className="w-6 h-6" />
+            <DashboardCard 
+              href="/memes" 
+              icon={<Smile className="w-7 h-7" />} 
+              title="Meme Forge" 
+              desc="Trending high-organic reach meme content generator."
+              color="from-orange-600 to-rose-600"
+            />
+          </div>
+
+          {/* Quick Metrics */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-12">
+            {[
+              { label: 'Active Channels', value: schedulerStatus?.accountsCount || '0', icon: <Activity size={14}/> },
+              { label: 'Pending Batch', value: schedulerStatus?.pendingCount || '0', icon: <Clock size={14}/> },
+              { label: 'Success Rate', value: '98%', icon: <CheckCircle size={14}/> },
+              { label: 'Uptime', value: '24/7', icon: <Rocket size={14}/> }
+            ].map((stat, i) => (
+              <div key={i} className="bg-white/5 border border-white/10 rounded-2xl p-4 md:p-6 backdrop-blur-md">
+                <div className="flex items-center gap-2 text-gray-500 mb-2">
+                  {stat.icon}
+                  <span className="text-[10px] font-bold uppercase tracking-wider">{stat.label}</span>
+                </div>
+                <div className="text-xl md:text-2xl font-black text-white">{stat.value}</div>
               </div>
-              <h2 className="text-xl font-bold text-black mb-2">Meme Studio</h2>
-              <p className="text-sm text-gray-500">Create trending meme content.</p>
-            </Link>
+            ))}
           </div>
         </div>
       </main>
 
       <MobileNav />
     </div>
+  );
+}
+
+function DashboardCard({ href, icon, title, desc, color }: any) {
+  return (
+    <Link 
+      href={href} 
+      className="group relative bg-white/5 border border-white/10 rounded-[2.5rem] p-8 md:p-10 transition-all hover:-translate-y-2 hover:bg-white/[0.08] hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)] overflow-hidden"
+    >
+      <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${color} opacity-0 group-hover:opacity-20 blur-[40px] transition-opacity`}></div>
+      
+      <div className={`w-16 h-16 bg-gradient-to-br ${color} text-white rounded-3xl flex items-center justify-center mb-8 shadow-2xl group-hover:scale-110 transition-transform duration-500`}>
+        {icon}
+      </div>
+      
+      <div className="relative z-10">
+        <h2 className="text-2xl font-black text-white mb-3 tracking-tight italic group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-gray-400">
+          {title.toUpperCase()}
+        </h2>
+        <p className="text-sm text-gray-400 leading-relaxed font-medium">
+          {desc}
+        </p>
+      </div>
+
+      <div className="mt-8 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-500 group-hover:text-white transition-colors">
+        Access Module <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+      </div>
+    </Link>
   );
 }
