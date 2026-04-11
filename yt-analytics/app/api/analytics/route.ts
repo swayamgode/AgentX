@@ -105,7 +105,7 @@ export async function GET(req: NextRequest) {
                         part: ['snippet'],
                         order: 'date',
                         maxResults: 5,
-                        type: 'video'
+                        type: ['video']
                     });
 
                     if (searchRes.data.items) {
