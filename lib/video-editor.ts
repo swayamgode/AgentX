@@ -100,11 +100,7 @@ export async function createVideoWithOverlays(
             }
 
             // Fill background
-            const gradient = ctx.createLinearGradient(0, 0, 0, 1920);
-            gradient.addColorStop(0, '#0a0a0a');
-            gradient.addColorStop(0.5, '#1a1a1a');
-            gradient.addColorStop(1, '#0a0a0a');
-            ctx.fillStyle = gradient;
+            ctx.fillStyle = '#0a0a0a';
             ctx.fillRect(0, 0, 1080, 1920);
 
             // Draw video frame

@@ -653,10 +653,7 @@ export function QuotesGenerator() {
                         formData.append('tags', JSON.stringify(viralTags));
                         formData.append('publishAt', publishTime.toISOString());
 
-                        // Add metadata for analytics tracking
-                        formData.append('topic', topic);
-                        formData.append('templateId', `quote-${style}`);
-                        formData.append('texts', JSON.stringify([quotes[i].text, quotes[i].author]));
+                        // No analytics tracking
 
                         if (selectedAccountId) {
                             formData.append('accountId', selectedAccountId);

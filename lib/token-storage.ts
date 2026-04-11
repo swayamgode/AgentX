@@ -31,6 +31,10 @@ export interface YouTubeAccount {
     videoCount?: string;
     viewCount?: string;
     tokens: YouTubeTokens;
+    appCredentials?: {
+        clientId: string;
+        clientSecret: string;
+    };
     createdAt: string;
 }
 

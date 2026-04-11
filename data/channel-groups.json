@@ -1,0 +1,180 @@
+[
+  {
+    "id": "grp_1775740230636",
+    "name": " Love & Relationships",
+    "channelIds": [
+      "yt-1775386246589-aonanptoh",
+      "yt-1775386283972-gapn9e8ar",
+      "yt-1775386322561-gwt3vxaa5",
+      "yt-1775386364094-4k3szo0sm",
+      "yt-1775386417305-zrht5ag9t",
+      "yt-1775386587601-n6usapsb5"
+    ],
+    "theme": {
+      "bgColor": "#1a0a10",
+      "bgColor2": "#1a0a10",
+      "textColor": "#ffa3c2",
+      "fontSizeScale": 0.55,
+      "backgroundType": "gradient",
+      "textAlign": "center",
+      "topics": [
+        "Self-love & confidence",
+        "Long distance love",
+        "Toxic relationship red flags",
+        "Heartbreak & healing",
+        "Romantic love quotes",
+        "Marriage & commitment"
+      ],
+      "style": "wisdom",
+      "generationsPerChannel": 10,
+      "geminiKey": "AIzaSyD2Tww6sJJHDDuVnmW83JA3CzfFo4C5MhI"
+    },
+    "createdAt": "2026-04-09T13:10:30.636Z",
+    "updatedAt": "2026-04-10T03:24:17.802Z"
+  },
+  {
+    "id": "grp_1775740533347",
+    "name": "Mindset & Motivation",
+    "channelIds": [
+      "yt-1775386628831-ufv43bdu5",
+      "yt-1775459960380-xhn6ro8cj",
+      "yt-1775459994881-wn5ac04ik",
+      "yt-1775460025247-cxxjyq41w",
+      "yt-1775460064345-msprrvac6"
+    ],
+    "theme": {
+      "bgColor": "#0d0b1f",
+      "bgColor2": "#0d0b1f",
+      "textColor": "#cecbf6",
+      "fontSizeScale": 0.5,
+      "backgroundType": "plain",
+      "textAlign": "center",
+      "topics": [
+        "Daily motivation",
+        "Success & hustle",
+        "Stoic philosophy",
+        "Discipline & habits",
+        "Overcoming failure"
+      ],
+      "style": "wisdom",
+      "generationsPerChannel": 10,
+      "geminiKey": "AIzaSyC8U34blRL6OrxJZwO8CV9EoLu4Oxmrib8"
+    },
+    "createdAt": "2026-04-09T13:15:33.347Z",
+    "updatedAt": "2026-04-10T03:25:11.358Z"
+  },
+  {
+    "id": "grp_1775740819820",
+    "name": " Mental Health & Emotions",
+    "channelIds": [
+      "yt-1775460129829-g6jbiqo2q",
+      "yt-1775460173241-1emx83xuh",
+      "yt-1775460201800-gs0tkk42h",
+      "yt-1775460241750-z393r79my"
+    ],
+    "theme": {
+      "bgColor": "#042e20",
+      "bgColor2": "#1a1a2e",
+      "textColor": "#ffffff",
+      "fontSizeScale": 0.5,
+      "backgroundType": "plain",
+      "textAlign": "center",
+      "topics": [
+        "Anxiety & overthinking",
+        "Depression awareness",
+        "Healing & therapy quotes",
+        "Inner peace & calm"
+      ],
+      "style": "wisdom",
+      "generationsPerChannel": 10,
+      "geminiKey": "AIzaSyCvsn-PSjuub9_s4_JAqis7l_-wjw8VNUs"
+    },
+    "createdAt": "2026-04-09T13:20:19.820Z",
+    "updatedAt": "2026-04-10T03:26:02.190Z"
+  },
+  {
+    "id": "grp_1775740945110",
+    "name": "Social Issues & Identity",
+    "channelIds": [
+      "yt-1775460267368-2c1pzn5iu",
+      "yt-1775460303695-lcbq26793",
+      "yt-1775460331831-38f5d7a1g",
+      "yt-1775460368185-hs062obic"
+    ],
+    "theme": {
+      "bgColor": "#1a0800",
+      "bgColor2": "#1a1a2e",
+      "textColor": "#ffffff",
+      "fontSizeScale": 0.5,
+      "backgroundType": "plain",
+      "textAlign": "center",
+      "topics": [
+        "Feminism & women empowerment",
+        "Body positivity",
+        "Gen Z culture & identity",
+        "Equality & justice quotes"
+      ],
+      "style": "random",
+      "generationsPerChannel": 10,
+      "geminiKey": "AIzaSyAJEPaJnIvYIHrj8zSsRgd4lkORbsA86eY"
+    },
+    "createdAt": "2026-04-09T13:22:25.110Z",
+    "updatedAt": "2026-04-10T03:28:52.612Z"
+  },
+  {
+    "id": "grp_1775741054611",
+    "name": " Life & Wisdom",
+    "channelIds": [
+      "yt-1775739486311-8c5xlgn3m",
+      "yt-1775739381633-82izmrtnh",
+      "yt-1775460408036-0x9qt4qgn",
+      "yt-1775385728938-zgaw8krsf"
+    ],
+    "theme": {
+      "bgColor": "#000000",
+      "bgColor2": "#1a1a2e",
+      "textColor": "#ffffff",
+      "fontSizeScale": 0.5,
+      "backgroundType": "plain",
+      "textAlign": "center",
+      "topics": [
+        "Life lessons & wisdom",
+        "Friendship & loyalty",
+        "Karma & energy",
+        "Solitude & introvert life"
+      ],
+      "style": "random",
+      "generationsPerChannel": 10,
+      "geminiKey": "AIzaSyBis5gUxxSliSs6aiqyb0FqBXx76Wv2yiQ"
+    },
+    "createdAt": "2026-04-09T13:24:14.611Z",
+    "updatedAt": "2026-04-10T03:28:16.149Z"
+  },
+  {
+    "id": "grp_1775741172368",
+    "name": " Spirituality & Universe",
+    "channelIds": [
+      "yt-1775385651808-i3mwg3jkb",
+      "yt-1775385783064-v2q5vvekg",
+      "yt-1775386005088-y15ai5h1i"
+    ],
+    "theme": {
+      "bgColor": "#e6f1fb",
+      "bgColor2": "#1a1a2e",
+      "textColor": "#0c447c",
+      "fontSizeScale": 0.5,
+      "backgroundType": "plain",
+      "textAlign": "center",
+      "topics": [
+        "Manifestation & law of attraction",
+        "God & faith quotes",
+        "Universe & energy vibes"
+      ],
+      "style": "random",
+      "generationsPerChannel": 14,
+      "geminiKey": "AIzaSyBomkbkE2tEMMfFBaZeboN1QyvUbVmi0KQ"
+    },
+    "createdAt": "2026-04-09T13:26:12.368Z",
+    "updatedAt": "2026-04-10T03:27:38.807Z"
+  }
+]

@@ -74,10 +74,16 @@ export default function BulkScheduler() {
 
             setProgress({ current: 0, total: pending.length });
 
-            // Process each video (generate on client side)
-            for (let i = 0; i < pending.length; i++) {
+            // Define concurrency limit
+            const CONCURRENCY_LIMIT = 5;
+            let currentIdx = 0;
+            const allResults = [];
+
+            const processNext = async (): Promise<void> => {
+                if (currentIdx >= pending.length) return;
+
+                const i = currentIdx++;
                 const item = pending[i];
-                setProgress({ current: i + 1, total: pending.length });
 
                 try {
                     // Import renderer dynamically (client-side only)
@@ -131,11 +137,23 @@ export default function BulkScheduler() {
                         })
                     });
 
+                    setProgress(prev => ({ ...prev, current: prev.current + 1 }));
+
                 } catch (error) {
                     console.error(`Failed to process video ${i + 1}:`, error);
-                    // Continue with next video
+                    setProgress(prev => ({ ...prev, current: prev.current + 1 }));
                 }
-            }
+
+                // Process next available item
+                return processNext();
+            };
+
+            // Start initial batch of workers
+            const workers = Array(Math.min(CONCURRENCY_LIMIT, pending.length))
+                .fill(null)
+                .map(() => processNext());
+
+            await Promise.all(workers);
 
             setProcessing(false);
             setProgress({ current: 0, total: 0 });
@@ -180,7 +198,7 @@ export default function BulkScheduler() {
                     disabled={loading || processing}
                 />
                 <p className="text-sm text-gray-600 mt-1">
-                    Videos will be scheduled at optimal times based on your analytics
+                    Videos will be scheduled with optimal intervals.
                 </p>
             </div>
 
@@ -256,7 +274,7 @@ export default function BulkScheduler() {
             <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                 <h3 className="font-semibold text-blue-900 mb-2">How it works:</h3>
                 <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
-                    <li>Analyzes your video performance to find optimal posting times</li>
+                    <li>Selects optimal posting times automatically</li>
                     <li>Generates unique content for each connected account</li>
                     <li>Creates videos with different templates and topics</li>
                     <li>Schedules uploads at peak engagement hours</li>

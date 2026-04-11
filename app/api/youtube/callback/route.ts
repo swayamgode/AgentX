@@ -17,9 +17,25 @@ export async function GET(request: NextRequest) {
             return NextResponse.redirect(new URL('/settings?error=no_code', request.url));
         }
 
+        const { keyManager } = await import('@/lib/key-manager');
+        const stateClientId = searchParams.get('state');
+        
+        let clientId = stateClientId || process.env.YOUTUBE_CLIENT_ID;
+        let clientSecret = process.env.YOUTUBE_CLIENT_SECRET;
+
+        // If we have multiple apps, find the one that matches this clientId
+        if (stateClientId) {
+            const apps = keyManager.getAllYouTubeApps();
+            const matchingApp = apps.find(a => a.id === stateClientId);
+            if (matchingApp) {
+                clientId = matchingApp.id;
+                clientSecret = matchingApp.secret;
+            }
+        }
+
         const oauth2Client = new google.auth.OAuth2(
-            process.env.YOUTUBE_CLIENT_ID,
-            process.env.YOUTUBE_CLIENT_SECRET,
+            clientId,
+            clientSecret,
             process.env.YOUTUBE_REDIRECT_URI?.includes('localhost') 
                 ? `${request.nextUrl.origin}/api/youtube/callback` 
                 : (process.env.YOUTUBE_REDIRECT_URI || `${request.nextUrl.origin}/api/youtube/callback`)
@@ -57,7 +73,7 @@ export async function GET(request: NextRequest) {
 
         const userId = user.id;
 
-        // Add account to storage
+        // Add account to storage with the specific app credentials used
         const newAccount = multiAccountStorage.addAccount(userId, {
             channelName,
             channelId,
@@ -68,14 +84,18 @@ export async function GET(request: NextRequest) {
                 access_token: tokens.access_token!,
                 refresh_token: tokens.refresh_token || undefined,
                 expiry_date: tokens.expiry_date || undefined
+            },
+            appCredentials: {
+                clientId: clientId!,
+                clientSecret: clientSecret!
             }
         });
 
         console.log('✅ YouTube account connected:', channelName);
 
         return NextResponse.redirect(new URL('/settings?success=youtube_connected', request.url));
-    } catch (error) {
+    } catch (error: any) {
         console.error('YouTube callback error:', error);
-        return NextResponse.redirect(new URL('/settings?error=auth_failed', request.url));
+        return NextResponse.redirect(new URL(`/settings?error=auth_failed&msg=${encodeURIComponent(error.message || '')}`, request.url));
     }
 }

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { google } from 'googleapis';
 import { tokenStorage, multiAccountStorage } from '@/lib/token-storage';
-import { analyticsStorage } from '@/lib/analytics-storage';
 import { getAuthUser } from '@/lib/auth-util';
 import { Readable } from 'stream';
 
@@ -30,7 +29,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Load account-specific tokens
-        let account;
+        let account: any = null;
         if (accountId) {
             account = multiAccountStorage.getAccount(userId, accountId);
             if (!account) {
@@ -50,8 +49,8 @@ export async function POST(request: NextRequest) {
         }
 
         const oauth2Client = new google.auth.OAuth2(
-            process.env.YOUTUBE_CLIENT_ID,
-            process.env.YOUTUBE_CLIENT_SECRET,
+            account.appCredentials?.clientId || process.env.YOUTUBE_CLIENT_ID,
+            account.appCredentials?.clientSecret || process.env.YOUTUBE_CLIENT_SECRET,
             process.env.YOUTUBE_REDIRECT_URI
         );
 
@@ -125,22 +124,7 @@ export async function POST(request: NextRequest) {
                 videoUrl: `https://www.youtube.com/watch?v=${response.data.id}`
             };
 
-            // Track upload for analytics
-            if (response.data.id) {
-                try {
-                    analyticsStorage.addVideo(userId, {
-                        youtubeId: response.data.id,
-                        title,
-                        topic: topic || 'unknown',
-                        templateId: templateId || 'unknown',
-                        texts,
-                        channelId: account.channelId,
-                        channelName: account.channelName
-                    });
-                } catch (err) {
-                    console.error('Failed to save analytics data:', err);
-                }
-            }
+            // No analytics tracking
 
             return NextResponse.json(jsonResponse);
         } catch (error: any) {
@@ -170,22 +154,7 @@ export async function POST(request: NextRequest) {
                         videoUrl: `https://www.youtube.com/watch?v=${response.data.id}`
                     };
 
-                    // Track upload for analytics (retry case)
-                    if (response.data.id) {
-                        try {
-                            analyticsStorage.addVideo(userId, {
-                                youtubeId: response.data.id,
-                                title,
-                                topic: topic || 'unknown',
-                                templateId: templateId || 'unknown',
-                                texts,
-                                channelId: account.channelId,
-                                channelName: account.channelName
-                            });
-                        } catch (err) {
-                            console.error('Failed to save analytics data:', err);
-                        }
-                    }
+                    // No analytics tracking
 
                     return NextResponse.json(jsonResponse);
                 } catch (retryError: any) {
@@ -200,22 +169,26 @@ export async function POST(request: NextRequest) {
         console.error('Upload error detail:', error);
 
         // Check for quota exceeded error
-        if (error.code === 400 && error.message?.includes('exceeded the number of videos')) {
+        if (error.code === 403 || (error.code === 400 && error.message?.includes('quota')) || error.message?.includes('exceeded the number of videos')) {
+            const { keyManager } = await import('@/lib/key-manager');
+            const clientId = account?.appCredentials?.clientId || process.env.YOUTUBE_CLIENT_ID;
+            if (clientId) {
+                keyManager.markYouTubeAppFailed(clientId);
+            }
+
             return NextResponse.json({
                 error: 'YouTube Daily Upload Limit Reached',
-                message: 'You have reached your daily upload quota. This limit resets at midnight Pacific Time.',
+                message: 'This API project has reached its daily upload quota. Please select an account connected to a different Project, or wait until midnight PST for the reset.',
                 solutions: [
+                    'Use an account connected to a different Google Cloud Project',
                     'Wait 24 hours for quota to reset',
-                    'Verify your YouTube channel at youtube.com/verify to increase limit',
-                    'Download videos and upload manually through YouTube Studio',
-                    'Schedule uploads to spread them across multiple days'
+                    'Verify your YouTube channel to potentially increase limits',
                 ],
                 quotaInfo: {
-                    unverified: '6 videos per day',
-                    verified: '50-100 videos per day',
-                    resetTime: 'Midnight Pacific Time'
+                    limitReached: true,
+                    projectId: clientId?.substring(0, 8) + '...'
                 }
-            }, { status: 429 }); // 429 = Too Many Requests
+            }, { status: 429 });
         }
 
         return NextResponse.json({

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { multiAccountStorage } from '@/lib/token-storage';
 import { generateBulkMemes, MemeIdea } from '@/lib/ai-meme-generator';
-import { getOptimalUploadHour } from '@/lib/analytics-util';
 import { getAuthUser } from '@/lib/auth-util';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -18,16 +17,7 @@ export async function POST(request: NextRequest) {
         }
         const userId = user.id;
 
-        // 2. Get API key
-        const apiKey = process.env.GOOGLE_API_KEY;
-        if (!apiKey) {
-            return NextResponse.json(
-                { error: 'GOOGLE_API_KEY not configured' },
-                { status: 500 }
-            );
-        }
-
-        // 3. Get all accounts for this user
+        // 2. Get all accounts for this user
         const accounts = multiAccountStorage.getAllAccounts(userId);
         if (accounts.length === 0) {
             return NextResponse.json(
@@ -36,7 +26,7 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Load topics
+        // 3. Load topics
         const topicsFile = path.join(process.cwd(), 'topics.txt');
         let topics = ['coding', 'developer life', 'bugs', 'deployment', 'javascript'];
 
@@ -49,13 +39,20 @@ export async function POST(request: NextRequest) {
             if (splitTopics.length > 0) topics = splitTopics;
         }
 
-        const scheduledVideos = [];
-        const errors = [];
+        const scheduledVideos: any[] = [];
+        const errors: any[] = [];
 
-        for (const account of accounts) {
+        const { keyManager } = await import('@/lib/key-manager');
+
+        const accountPromises = accounts.map(async (account: any) => {
             try {
-                // Get optimal upload hour based on analytics
-                const optimalHour = getOptimalUploadHour(account.id, userId);
+                const rotatedApiKey = keyManager.getNextKey();
+                if (!rotatedApiKey) {
+                    throw new Error('No Gemini API key available');
+                }
+
+                // Default optimal hour
+                const optimalHour = 18;
 
                 // Pick random topic for this account
                 const topic = topics[Math.floor(Math.random() * topics.length)];
@@ -65,8 +62,9 @@ export async function POST(request: NextRequest) {
                     topic,
                     count: videosPerAccount,
                     includeAudio: true
-                }, apiKey);
+                }, rotatedApiKey);
 
+                const accountVideos = [];
                 // Schedule videos across multiple days at optimal time
                 for (let i = 0; i < ideas.length; i++) {
                     const scheduleDate = new Date();
@@ -78,7 +76,8 @@ export async function POST(request: NextRequest) {
                         scheduleDate.setDate(scheduleDate.getDate() + 1);
                     }
 
-                    scheduledVideos.push({
+                    accountVideos.push({
+                        id: `${account.id}-${Date.now()}-${i}`,
                         accountId: account.id,
                         accountName: account.channelName,
                         scheduledFor: scheduleDate.toISOString(),
@@ -86,12 +85,27 @@ export async function POST(request: NextRequest) {
                         status: 'PENDING_GENERATION'
                     });
                 }
+                return { videos: accountVideos, error: null };
 
             } catch (error: any) {
-                errors.push({
-                    account: account.channelName,
-                    error: error.message
-                });
+                return {
+                    videos: [],
+                    error: {
+                        account: account.channelName,
+                        error: error.message
+                    }
+                };
+            }
+        });
+
+        const results = await Promise.all(accountPromises);
+
+        for (const res of results) {
+            if (res.error) {
+                errors.push(res.error);
+            }
+            if (res.videos.length > 0) {
+                scheduledVideos.push(...res.videos);
             }
         }
 

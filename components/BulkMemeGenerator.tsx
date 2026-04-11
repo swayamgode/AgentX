@@ -96,9 +96,14 @@ export function BulkMemeGenerator() {
             // Step 1: Generate videos for each meme
             setSuccess(`Generating ${generatedMemes.length} videos...`);
 
-            const videosWithBlobs = [];
+            const videosWithBlobs: any[] = [];
+            const CONCURRENCY_LIMIT = 5;
+            let currentIdx = 0;
 
-            for (let i = 0; i < generatedMemes.length; i++) {
+            const processNextVideo = async (): Promise<void> => {
+                if (currentIdx >= generatedMemes.length) return;
+                
+                const i = currentIdx++;
                 const meme = generatedMemes[i];
 
                 try {
@@ -109,21 +114,32 @@ export function BulkMemeGenerator() {
                         blob: videoBlob,
                         scheduledFor: schedule[i],
                     });
-
-                    setSuccess(`Generated ${i + 1}/${generatedMemes.length} videos...`);
+                    setSuccess(`Generated ${videosWithBlobs.length}/${generatedMemes.length} videos...`);
                 } catch (err) {
                     console.error(`Failed to generate video ${i}:`, err);
                 }
-            }
+                
+                return processNextVideo();
+            };
+
+            const workers = Array(Math.min(CONCURRENCY_LIMIT, generatedMemes.length))
+                .fill(null)
+                .map(() => processNextVideo());
+            
+            await Promise.all(workers);
 
             // Step 2: Upload to YouTube
             setSuccess(`Uploading ${videosWithBlobs.length} videos to YouTube...`);
 
-            const uploadedVideos = [];
+            const uploadedVideos: string[] = [];
             let successCount = 0;
             let failCount = 0;
+            let uploadIdx = 0;
 
-            for (const item of videosWithBlobs) {
+            const processNextUpload = async (): Promise<void> => {
+                if (uploadIdx >= videosWithBlobs.length) return;
+
+                const item = videosWithBlobs[uploadIdx++];
                 const formData = new FormData();
                 formData.append('video', item.blob, `meme-${Date.now()}.webm`);
                 formData.append('title', item.meme.title);
@@ -149,7 +165,16 @@ export function BulkMemeGenerator() {
                     failCount++;
                     console.error('Upload network error', e);
                 }
-            }
+
+                return processNextUpload();
+            };
+
+            const UPLOAD_CONCURRENCY = 3;
+            const uploadWorkers = Array(Math.min(UPLOAD_CONCURRENCY, videosWithBlobs.length))
+                .fill(null)
+                .map(() => processNextUpload());
+
+            await Promise.all(uploadWorkers);
 
             setSuccess(`✅ Batch complete! ${successCount} uploaded, ${failCount} failed.`);
             setGeneratedMemes([]);

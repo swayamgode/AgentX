@@ -7,25 +7,7 @@ import { UnifiedMemeWorkflow } from "@/components/UnifiedMemeWorkflow";
 import { Sparkles, RefreshCw, Zap, Video, TrendingUp } from "lucide-react";
 
 export default function MemePage() {
-    const [isRefreshing, setIsRefreshing] = useState(false);
 
-    const refreshAnalytics = async () => {
-        setIsRefreshing(true);
-        try {
-            const res = await fetch('/api/youtube/analytics');
-            const data = await res.json();
-            if (data.success) {
-                alert(data.message);
-            } else {
-                // failures are expected if no videos or no account
-                console.log(data);
-            }
-        } catch (e) {
-            console.error("Failed to refresh analytics", e);
-        } finally {
-            setIsRefreshing(false);
-        }
-    };
 
     return (
         <div className="flex min-h-screen bg-[#F8F9FA]">
@@ -49,14 +31,7 @@ export default function MemePage() {
                                     </p>
                                 </div>
                             </div>
-                            <button
-                                onClick={refreshAnalytics}
-                                disabled={isRefreshing}
-                                className="flex items-center gap-2 px-5 py-2.5 bg-white border border-[#E9ECEF] hover:border-[#8B5CF6] rounded-xl text-sm font-bold text-[#1A1A1E] transition-all disabled:opacity-50 shadow-sm"
-                            >
-                                <RefreshCw size={16} className={isRefreshing ? "animate-spin" : ""} />
-                                {isRefreshing ? "Syncing..." : "Sync Data"}
-                            </button>
+
                         </div>
                     </div>
                 </div>

@@ -3,7 +3,8 @@ import { generateBulkMemes } from '@/lib/ai-meme-generator';
 
 export async function POST(request: NextRequest) {
     try {
-        const apiKey = process.env.GOOGLE_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
+        const { keyManager } = await import('@/lib/key-manager');
+        const apiKey = keyManager.getNextKey();
 
         if (!apiKey) {
             return NextResponse.json(

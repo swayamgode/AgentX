@@ -8,7 +8,10 @@ export async function GET(request: NextRequest) {
             return NextResponse.redirect(new URL('/login', request.url));
         }
 
-        const clientId = process.env.YOUTUBE_CLIENT_ID;
+        const { keyManager } = await import('@/lib/key-manager');
+        const app = keyManager.getNextYouTubeApp();
+        const clientId = app?.id || process.env.YOUTUBE_CLIENT_ID;
+
         const redirectUri = process.env.YOUTUBE_REDIRECT_URI?.includes('localhost') 
             ? `${request.nextUrl.origin}/api/youtube/callback` 
             : (process.env.YOUTUBE_REDIRECT_URI || `${request.nextUrl.origin}/api/youtube/callback`);
@@ -20,11 +23,12 @@ export async function GET(request: NextRequest) {
             );
         }
 
-        // YouTube OAuth scopes
+        // --- Auth Scopes ---
         const scopes = [
             'https://www.googleapis.com/auth/youtube.upload',
             'https://www.googleapis.com/auth/youtube',
-            'https://www.googleapis.com/auth/userinfo.profile'
+            'https://www.googleapis.com/auth/userinfo.profile',
+            'https://www.googleapis.com/auth/youtube.readonly'
         ];
 
         // Build OAuth URL
@@ -35,6 +39,9 @@ export async function GET(request: NextRequest) {
         authUrl.searchParams.set('scope', scopes.join(' '));
         authUrl.searchParams.set('access_type', 'offline');
         authUrl.searchParams.set('prompt', 'consent');
+        
+        // Pass the clientId in the state so the callback knows which app was used
+        authUrl.searchParams.set('state', clientId);
 
         return NextResponse.redirect(authUrl.toString());
     } catch (error) {

@@ -1,7 +1,6 @@
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { MEME_TEMPLATES } from "@/lib/memes";
-import { analyticsStorage } from "@/lib/analytics-storage";
 import { getAuthUser } from "@/lib/auth-util";
 
 // Ensure API Key exists
@@ -41,13 +40,7 @@ export async function POST(req: Request) {
             }
         }
 
-        // Get high performing memes for context
-        const user = await getAuthUser();
-        const userId = user?.id || "dev-id-001";
-        const topMemes = analyticsStorage.getTopPerforming(userId, 3);
-        const performanceContext = topMemes.length > 0
-            ? `\n\n### SUCCESSFUL MEMES (Replicate their energy):\n${topMemes.map(m => `- Topic: ${m.topic} | Text: ${JSON.stringify(m.texts)}`).join('\n')}\n`
-            : "";
+        const performanceContext = "";
 
         const personaPrompts: Record<string, string> = {
             "default": "relatable, witty, and viral",
