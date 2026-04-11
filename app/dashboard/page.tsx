@@ -5,7 +5,7 @@ import { LeftSidebar } from "@/components/LeftSidebar";
 import { MobileNav } from "@/components/MobileNav";
 import { Rocket, Sparkles, Smile, Upload, Activity } from "lucide-react";
 import Link from "next/link";
-import { useAuthActions } from "@convex-dev/auth/react";
+
 
 export default function DashboardPage() {
   const [schedulerStatus, setSchedulerStatus] = useState<any>(null);

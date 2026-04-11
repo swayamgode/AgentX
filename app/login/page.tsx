@@ -19,7 +19,9 @@ import {
 import Link from "next/link";
 
 export default function LoginPage() {
-  const { signIn } = useAuthActions();
+  const authActions = useAuthActions();
+  const signIn = authActions?.signIn;
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -33,6 +35,7 @@ export default function LoginPage() {
     setError(null);
 
     try {
+      if (!signIn) throw new Error("Authentication not available");
       if (isSignUp) {
         await signIn("password", { email, password, name, flow: "signUp" });
       } else {

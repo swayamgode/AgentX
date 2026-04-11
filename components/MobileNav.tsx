@@ -7,7 +7,9 @@ import { useAuthActions } from "@convex-dev/auth/react";
 
 export function MobileNav() {
     const pathname = usePathname();
-    const { signOut } = useAuthActions();
+    const authActions = useAuthActions();
+    const signOut = authActions?.signOut;
+
 
     const navItems = [
         { icon: Home, label: "Home", href: "/dashboard" },
@@ -37,8 +39,9 @@ export function MobileNav() {
                     )
                 })}
                 <button
-                    onClick={() => void signOut()}
-                    className="flex flex-col items-center gap-1 p-2 transition-all text-rose-500/60 hover:text-rose-500"
+                    onClick={() => signOut?.()}
+                    disabled={!signOut}
+                    className="flex flex-col items-center gap-1 p-2 transition-all text-white/40 hover:text-white disabled:opacity-20"
                 >
                     <div className="p-1.5 rounded-lg transition-all">
                         <LogOut size={18} strokeWidth={2} />

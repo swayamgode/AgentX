@@ -7,7 +7,9 @@ import { useAuthActions } from "@convex-dev/auth/react";
 
 export function LeftSidebar() {
     const pathname = usePathname();
-    const { signOut } = useAuthActions();
+    const authActions = useAuthActions();
+    const signOut = authActions?.signOut;
+
 
     const navItems = [
         { icon: Home, label: "Dashboard", href: "/dashboard" },
@@ -61,7 +63,11 @@ export function LeftSidebar() {
                 <Link href="/settings" className="w-10 h-10 rounded-lg flex items-center justify-center text-white/40 hover:text-white transition-all">
                     <Settings size={20} />
                 </Link>
-                <button onClick={() => void signOut()} className="w-10 h-10 rounded-lg flex items-center justify-center text-rose-500/60 hover:text-rose-500 hover:bg-rose-500/10 transition-all">
+                <button 
+                    onClick={() => signOut?.()} 
+                    disabled={!signOut}
+                    className="w-10 h-10 rounded-lg flex items-center justify-center text-white/40 hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
                     <LogOut size={18} />
                 </button>
             </div>
