@@ -59,3 +59,7 @@ available-models.txt
 # Project Specific
 topics.txt
 available-models.txt
+
+# Analytics Data
+yt-analytics/data/
+yt-analytics/tokens/
