@@ -153,6 +153,25 @@ class KeyManager {
         console.warn(`[KeyManager] YouTube App marked as FAILED: ${id.substring(0, 10)}...`);
     }
 
+    public markKeyInvalid(key: string) {
+        if (!key) return;
+        this.invalidKeys.add(key);
+        console.warn(`[KeyManager] Gemini Key marked as PERMANENTLY INVALID: ${key.substring(0, 8)}...`);
+    }
+
+    public markYouTubeApiKeyInvalid(key: string) {
+        if (!key) return;
+        this.invalidYouTubeApiKeys.add(key);
+        console.warn(`[KeyManager] YouTube API Key marked as PERMANENTLY INVALID: ${key.substring(0, 8)}...`);
+    }
+
+    public markYouTubeAppInvalid(id: string) {
+        if (!id) return;
+        this.invalidYouTubeApps.add(id);
+        console.warn(`[KeyManager] YouTube App marked as PERMANENTLY INVALID: ${id.substring(0, 10)}...`);
+    }
+
+
     public isYouTubeAppFailed(id: string): boolean {
         if (!id) return false;
         const failedAt = this.failedYouTubeApps.get(id);
