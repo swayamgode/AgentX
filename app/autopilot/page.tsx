@@ -663,6 +663,7 @@ export default function AutoPilotPage() {
     const [isRunningAll, setIsRunningAll] = useState(false);
     const [activeTab, setActiveTab] = useState<'groups' | 'global'>('groups');
     const [isLoadingGroups, setIsLoadingGroups] = useState(true);
+    const [isTerminalFullScreen, setIsTerminalFullScreen] = useState(false);
 
     // Global Concurrency Control
     const activeRenders = useRef(0);
@@ -1224,9 +1225,18 @@ export default function AutoPilotPage() {
                                     <div className="flex items-center gap-1.5 mb-3">
                                         <Terminal className="text-[#1d1d1f]" size={14} />
                                         <h2 className="text-xs font-bold text-[#1d1d1f] uppercase tracking-wider">System Logs</h2>
-                                        {batchLogs.length > 0 && (
-                                            <button onClick={() => setBatchLogs([])} className="ml-auto text-[10px] text-[#86868b] hover:text-red-500 transition-colors">Clear</button>
-                                        )}
+                                        <div className="ml-auto flex items-center gap-3">
+                                            {batchLogs.length > 0 && (
+                                                <button onClick={() => setBatchLogs([])} className="text-[10px] text-[#86868b] hover:text-red-500 transition-colors">Clear</button>
+                                            )}
+                                            <button 
+                                                onClick={() => setIsTerminalFullScreen(true)}
+                                                className="p-1 hover:bg-[#F5F5F7] rounded-md text-[#86868b] hover:text-[#1d1d1f] transition-all"
+                                                title="Full Screen Terminal"
+                                            >
+                                                <Plus size={14} />
+                                            </button>
+                                        </div>
                                     </div>
                                     {batchLogs.length > 0 ? (
                                         <div className="bg-[#111] border border-[#333] rounded-lg p-3 font-mono text-[10px] h-[400px] overflow-y-auto shadow-inner">
@@ -1439,6 +1449,85 @@ export default function AutoPilotPage() {
                                         </div>
                                     )}
                                 </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* ── FULL SCREEN TERMINAL OVERLAY ── */}
+                    {isTerminalFullScreen && (
+                        <div className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-xl flex flex-col animate-in fade-in duration-300">
+                            {/* Header */}
+                            <div className="p-4 md:p-6 border-b border-white/10 flex items-center justify-between bg-black/20">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-indigo-500/20 rounded-lg">
+                                        <Terminal className="w-5 h-5 text-indigo-400" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-white font-bold text-base md:text-lg">AgentX Engine v2.0</h3>
+                                        <p className="text-[10px] text-white/40 uppercase tracking-widest font-bold">Auto-Pilot Active Session</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2 md:gap-4">
+                                    <button 
+                                        onClick={() => setBatchLogs([])}
+                                        className="px-3 py-1.5 rounded-lg border border-white/10 text-white/60 hover:text-white text-xs font-bold transition-all"
+                                    >
+                                        CLEAR
+                                    </button>
+                                    <button 
+                                        onClick={() => setIsTerminalFullScreen(false)}
+                                        className="p-2 bg-white/5 hover:bg-white/10 rounded-xl text-white transition-all shadow-lg"
+                                    >
+                                        <X size={24} />
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Logs content */}
+                            <div className="flex-1 overflow-y-auto p-4 md:p-8 font-mono text-xs md:text-sm custom-scrollbar bg-black/40">
+                                <div className="max-w-4xl mx-auto space-y-1.5 md:space-y-2">
+                                    {batchLogs.length === 0 ? (
+                                        <div className="h-full flex flex-col items-center justify-center text-white/20 py-20">
+                                            <Terminal size={48} className="mb-4 opacity-10" />
+                                            <p className="font-bold tracking-tighter uppercase">Waiting for activity...</p>
+                                        </div>
+                                    ) : (
+                                        batchLogs.map((log, i) => {
+                                            const isSuccess = log.includes("✅");
+                                            const isError = log.includes("❌") || log.includes("⚠️") || log.includes("CRITICAL");
+                                            const isSummary = log.includes("✨");
+                                            const isStarting = log.includes("🚀");
+
+                                            return (
+                                                <div 
+                                                    key={i} 
+                                                    className={`
+                                                        py-1 border-b border-white/5 transition-colors
+                                                        ${isSuccess ? 'text-emerald-400' : 
+                                                          isError ? 'text-rose-400' : 
+                                                          isSummary ? 'text-indigo-400 font-bold text-base py-4 border-white/10' : 
+                                                          isStarting ? 'text-amber-400 font-bold' :
+                                                          'text-white/70'}
+                                                    `}
+                                                >
+                                                    {log}
+                                                </div>
+                                            );
+                                        })
+                                    )}
+                                    <div ref={logsEndRef} />
+                                </div>
+                            </div>
+                            
+                            {/* Footer Status */}
+                            <div className="p-4 bg-black border-t border-white/10 flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                                    <span className="text-[10px] text-white/40 uppercase font-black tracking-widest">Network Secure</span>
+                                </div>
+                                <span className="text-[10px] text-white/20 font-mono">
+                                    SESSION_ID: {Math.random().toString(36).substring(7).toUpperCase()}
+                                </span>
                             </div>
                         </div>
                     )}
