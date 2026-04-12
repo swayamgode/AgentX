@@ -103,7 +103,7 @@ export async function GET(request: NextRequest) {
 
         return NextResponse.redirect(new URL('/settings?success=youtube_connected', request.url));
     } catch (error: any) {
-        console.error('YouTube callback error:', error);
-        return NextResponse.redirect(new URL(`/settings?error=auth_failed&msg=${encodeURIComponent(error.message || '')}`, request.url));
+        console.error('YouTube callback error details:', error);
+        return NextResponse.redirect(new URL(`/settings?error=auth_failed&msg=${encodeURIComponent(error.message || 'Unknown error')}`, request.url));
     }
 }

@@ -34,7 +34,8 @@ export default function SettingsPage() {
                 'no_channel': 'No YouTube channel found on this account.',
                 'auth_failed': 'Failed to connect YouTube account.',
             };
-            setMessage({ type: 'error', text: errorMap[error] || 'An unknown error occurred.' });
+            const msg = params.get('msg');
+            setMessage({ type: 'error', text: `${errorMap[error] || 'An unknown error occurred.'}${msg ? ' (' + msg + ')' : ''}` });
             window.history.replaceState({}, '', '/settings');
         }
     }, []);
