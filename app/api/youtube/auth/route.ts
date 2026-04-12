@@ -12,7 +12,11 @@ export async function GET(request: NextRequest) {
         const app = keyManager.getNextYouTubeApp();
         const clientId = app?.id || process.env.YOUTUBE_CLIENT_ID;
 
-        const redirectUri = process.env.YOUTUBE_REDIRECT_URI || `${request.nextUrl.origin}/api/youtube/callback`;
+        const origin = request.nextUrl.origin;
+        const envRedirect = process.env.YOUTUBE_REDIRECT_URI;
+        const redirectUri = (envRedirect && !envRedirect.includes('localhost')) 
+            ? envRedirect 
+            : `${origin}/api/youtube/callback`;
 
         if (!clientId) {
             return NextResponse.json(
