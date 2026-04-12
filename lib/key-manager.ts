@@ -119,20 +119,7 @@ class KeyManager {
      */
     public getNextYouTubeApp(): { id: string, secret: string } | null {
         if (this.youtubeApps.length === 0) return null;
-        
-        const now = Date.now();
-        for (let i = 0; i < this.youtubeApps.length; i++) {
-            const app = this.youtubeApps[this.youtubeIndex];
-            this.youtubeIndex = (this.youtubeIndex + 1) % this.youtubeApps.length;
-
-            if (this.invalidYouTubeApps.has(app.id)) continue;
-
-            const failedAt = this.failedYouTubeApps.get(app.id);
-            if (!failedAt || now - failedAt > this.REFRESH_TIMEOUT) {
-                this.failedYouTubeApps.delete(app.id);
-                return app;
-            }
-        }
+        // Disable rotation for now to fix redirect_uri_mismatch issues across multiple apps
         return this.youtubeApps[0];
     }
 
