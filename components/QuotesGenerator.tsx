@@ -79,6 +79,7 @@ export function QuotesGenerator() {
     const [autoPilotBackgroundType, setAutoPilotBackgroundType] = useState<'random' | 'gradient' | 'image'>('random');
     const [autoPilotTextAlign, setAutoPilotTextAlign] = useState<'random' | 'left' | 'center' | 'right'>('random');
     const [showAutoPilotSettings, setShowAutoPilotSettings] = useState(false);
+    const [isTerminalFullScreen, setIsTerminalFullScreen] = useState(false);
 
     useEffect(() => {
         if (logsEndRef.current) {
@@ -1699,8 +1700,11 @@ export function QuotesGenerator() {
             }
             {/* --- AUTO-PILOT OVERLAY --- */}
             {isBatchRunning && (
-                <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 md:p-8">
-                    <div className="bg-[#1c1c1e] border border-white/10 w-full max-w-5xl h-[85vh] rounded-3xl overflow-hidden flex flex-col md:flex-row shadow-2xl">
+                <div className={`fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center ${isTerminalFullScreen ? 'p-0' : 'p-4 md:p-8'}`}>
+                    <div className={`bg-[#1c1c1e] border border-white/10 w-full overflow-hidden flex flex-col ${isTerminalFullScreen ? 'sm:flex-row' : 'md:flex-row'} shadow-2xl transition-all duration-300 ${isTerminalFullScreen 
+                        ? 'h-full max-w-none rounded-none' 
+                        : 'max-w-5xl h-[85vh] rounded-3xl'
+                    }`}>
 
                         {/* Left: Live Render Feed */}
                         <div className="w-full md:w-2/5 bg-black flex flex-col items-center justify-center p-6 border-r border-white/10">
@@ -1744,8 +1748,15 @@ export function QuotesGenerator() {
                                 </div>
                                 <div className="flex items-center gap-4">
                                     <button
+                                        onClick={() => setIsTerminalFullScreen(!isTerminalFullScreen)}
+                                        className="p-2 hover:bg-white/5 rounded-lg text-white/60 hover:text-white transition-all"
+                                        title={isTerminalFullScreen ? "Exit Full Screen" : "Full Screen"}
+                                    >
+                                        {isTerminalFullScreen ? <Minus size={18} /> : <Plus size={18} />}
+                                    </button>
+                                    <button
                                         onClick={() => { if (confirm("Stop Auto-Pilot?")) { setIsBatchRunning(false); alert("Auto-Pilot will stop after current video."); } }}
-                                        className="text-xs text-white/40 hover:text-red-400 transition-colors"
+                                        className="text-xs text-white/40 hover:text-red-400 transition-colors font-bold tracking-tighter"
                                     >
                                         FORCE STOP
                                     </button>
