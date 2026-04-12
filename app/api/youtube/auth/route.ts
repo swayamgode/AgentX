@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
 
         if (!clientId || !process.env.YOUTUBE_CLIENT_SECRET) {
             console.error('[YouTube Auth] Missing Client ID or Client Secret');
-            return NextResponse.redirect(new URL(`/settings?error=auth_failed&msg=${encodeURIComponent('Missing YouTube API credentials. Using: ' + redirectUri)}`, request.url));
+            return NextResponse.redirect(new URL(`/settings?error=auth_failed&msg=${encodeURIComponent(`Missing API credentials. ID: ${clientId?.substring(0, 10)}... Link: ${redirectUri}`)}`, request.url));
         }
 
         // --- Auth Scopes ---

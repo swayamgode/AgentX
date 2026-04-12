@@ -37,15 +37,14 @@ export async function GET(request: NextRequest) {
             }
         }
 
-        if (!clientId || !clientSecret) {
-            console.error('[YouTube Callback] Missing Client ID or Client Secret');
-            return NextResponse.redirect(new URL('/settings?error=auth_failed&msg=Missing%20YouTube%20API%20credentials', request.url));
+        if (!clientId || !process.env.YOUTUBE_CLIENT_SECRET) {
+            console.error('[YouTube Auth] Missing Client ID or Client Secret');
+            return NextResponse.redirect(new URL(`/settings?error=auth_failed&msg=${encodeURIComponent(`Missing API credentials. ID: ${clientId?.substring(0, 10)}... Link: ${redirectUri}`)}`, request.url));
         }
 
         const oauth2Client = new google.auth.OAuth2(
             clientId,
             clientSecret,
-            request.nextUrl.origin.includes('localhost')
                 ? `${request.nextUrl.origin}/api/youtube/callback`
                 : request.nextUrl.origin.replace('http://', 'https://') + '/api/youtube/callback'
         );
@@ -103,8 +102,12 @@ export async function GET(request: NextRequest) {
 
         return NextResponse.redirect(new URL('/settings?success=youtube_connected', request.url));
     } catch (error: any) {
-        const redirectUri = `${request.nextUrl.origin}/api/youtube/callback`;
+        const origin = request.nextUrl.origin;
+        const redirectUri = origin.includes('localhost') 
+            ? `${origin}/api/youtube/callback` 
+            : origin.replace('http://', 'https://') + '/api/youtube/callback';
+            
         console.error('YouTube callback error details:', error);
-        return NextResponse.redirect(new URL(`/settings?error=auth_failed&msg=${encodeURIComponent(`${error.message || 'Unknown error'} (Expected Redirect URI: ${redirectUri})`)}`, request.url));
+        return NextResponse.redirect(new URL(`/settings?error=auth_failed&msg=${encodeURIComponent(`${error.message || 'Unknown error'} (Link: ${redirectUri})`)}`, request.url));
     }
 }
