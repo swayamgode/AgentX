@@ -45,7 +45,9 @@ export async function GET(request: NextRequest) {
         const oauth2Client = new google.auth.OAuth2(
             clientId,
             clientSecret,
-            `${request.nextUrl.origin}/api/youtube/callback`
+            request.nextUrl.origin.includes('localhost')
+                ? `${request.nextUrl.origin}/api/youtube/callback`
+                : request.nextUrl.origin.replace('http://', 'https://') + '/api/youtube/callback'
         );
 
         // Exchange code for tokens

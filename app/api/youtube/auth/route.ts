@@ -9,9 +9,13 @@ export async function GET(request: NextRequest) {
         }
 
         const { keyManager } = await import('@/lib/key-manager');
+        const origin = request.nextUrl.origin;
+        const redirectUri = origin.includes('localhost') 
+            ? `${origin}/api/youtube/callback` 
+            : origin.replace('http://', 'https://') + '/api/youtube/callback';
+
         const app = keyManager.getNextYouTubeApp();
         const clientId = app?.id || process.env.YOUTUBE_CLIENT_ID;
-        const redirectUri = `${request.nextUrl.origin}/api/youtube/callback`;
 
         if (!clientId || !process.env.YOUTUBE_CLIENT_SECRET) {
             console.error('[YouTube Auth] Missing Client ID or Client Secret');
