@@ -30,7 +30,16 @@ export async function GET(request: NextRequest) {
             if (matchingApp) {
                 clientId = matchingApp.id;
                 clientSecret = matchingApp.secret;
+            } else if (stateClientId === process.env.YOUTUBE_CLIENT_ID) {
+                // It's the primary app, secret is already set
+            } else {
+                console.warn(`[YouTube Callback] Received state with clientId ${stateClientId} but no matching secret found in keyManager.`);
             }
+        }
+
+        if (!clientId || !clientSecret) {
+            console.error('[YouTube Callback] Missing Client ID or Client Secret');
+            return NextResponse.redirect(new URL('/settings?error=auth_failed&msg=Missing%20YouTube%20API%20credentials', request.url));
         }
 
         const oauth2Client = new google.auth.OAuth2(

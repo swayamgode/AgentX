@@ -1,11 +1,28 @@
 import fs from 'fs';
 import path from 'path';
 
-const BASE_PATH = path.join(process.cwd(), '.users');
+let BASE_PATH = path.join(process.cwd(), '.users');
 
-if (!fs.existsSync(BASE_PATH)) {
-    fs.mkdirSync(BASE_PATH, { recursive: true });
+function ensureDirectoryExists() {
+    try {
+        if (!fs.existsSync(BASE_PATH)) {
+            fs.mkdirSync(BASE_PATH, { recursive: true });
+        }
+    } catch (error) {
+        if (process.env.NODE_ENV === 'production' || (error as any).code === 'EROFS') {
+            const fallbackPath = path.join('/tmp', '.users');
+            try {
+                if (!fs.existsSync(fallbackPath)) {
+                    fs.mkdirSync(fallbackPath, { recursive: true });
+                }
+                BASE_PATH = fallbackPath;
+            } catch (e) {}
+        }
+    }
 }
+
+// Initialize directory
+ensureDirectoryExists();
 
 function getUserAccountFile(userId: string) {
     return path.join(BASE_PATH, `${userId}-accounts.json`);
