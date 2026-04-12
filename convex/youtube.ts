@@ -77,7 +77,7 @@ export const removeAccount = mutation({
     args: { userId: v.string(), accountId: v.string() }, // accountId is the Convex ID
     handler: async (ctx, args) => {
         const account = await ctx.db.get(args.accountId as any);
-        if (account && account.userId === args.userId) {
+        if (account && "userId" in account && account.userId === args.userId) {
             await ctx.db.delete(account._id);
             return true;
         }
@@ -160,7 +160,7 @@ export const deleteGroup = mutation({
     args: { userId: v.string(), groupId: v.string() },
     handler: async (ctx, args) => {
         const group = await ctx.db.get(args.groupId as any);
-        if (group && group.userId === args.userId) {
+        if (group && "userId" in group && group.userId === args.userId) {
             await ctx.db.delete(group._id);
             return true;
         }
