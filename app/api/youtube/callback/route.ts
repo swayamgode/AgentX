@@ -45,8 +45,7 @@ export async function GET(request: NextRequest) {
         const oauth2Client = new google.auth.OAuth2(
             clientId,
             clientSecret,
-                ? `${request.nextUrl.origin}/api/youtube/callback`
-                : request.nextUrl.origin.replace('http://', 'https://') + '/api/youtube/callback'
+            process.env.YOUTUBE_REDIRECT_URI || `${request.nextUrl.origin}/api/youtube/callback`
         );
 
         // Exchange code for tokens
@@ -103,9 +102,7 @@ export async function GET(request: NextRequest) {
         return NextResponse.redirect(new URL('/settings?success=youtube_connected', request.url));
     } catch (error: any) {
         const origin = request.nextUrl.origin;
-        const redirectUri = origin.includes('localhost') 
-            ? `${origin}/api/youtube/callback` 
-            : origin.replace('http://', 'https://') + '/api/youtube/callback';
+        const redirectUri = process.env.YOUTUBE_REDIRECT_URI || `${origin}/api/youtube/callback`;
             
         console.error('YouTube callback error details:', error);
         return NextResponse.redirect(new URL(`/settings?error=auth_failed&msg=${encodeURIComponent(`${error.message || 'Unknown error'} (Link: ${redirectUri})`)}`, request.url));

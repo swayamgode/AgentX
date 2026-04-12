@@ -10,11 +10,9 @@ export async function GET(request: NextRequest) {
 
         const { keyManager } = await import('@/lib/key-manager');
         const origin = request.nextUrl.origin;
-        const redirectUri = origin.includes('localhost') 
-            ? `${origin}/api/youtube/callback` 
-            : origin.replace('http://', 'https://') + '/api/youtube/callback';
+        const redirectUri = process.env.YOUTUBE_REDIRECT_URI || `${origin}/api/youtube/callback`;
 
-        const app = keyManager.getNextYouTubeApp();
+        const app = keyManager.getAllYouTubeApps()[0]; // Consistently use first app for now
         const clientId = app?.id || process.env.YOUTUBE_CLIENT_ID;
 
         if (!clientId || !process.env.YOUTUBE_CLIENT_SECRET) {
