@@ -6,7 +6,7 @@ export async function GET(req: NextRequest) {
     try {
         const user = await getAuthUser();
         const userId = user?.id || 'dev-id-001';
-        const youtubeTokens = tokenStorage.load(userId);
+        const youtubeTokens = await tokenStorage.load(userId);
         const isYoutubeConnected = !!(youtubeTokens && youtubeTokens.access_token);
 
         const instagramToken = req.cookies.get('instagram_access_token')?.value;

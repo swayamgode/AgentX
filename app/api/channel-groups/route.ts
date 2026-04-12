@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import { getAuthUser } from '@/lib/auth-util';
 
 export interface ChannelGroupTheme {
     bgColor: string;
@@ -18,93 +17,102 @@ export interface ChannelGroupTheme {
 export interface ChannelGroup {
     id: string;
     name: string;
-    channelIds: string[];    // account ids from /api/youtube/accounts
+    channelIds: string[];    // account ids from Convex
     theme: ChannelGroupTheme;
     createdAt: string;
     updatedAt: string;
 }
 
-const DATA_PATH = path.join(process.cwd(), 'data', 'channel-groups.json');
-
-function readGroups(): ChannelGroup[] {
-    try {
-        if (!fs.existsSync(DATA_PATH)) return [];
-        return JSON.parse(fs.readFileSync(DATA_PATH, 'utf-8'));
-    } catch {
-        return [];
-    }
-}
-
-function writeGroups(groups: ChannelGroup[]) {
-    const dir = path.dirname(DATA_PATH);
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(DATA_PATH, JSON.stringify(groups, null, 2));
-}
-
 // GET /api/channel-groups
 export async function GET() {
-    return NextResponse.json({ groups: readGroups() });
+    const user = await getAuthUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const { ConvexHttpClient } = await import('convex/browser');
+    const { api } = await import('@/convex/_generated/api');
+    const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+
+    const groups = await convex.query(api.youtube.listGroups, { userId: user.id });
+    
+    return NextResponse.json({ 
+        groups: groups.map(g => ({
+            ...g,
+            id: g._id, // Map Convex ID to 'id' for frontend compatibility
+        })) 
+    });
 }
 
 // POST /api/channel-groups  — create new group
 export async function POST(request: NextRequest) {
+    const user = await getAuthUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
     const body = await request.json();
-    const groups = readGroups();
+    const { ConvexHttpClient } = await import('convex/browser');
+    const { api } = await import('@/convex/_generated/api');
+    const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
-    const newGroup: ChannelGroup = {
-        id: `grp_${Date.now()}`,
-        name: body.name || 'Unnamed Group',
-        channelIds: body.channelIds || [],
-        theme: {
-            bgColor: body.theme?.bgColor || '#000000',
-            bgColor2: body.theme?.bgColor2 || '#1a1a1a',
-            textColor: body.theme?.textColor || '#ffffff',
-            fontSizeScale: body.theme?.fontSizeScale ?? 0.5,
-            backgroundType: body.theme?.backgroundType || 'gradient',
-            textAlign: body.theme?.textAlign || 'center',
-            topics: body.theme?.topics || [],
-            style: body.theme?.style || 'random',
-            generationsPerChannel: body.theme?.generationsPerChannel ?? 5,
-            geminiKey: body.theme?.geminiKey || '',
-        },
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-    };
+    const groupId = await convex.mutation(api.youtube.saveGroup, {
+        userId: user.id,
+        group: {
+            name: body.name || 'Unnamed Group',
+            channelIds: body.channelIds || [],
+            theme: {
+                bgColor: body.theme?.bgColor || '#000000',
+                bgColor2: body.theme?.bgColor2 || '#1a1a1a',
+                textColor: body.theme?.textColor || '#ffffff',
+                fontSizeScale: body.theme?.fontSizeScale ?? 0.5,
+                backgroundType: body.theme?.backgroundType || 'gradient',
+                textAlign: body.theme?.textAlign || 'center',
+                topics: body.theme?.topics || [],
+                style: body.theme?.style || 'random',
+                generationsPerChannel: body.theme?.generationsPerChannel ?? 5,
+                geminiKey: body.theme?.geminiKey || '',
+            }
+        }
+    });
 
-    groups.push(newGroup);
-    writeGroups(groups);
-
-    return NextResponse.json({ group: newGroup });
+    return NextResponse.json({ group: { id: groupId } });
 }
 
 // PUT /api/channel-groups  — update existing group
 export async function PUT(request: NextRequest) {
+    const user = await getAuthUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
     const body = await request.json();
-    const groups = readGroups();
-    const idx = groups.findIndex(g => g.id === body.id);
+    const { ConvexHttpClient } = await import('convex/browser');
+    const { api } = await import('@/convex/_generated/api');
+    const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
-    if (idx === -1) {
-        return NextResponse.json({ error: 'Group not found' }, { status: 404 });
-    }
+    await convex.mutation(api.youtube.saveGroup, {
+        userId: user.id,
+        group: {
+            ...body,
+            id: body.id
+        }
+    });
 
-    groups[idx] = {
-        ...groups[idx],
-        ...body,
-        theme: { ...groups[idx].theme, ...(body.theme || {}) },
-        updatedAt: new Date().toISOString(),
-    };
-
-    writeGroups(groups);
-    return NextResponse.json({ group: groups[idx] });
+    return NextResponse.json({ success: true });
 }
 
 // DELETE /api/channel-groups?id=grp_xxx
 export async function DELETE(request: NextRequest) {
+    const user = await getAuthUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
     if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 });
 
-    const groups = readGroups().filter(g => g.id !== id);
-    writeGroups(groups);
+    const { ConvexHttpClient } = await import('convex/browser');
+    const { api } = await import('@/convex/_generated/api');
+    const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+
+    await convex.mutation(api.youtube.deleteGroup, {
+        userId: user.id,
+        groupId: id
+    });
+
     return NextResponse.json({ success: true });
 }

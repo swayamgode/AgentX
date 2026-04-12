@@ -1,6 +1,14 @@
-import { NextResponse } from 'next/server';
+import { getAuthUserId } from "@convex-dev/auth/nextjs/server";
 
 export async function getAuthUser() {
+    try {
+        const userId = await getAuthUserId();
+        if (userId) return { id: userId };
+    } catch (e) {
+        console.warn("Auth check failed, using dev-id", e);
+    }
+    
+    // Fallback for development/testing
     return { id: "dev-id-001" };
 }
 

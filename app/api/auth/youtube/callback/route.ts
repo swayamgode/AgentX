@@ -91,12 +91,12 @@ export async function GET(request: NextRequest) {
         const userId = user.id;
 
         // 4. Check if account already exists
-        const allAccounts = multiAccountStorage.getAllAccounts(userId);
+        const allAccounts = await multiAccountStorage.getAllAccounts(userId);
         const existingAccount = allAccounts.find(acc => acc.channelId === channelId);
 
         if (existingAccount) {
             // Update existing account
-            multiAccountStorage.updateAccount(userId, existingAccount.id, {
+            await multiAccountStorage.updateAccount(userId, existingAccount.id, {
                 channelName,
                 email, // Update email in case it changed
                 thumbnailUrl,
@@ -107,11 +107,11 @@ export async function GET(request: NextRequest) {
             });
             // Ensure we update the refresh token if provided
             if (tokens.refresh_token) {
-                multiAccountStorage.updateTokens(userId, existingAccount.id, { refresh_token: tokens.refresh_token });
+                await multiAccountStorage.updateTokens(userId, existingAccount.id, { refresh_token: tokens.refresh_token });
             }
         } else {
             // Add new account
-            multiAccountStorage.addAccount(userId, {
+            await multiAccountStorage.addAccount(userId, {
                 channelName,
                 channelId,
                 email,

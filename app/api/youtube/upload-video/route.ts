@@ -31,13 +31,13 @@ export async function POST(request: NextRequest) {
 
 
         if (accountId) {
-            account = multiAccountStorage.getAccount(userId, accountId);
+            account = await multiAccountStorage.getAccount(userId, accountId);
             if (!account) {
                 return NextResponse.json({ error: 'Account not found' }, { status: 404 });
             }
         } else {
             // Use active account if no accountId specified
-            account = multiAccountStorage.getActiveAccount(userId);
+            account = await multiAccountStorage.getActiveAccount(userId);
             if (!account) {
                 return NextResponse.json({ error: 'No YouTube account connected' }, { status: 401 });
             }
@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
         if (tokens.expiry_date && tokens.expiry_date < Date.now() && tokens.refresh_token) {
             try {
                 const { credentials } = await oauth2Client.refreshAccessToken();
-                multiAccountStorage.updateTokens(userId, account.id, {
+                await multiAccountStorage.updateTokens(userId, account.id, {
                     access_token: credentials.access_token!,
                     refresh_token: credentials.refresh_token || tokens.refresh_token,
                     expiry_date: credentials.expiry_date || undefined
@@ -137,7 +137,7 @@ export async function POST(request: NextRequest) {
                     const { credentials } = await oauth2Client.refreshAccessToken();
 
                     // Update tokens in account storage
-                    multiAccountStorage.updateTokens(userId, account.id, {
+                    await multiAccountStorage.updateTokens(userId, account.id, {
                         access_token: credentials.access_token!,
                         refresh_token: credentials.refresh_token || tokens.refresh_token,
                         expiry_date: credentials.expiry_date || undefined

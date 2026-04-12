@@ -82,8 +82,7 @@ export async function GET(request: NextRequest) {
 
         const userId = user.id;
 
-        // Add account to storage with the specific app credentials used
-        const newAccount = multiAccountStorage.addAccount(userId, {
+        await multiAccountStorage.addAccount(userId, {
             channelName,
             channelId,
             email,
@@ -100,7 +99,7 @@ export async function GET(request: NextRequest) {
             }
         });
 
-        console.log('✅ YouTube account connected:', channelName);
+        console.log('✅ YouTube account connected and synced to Convex:', channelName);
 
         return NextResponse.redirect(new URL('/settings?success=youtube_connected', request.url));
     } catch (error: any) {

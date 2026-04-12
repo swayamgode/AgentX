@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
         const userId = user.id;
 
         // 2. Get all accounts for this user
-        const accounts = multiAccountStorage.getAllAccounts(userId);
+        const accounts = await multiAccountStorage.getAllAccounts(userId);
         if (accounts.length === 0) {
             return NextResponse.json(
                 { error: 'No YouTube accounts connected' },

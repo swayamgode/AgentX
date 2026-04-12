@@ -13,12 +13,8 @@ export interface CompetitorVideo {
 }
 
 export class CompetitorAnalyzer {
-    private youtube;
-
-    constructor() {
-        // We use the active account's credentials to make these public API calls
-        // This avoids needing a separate API Key if we already have OAuth
-        const account = multiAccountStorage.getActiveAccount('dev-id-001');
+    private async getClient(userId: string = 'dev-id-001') {
+        const account = await multiAccountStorage.getActiveAccount(userId);
         if (account && account.tokens) {
             const oauth2Client = new google.auth.OAuth2(
                 process.env.YOUTUBE_CLIENT_ID,
@@ -26,24 +22,21 @@ export class CompetitorAnalyzer {
                 process.env.YOUTUBE_REDIRECT_URI
             );
             oauth2Client.setCredentials(account.tokens);
-            this.youtube = google.youtube({ version: 'v3', auth: oauth2Client });
-        } else {
-            // Fallback to API Key if no user context (though in this app structure, we usually have user context)
-            // Note: In a production app you'd want robust fallback. 
-            // For now, we assume if you can't log in, you can't use the app.
-            this.youtube = google.youtube({ version: 'v3', auth: process.env.GOOGLE_API_KEY });
+            return google.youtube({ version: 'v3', auth: oauth2Client });
         }
+        return google.youtube({ version: 'v3', auth: process.env.GOOGLE_API_KEY });
     }
 
     /**
      * Search for a channel by handle (e.g. "@MrBeast") or name
      */
-    async findChannelId(handle: string): Promise<{ id: string, title: string, thumbnail: string } | null> {
+    async findChannelId(handle: string, userId?: string): Promise<{ id: string, title: string, thumbnail: string } | null> {
         try {
-            const res = await this.youtube.search.list({
-                part: ['snippet'],
+            const youtube = await this.getClient(userId);
+            const res = await youtube.search.list({
+                part: ['snippet'] as any,
                 q: handle,
-                type: ['channel'],
+                type: ['channel'] as any,
                 maxResults: 1
             });
 
@@ -65,11 +58,12 @@ export class CompetitorAnalyzer {
     /**
      * Get top performing videos from a specific channel
      */
-    async getTopChannelVideos(channelId: string, maxResults: number = 10): Promise<CompetitorVideo[]> {
+    async getTopChannelVideos(channelId: string, maxResults: number = 10, userId?: string): Promise<CompetitorVideo[]> {
         try {
+            const youtube = await this.getClient(userId);
             // 1. Get Channel Uploads Playlist ID
-            const channelRes = await this.youtube.channels.list({
-                part: ['contentDetails'],
+            const channelRes = await youtube.channels.list({
+                part: ['contentDetails'] as any,
                 id: [channelId]
             });
 
@@ -77,27 +71,20 @@ export class CompetitorAnalyzer {
 
             if (!uploadsPlaylistId) return [];
 
-            // 2. Get recent videos from that playlist
-            // Note: 'search' endpoint with order='viewCount' is better for "Top" videos, 
-            // but 'activities' or 'playlistItems' is better for "Recent".
-            // The prompt asks for "Trending", which usually means "Recent & High Views" or just "Top".
-            // Let's use SEARCH to find the actual most popular videos of the channel.
-
-            const searchRes = await this.youtube.search.list({
-                part: ['snippet'],
+            const searchRes = await youtube.search.list({
+                part: ['snippet'] as any,
                 channelId: channelId,
-                order: 'viewCount', // Get their most popular content
+                order: 'viewCount' as any,
                 maxResults: maxResults,
-                type: ['video']
+                type: ['video'] as any
             });
 
             const videoIds = searchRes.data.items?.map(item => item.id?.videoId).filter((id): id is string => !!id) || [];
 
             if (videoIds.length === 0) return [];
 
-            // 3. Get detailed stats for these videos
-            const videosRes = await this.youtube.videos.list({
-                part: ['snippet', 'statistics'],
+            const videosRes = await youtube.videos.list({
+                part: ['snippet', 'statistics'] as any,
                 id: videoIds
             });
 
@@ -118,29 +105,27 @@ export class CompetitorAnalyzer {
     }
 
     /**
-     * Identify "Trending" videos (High views recently loaded)
-     * For simplicity, as the search API doesn't strictly support "trending" filter for a channel,
-     * we will fetch recent uploads and sort by view count manually.
+     * Identify "Trending" videos
      */
-    async getTrendingOnChannel(channelId: string): Promise<CompetitorVideo[]> {
+    async getTrendingOnChannel(channelId: string, userId?: string): Promise<CompetitorVideo[]> {
         try {
-            const res = await this.youtube.search.list({
-                part: ['snippet'],
+            const youtube = await this.getClient(userId);
+            const res = await youtube.search.list({
+                part: ['snippet'] as any,
                 channelId: channelId,
-                order: 'date', // Get newest first
+                order: 'date' as any,
                 maxResults: 20,
-                type: ['video']
+                type: ['video'] as any
             });
 
             const videoIds = res.data.items?.map(item => item.id?.videoId).filter((id): id is string => !!id) || [];
             if (!videoIds.length) return [];
 
-            const statsRes = await this.youtube.videos.list({
-                part: ['snippet', 'statistics'],
+            const statsRes = await youtube.videos.list({
+                part: ['snippet', 'statistics'] as any,
                 id: videoIds
             });
 
-            // Sort by View Count descending to find "Trending" among recent
             const videos = statsRes.data.items?.map(item => ({
                 videoId: item.id || '',
                 title: item.snippet?.title || '',

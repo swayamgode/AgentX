@@ -10,8 +10,8 @@ export async function GET(request: NextRequest) {
         }
         const userId = user.id;
 
-        const accounts = multiAccountStorage.getAllAccounts(userId);
-        const activeAccount = multiAccountStorage.getActiveAccount(userId);
+        const accounts = await multiAccountStorage.getAllAccounts(userId);
+        const activeAccount = await multiAccountStorage.getActiveAccount(userId);
 
         return NextResponse.json({
             accounts: accounts.map((acc: any) => ({
@@ -48,30 +48,21 @@ export async function POST(request: NextRequest) {
                 if (!accountId) {
                     return NextResponse.json({ error: 'Account ID required' }, { status: 400 });
                 }
-                const success = multiAccountStorage.setActiveAccount(userId, accountId);
-                if (!success) {
-                    return NextResponse.json({ error: 'Account not found' }, { status: 404 });
-                }
+                await multiAccountStorage.setActiveAccount(userId, accountId);
                 return NextResponse.json({ success: true });
 
             case 'updateWatermark':
                 if (!accountId || !updates?.watermark) {
                     return NextResponse.json({ error: 'Account ID and watermark required' }, { status: 400 });
                 }
-                const updated = multiAccountStorage.updateAccount(userId, accountId, { watermark: updates.watermark });
-                if (!updated) {
-                    return NextResponse.json({ error: 'Account not found' }, { status: 404 });
-                }
+                await multiAccountStorage.updateAccount(userId, accountId, { watermark: updates.watermark });
                 return NextResponse.json({ success: true });
 
             case 'remove':
                 if (!accountId) {
                     return NextResponse.json({ error: 'Account ID required' }, { status: 400 });
                 }
-                const removed = multiAccountStorage.removeAccount(userId, accountId);
-                if (!removed) {
-                    return NextResponse.json({ error: 'Account not found' }, { status: 404 });
-                }
+                await multiAccountStorage.removeAccount(userId, accountId);
                 return NextResponse.json({ success: true });
 
             default:
