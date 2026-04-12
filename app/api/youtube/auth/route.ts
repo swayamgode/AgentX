@@ -11,18 +11,11 @@ export async function GET(request: NextRequest) {
         const { keyManager } = await import('@/lib/key-manager');
         const app = keyManager.getNextYouTubeApp();
         const clientId = app?.id || process.env.YOUTUBE_CLIENT_ID;
+        const redirectUri = `${request.nextUrl.origin}/api/youtube/callback`;
 
-        const origin = request.nextUrl.origin;
-        const envRedirect = process.env.YOUTUBE_REDIRECT_URI;
-        const redirectUri = (envRedirect && !envRedirect.includes('localhost')) 
-            ? envRedirect 
-            : `${origin}/api/youtube/callback`;
-
-        if (!clientId) {
-            return NextResponse.json(
-                { error: 'YouTube API not configured. Please add YOUTUBE_CLIENT_ID to environment variables.' },
-                { status: 500 }
-            );
+        if (!clientId || !process.env.YOUTUBE_CLIENT_SECRET) {
+            console.error('[YouTube Auth] Missing Client ID or Client Secret');
+            return NextResponse.redirect(new URL(`/settings?error=auth_failed&msg=${encodeURIComponent('Missing YouTube API credentials. Using: ' + redirectUri)}`, request.url));
         }
 
         // --- Auth Scopes ---
