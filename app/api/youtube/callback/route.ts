@@ -4,6 +4,9 @@ import { multiAccountStorage } from '@/lib/token-storage';
 import { getAuthUser } from '@/lib/auth-util';
 
 export async function GET(request: NextRequest) {
+    const origin = request.nextUrl.origin;
+    const redirectUri = process.env.YOUTUBE_REDIRECT_URI || `${origin}/api/youtube/callback`;
+
     try {
         const searchParams = request.nextUrl.searchParams;
         const code = searchParams.get('code');
@@ -37,7 +40,7 @@ export async function GET(request: NextRequest) {
             }
         }
 
-        if (!clientId || !process.env.YOUTUBE_CLIENT_SECRET) {
+        if (!clientId || !clientSecret) {
             console.error('[YouTube Auth] Missing Client ID or Client Secret');
             return NextResponse.redirect(new URL(`/settings?error=auth_failed&msg=${encodeURIComponent(`Missing API credentials. ID: ${clientId?.substring(0, 10)}... Link: ${redirectUri}`)}`, request.url));
         }
@@ -45,7 +48,7 @@ export async function GET(request: NextRequest) {
         const oauth2Client = new google.auth.OAuth2(
             clientId,
             clientSecret,
-            process.env.YOUTUBE_REDIRECT_URI || `${request.nextUrl.origin}/api/youtube/callback`
+            redirectUri
         );
 
         // Exchange code for tokens
@@ -101,9 +104,6 @@ export async function GET(request: NextRequest) {
 
         return NextResponse.redirect(new URL('/settings?success=youtube_connected', request.url));
     } catch (error: any) {
-        const origin = request.nextUrl.origin;
-        const redirectUri = process.env.YOUTUBE_REDIRECT_URI || `${origin}/api/youtube/callback`;
-            
         console.error('YouTube callback error details:', error);
         return NextResponse.redirect(new URL(`/settings?error=auth_failed&msg=${encodeURIComponent(`${error.message || 'Unknown error'} (Link: ${redirectUri})`)}`, request.url));
     }
