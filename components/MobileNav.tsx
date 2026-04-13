@@ -21,32 +21,23 @@ export function MobileNav() {
     ];
 
     return (
-        <div className="fixed bottom-4 left-4 right-4 bg-black border border-white/20 z-50 md:hidden rounded-2xl shadow-xl overflow-hidden">
-            <div className="flex justify-around items-center p-2">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-sm bg-black/80 backdrop-blur-2xl border border-white/20 z-50 md:hidden rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
+            <div className="flex justify-around items-center p-1.5 px-3">
                 {navItems.map((item) => {
                     const isActive = pathname === item.href;
                     return (
                         <Link
                             key={item.label}
                             href={item.href}
-                            className={`flex flex-col items-center gap-1 p-2 transition-all ${isActive ? "text-white" : "text-white/40"}`}
+                            className={`flex flex-col items-center justify-center py-2 transition-all ${isActive ? "text-white" : "text-white/40 hover:text-white/60"}`}
                         >
-                            <div className={`p-1.5 rounded-lg transition-all ${isActive ? "bg-white/20" : ""}`}>
+                            <div className={`p-2 rounded-2xl transition-all duration-300 ${isActive ? "bg-white/10 scale-110 shadow-lg" : "hover:bg-white/5"}`}>
                                 <item.icon size={18} strokeWidth={isActive ? 2.5 : 2} />
                             </div>
-                            <span className={`text-[8px] font-bold uppercase tracking-wider ${isActive ? "opacity-100" : "opacity-0 h-0 w-0 overflow-hidden"}`}>{item.label}</span>
+                            <span className={`text-[7px] font-black uppercase tracking-[0.15em] mt-1 transition-all ${isActive ? "opacity-100" : "opacity-0 h-0 overflow-hidden"}`}>{item.label}</span>
                         </Link>
                     )
                 })}
-                <button
-                    onClick={() => signOut?.()}
-                    disabled={!signOut}
-                    className="flex flex-col items-center gap-1 p-2 transition-all text-white/40 hover:text-white disabled:opacity-20"
-                >
-                    <div className="p-1.5 rounded-lg transition-all">
-                        <LogOut size={18} strokeWidth={2} />
-                    </div>
-                </button>
             </div>
         </div>
     );

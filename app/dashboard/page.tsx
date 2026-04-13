@@ -34,32 +34,33 @@ export default function DashboardPage() {
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-600/20 shadow-[0_0_150px_rgba(147,51,234,0.3)] rounded-full blur-[100px] animate-pulse"></div>
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/10 shadow-[0_0_150px_rgba(37,99,235,0.2)] rounded-full blur-[100px]"></div>
 
-        <div className="sticky top-5 mx-4 md:mx-8 rounded-[2.5rem] bg-white/5 backdrop-blur-3xl z-40 border border-white/10 shadow-2xl">
-          <div className="max-w-[1400px] mx-auto px-6 md:px-10 py-5 md:py-7 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div className="flex items-center gap-5 md:gap-7">
+        <div className="sticky top-0 md:top-5 mx-0 md:mx-8 rounded-none md:rounded-[2.5rem] bg-white/5 backdrop-blur-3xl z-40 border-b md:border border-white/10 shadow-2xl transition-all">
+          <div className="max-w-[1400px] mx-auto px-4 md:px-10 py-3 md:py-7 flex flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3 md:gap-7">
               <div className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-tr from-purple-500 to-blue-500 rounded-2xl blur-lg opacity-40 group-hover:opacity-100 transition-opacity"></div>
-                <div className="relative w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-black border border-white/20 flex items-center justify-center shadow-2xl">
-                  <Activity className="text-white w-6 h-6 md:w-7 md:h-7 animate-pulse" />
+                <div className="absolute inset-0 bg-gradient-to-tr from-purple-500 to-blue-500 rounded-xl md:rounded-2xl blur-lg opacity-40 group-hover:opacity-100 transition-opacity"></div>
+                <div className="relative w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-black border border-white/20 flex items-center justify-center shadow-2xl">
+                  <Activity className="text-white w-5 h-5 md:w-7 md:h-7 animate-pulse" />
                 </div>
               </div>
               <div>
-                <h1 className="text-xl md:text-3xl font-black text-white tracking-tighter leading-none italic">
-                  COMMAND CENTER
+                <h1 className="text-base md:text-3xl font-black text-white tracking-tighter leading-none italic">
+                  COMMAND
                 </h1>
-                <p className="text-[10px] md:text-[11px] font-bold text-gray-400 mt-2 flex items-center gap-2 uppercase tracking-[0.2em]">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-                  System Status: Active
+                <p className="text-[8px] md:text-[11px] font-bold text-gray-400 mt-1 flex items-center gap-1.5 uppercase tracking-widest">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                  Online
                 </p>
               </div>
             </div>
             
-            <div className={`flex items-center gap-2.5 px-4 py-2 rounded-full border text-[10px] font-black uppercase tracking-widest transition-all ${schedulerStatus?.status === 'RUNNING'
+            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-[9px] font-black uppercase tracking-widest transition-all ${schedulerStatus?.status === 'RUNNING'
               ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
               : 'bg-white/5 text-gray-500 border-white/10'
               }`}>
-              <div className={`w-1.5 h-1.5 rounded-full ${schedulerStatus?.status === 'RUNNING' ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]' : 'bg-gray-600'}`} />
-              {schedulerStatus?.status === 'RUNNING' ? 'Engine Running' : 'Engine Idle'}
+              <div className={`w-1 h-1 rounded-full ${schedulerStatus?.status === 'RUNNING' ? 'bg-emerald-400 animate-pulse' : 'bg-gray-600'}`} />
+              <span className="hidden xs:inline">{schedulerStatus?.status === 'RUNNING' ? 'Engine Running' : 'Engine Idle'}</span>
+              <span className="xs:hidden">{schedulerStatus?.status === 'RUNNING' ? 'Running' : 'Idle'}</span>
             </div>
           </div>
         </div>
@@ -120,24 +121,24 @@ function DashboardCard({ href, icon, title, desc, color }: any) {
   return (
     <Link 
       href={href} 
-      className="group relative bg-white/5 border border-white/10 rounded-[2.5rem] p-8 md:p-10 transition-all hover:-translate-y-2 hover:bg-white/[0.08] hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)] overflow-hidden"
+      className="group relative bg-white/5 border border-white/10 rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-10 transition-all hover:-translate-y-2 hover:bg-white/[0.08] hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)] overflow-hidden"
     >
       <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${color} opacity-0 group-hover:opacity-20 blur-[40px] transition-opacity`}></div>
       
-      <div className={`w-16 h-16 bg-gradient-to-br ${color} text-white rounded-3xl flex items-center justify-center mb-8 shadow-2xl group-hover:scale-110 transition-transform duration-500`}>
+      <div className={`w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br ${color} text-white rounded-2xl md:rounded-3xl flex items-center justify-center mb-6 md:mb-8 shadow-2xl group-hover:scale-110 transition-transform duration-500`}>
         {icon}
       </div>
       
       <div className="relative z-10">
-        <h2 className="text-2xl font-black text-white mb-3 tracking-tight italic group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-gray-400">
+        <h2 className="text-xl md:text-2xl font-black text-white mb-2 md:mb-3 tracking-tight italic group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-gray-400">
           {title.toUpperCase()}
         </h2>
-        <p className="text-sm text-gray-400 leading-relaxed font-medium">
+        <p className="text-xs md:text-sm text-gray-400 leading-relaxed font-medium">
           {desc}
         </p>
       </div>
 
-      <div className="mt-8 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-500 group-hover:text-white transition-colors">
+      <div className="mt-6 md:mt-8 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-500 group-hover:text-white transition-colors">
         Access Module <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
       </div>
     </Link>

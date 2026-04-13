@@ -294,8 +294,8 @@ function GroupEditor({
         setTheme({ topics: draft.theme.topics.filter(x => x !== t) });
 
     return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end md:items-center justify-center p-0 md:p-4 animate-in fade-in duration-300">
+            <div className="bg-white rounded-t-3xl md:rounded-2xl shadow-2xl w-full max-w-2xl h-[95vh] md:max-h-[90vh] overflow-y-auto slide-in-from-bottom-full duration-500">
                 {/* Header */}
                 <div className="sticky top-0 bg-white border-b border-[#e5e5e7] px-4 py-3 flex items-center justify-between rounded-t-2xl z-10">
                     <div className="flex items-center gap-2">
@@ -597,12 +597,12 @@ function GroupCard({
                         {members.length} ch · {group.theme.generationsPerChannel} vids/ch · {group.theme.style}
                     </p>
                 </div>
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={onEdit} className="p-1 rounded-lg hover:bg-[#F5F5F7] text-[#86868b] hover:text-[#1d1d1f] transition-colors">
-                        <Edit3 className="w-3 h-3" />
+                <div className="flex items-center gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                    <button onClick={onEdit} className="p-2 md:p-1 rounded-lg hover:bg-[#F5F5F7] text-[#86868b] hover:text-[#1d1d1f] transition-colors border border-[#e5e5e7] md:border-none">
+                        <Edit3 className="w-3.5 h-3.5 md:w-3 md:h-3" />
                     </button>
-                    <button onClick={onDelete} className="p-1 rounded-lg hover:bg-red-50 text-[#86868b] hover:text-red-500 transition-colors">
-                        <Trash2 className="w-3 h-3" />
+                    <button onClick={onDelete} className="p-2 md:p-1 rounded-lg hover:bg-red-50 text-[#86868b] hover:text-red-500 transition-colors border border-[#e5e5e7] md:border-none">
+                        <Trash2 className="w-3.5 h-3.5 md:w-3 md:h-3" />
                     </button>
                 </div>
             </div>
@@ -624,9 +624,9 @@ function GroupCard({
             <button
                 onClick={onRun}
                 disabled={isRunning || members.length === 0}
-                className="w-full py-1.5 rounded-lg bg-black text-white text-[10px] font-bold hover:bg-[#333] disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-1.5"
+                className="w-full py-2.5 md:py-1.5 rounded-lg bg-black text-white text-[10px] font-extrabold hover:bg-[#333] disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.98]"
             >
-                {isRunning ? <><Loader2 className="w-3 h-3 animate-spin" /> ...</> : <><Play className="w-3 h-3" /> Run</>}
+                {isRunning ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> RUNNING</> : <><Play className="w-3.5 h-3.5" /> RUN GROUP</>}
             </button>
         </div>
     );
@@ -1142,20 +1142,21 @@ export default function AutoPilotPage() {
             <main className="flex-1 ml-0 md:ml-0 pb-20 md:pb-8">
                 {/* Header */}
                 <div className="sticky top-0 bg-white/80 backdrop-blur-xl z-20 border-b border-[#e5e5e7]">
-                    <div className="max-w-[1400px] mx-auto px-4 md:px-6 py-2">
-                        <div className="flex items-center justify-between">
+                    <div className="max-w-[1400px] mx-auto px-4 md:px-6 py-2 md:py-3">
+                        <div className="flex items-center justify-between gap-3">
                             <div className="flex items-center gap-2">
                                 <div className="p-1 bg-black rounded-lg">
                                     <Rocket className="w-3.5 h-3.5 text-white" />
                                 </div>
                                 <h1 className="text-xs md:text-sm font-bold text-[#1d1d1f]">Auto-Pilot</h1>
                             </div>
-                            <div className="flex gap-1 bg-[#F5F5F7] p-0.5 rounded-lg border border-[#e5e5e7]">
+                            <div className="flex gap-1 bg-[#F5F5F7] p-0.5 rounded-lg border border-[#e5e5e7] shrink-0">
                                 {([['groups', '📦 Groups'], ['global', '🌍 Global']] as const).map(([t, label]) => (
                                     <button key={t} onClick={() => setActiveTab(t)}
-                                        className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all ${activeTab === t ? 'bg-black text-white shadow-sm' : 'text-[#86868b] hover:text-[#1d1d1f]'}`}
+                                        className={`px-3 py-1.5 md:py-1 rounded-md text-[10px] font-bold transition-all ${activeTab === t ? 'bg-black text-white shadow-sm' : 'text-[#86868b] hover:text-[#1d1d1f]'}`}
                                     >
-                                        {label}
+                                        <span className="hidden sm:inline">{label}</span>
+                                        <span className="sm:hidden">{label.split(' ')[1]}</span>
                                     </button>
                                 ))}
                             </div>
@@ -1169,24 +1170,25 @@ export default function AutoPilotPage() {
                             {/* Groups grid */}
                             <div className="space-y-3">
                                     <div className="flex items-center justify-between">
-                                        <h2 className="text-[11px] font-bold text-[#1d1d1f] uppercase tracking-wider">Channel Groups</h2>
-                                        <div className="flex gap-1.5">
-                                            <button onClick={refreshGroups} className="p-1 rounded-lg border border-[#e5e5e7] bg-white hover:bg-[#F5F5F7]">
-                                                <RefreshCw className="w-3 h-3 text-[#86868b]" />
+                                        <h2 className="text-[11px] font-bold text-[#1d1d1f] uppercase tracking-wider hidden xs:block">Channel Groups</h2>
+                                        <div className="flex gap-1 w-full xs:w-auto">
+                                            <button onClick={refreshGroups} className="p-2 md:p-1 rounded-lg border border-[#e5e5e7] bg-white hover:bg-[#F5F5F7]">
+                                                <RefreshCw className="w-3.5 h-3.5 md:w-3 md:h-3 text-[#86868b]" />
                                             </button>
                                             <button
                                                 onClick={handleRunAllGroups}
                                                 disabled={isRunningAll || groups.length === 0}
-                                                className="flex items-center gap-1.5 px-2.5 py-1 bg-indigo-600 text-white rounded-lg text-[10px] font-bold hover:bg-indigo-700 disabled:opacity-50"
+                                                className="flex-1 xs:flex-none flex items-center justify-center gap-1 px-3 py-2 md:px-2.5 md:py-1 bg-indigo-600 text-white rounded-lg text-[10px] font-bold hover:bg-indigo-700 disabled:opacity-50"
                                             >
-                                                {isRunningAll ? <Loader2 className="w-3 h-3 animate-spin" /> : <Zap className="w-3 h-3" />}
-                                                Run All
+                                                {isRunningAll ? <Loader2 className="w-3.5 h-3.5 md:w-3 md:h-3 animate-spin" /> : <Zap className="w-3.5 h-3.5 md:w-3 md:h-3" />}
+                                                <span className="xs:inline">Run All</span>
                                             </button>
                                             <button
                                                 onClick={handleNewGroup}
-                                                className="flex items-center gap-1.5 px-2.5 py-1 bg-black text-white rounded-lg text-[10px] font-bold"
+                                                className="flex-1 xs:flex-none flex items-center justify-center gap-1 px-3 py-2 md:px-2.5 md:py-1 bg-black text-white rounded-lg text-[10px] font-bold"
                                             >
-                                                <Plus className="w-3 h-3" /> New
+                                                <Plus className="w-3.5 h-3.5 md:w-3 md:h-3" />
+                                                <span className="xs:inline">New Group</span>
                                             </button>
                                         </div>
                                     </div>

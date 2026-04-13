@@ -85,12 +85,28 @@ export async function PUT(request: NextRequest) {
     const { api } = await import('@/convex/_generated/api');
     const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
+    // Sanitize body to match saveGroup args exactly
+    const sanitizedGroup = {
+        id: body.id,
+        name: body.name,
+        channelIds: body.channelIds || [],
+        theme: {
+            bgColor: body.theme?.bgColor,
+            bgColor2: body.theme?.bgColor2,
+            textColor: body.theme?.textColor,
+            fontSizeScale: body.theme?.fontSizeScale,
+            backgroundType: body.theme?.backgroundType,
+            textAlign: body.theme?.textAlign,
+            topics: body.theme?.topics || [],
+            style: body.theme?.style,
+            generationsPerChannel: body.theme?.generationsPerChannel,
+            geminiKey: body.theme?.geminiKey || '',
+        }
+    };
+
     await convex.mutation(api.youtube.saveGroup, {
         userId: user.id,
-        group: {
-            ...body,
-            id: body.id
-        }
+        group: sanitizedGroup
     });
 
     return NextResponse.json({ success: true });
