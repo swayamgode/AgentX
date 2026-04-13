@@ -1140,7 +1140,7 @@ export function QuotesGenerator() {
 
                             {/* Batch Logs */}
                             {(batchLogs.length > 0) && (
-                                <div className="mt-4 bg-[#111] border border-green-500/20 rounded-xl p-4 font-mono text-xs text-green-400 h-48 overflow-y-auto shadow-inner">
+                                <div className="mt-4 bg-[#111] border border-green-500/20 rounded-xl p-4 font-mono text-xs text-green-400 h-48 overflow-y-auto no-scrollbar shadow-inner">
                                     <div className="flex items-center gap-2 mb-2 pb-2 border-b border-green-500/20 text-gray-500">
                                         <Terminal size={12} />
                                         <span>SYSTEM LOGS</span>
@@ -1763,7 +1763,7 @@ export function QuotesGenerator() {
                                 </div>
                             </div>
 
-                            <div className="flex-1 p-6 overflow-y-auto font-mono text-xs space-y-2 custom-scrollbar">
+                            <div className="flex-1 p-6 overflow-y-auto font-mono text-xs space-y-2 no-scrollbar">
                                 {batchLogs.map((log, i) => {
                                     const isSuccess = log.includes("✅");
                                     const isError = log.includes("❌") || log.includes("⚠️");

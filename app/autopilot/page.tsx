@@ -1239,7 +1239,7 @@ export default function AutoPilotPage() {
                                         </div>
                                     </div>
                                     {batchLogs.length > 0 ? (
-                                        <div className="bg-[#111] border border-[#333] rounded-lg p-3 font-mono text-[10px] h-[400px] overflow-y-auto shadow-inner">
+                                        <div className="bg-[#111] border border-[#333] rounded-lg p-3 font-mono text-[10px] h-[400px] overflow-y-auto no-scrollbar shadow-inner">
                                             <div className="space-y-0.5">
                                                 {batchLogs.map((log, i) => (
                                                     <div key={i} className="whitespace-pre-wrap text-white">{log}</div>
@@ -1438,7 +1438,7 @@ export default function AutoPilotPage() {
                                         {batchLogs.length > 0 && <button onClick={() => setBatchLogs([])} className="ml-auto text-[9px] text-[#86868b] hover:text-red-500">Clear</button>}
                                     </div>
                                     {batchLogs.length > 0 ? (
-                                        <div className="bg-[#111] border border-[#333] rounded-lg p-3 font-mono text-[9px] h-[350px] overflow-y-auto shadow-inner">
+                                        <div className="bg-[#111] border border-[#333] rounded-lg p-3 font-mono text-[9px] h-[350px] overflow-y-auto no-scrollbar shadow-inner">
                                             {batchLogs.map((log, i) => <div key={i} className="whitespace-pre-wrap text-white/90">{log}</div>)}
                                             <div ref={logsEndRef} />
                                         </div>
@@ -1484,7 +1484,7 @@ export default function AutoPilotPage() {
                             </div>
 
                             {/* Logs content */}
-                            <div className="flex-1 overflow-y-auto p-4 md:p-8 font-mono text-xs md:text-sm custom-scrollbar bg-black/40">
+                            <div className="flex-1 overflow-y-auto p-4 md:p-8 font-mono text-xs md:text-sm no-scrollbar bg-black/40">
                                 <div className="max-w-4xl mx-auto space-y-1.5 md:space-y-2">
                                     {batchLogs.length === 0 ? (
                                         <div className="h-full flex flex-col items-center justify-center text-white/20 py-20">

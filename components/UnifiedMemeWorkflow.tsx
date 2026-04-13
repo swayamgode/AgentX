@@ -676,7 +676,7 @@ export function UnifiedMemeWorkflow() {
 
                                     {/* Batch Logs Console */}
                                     {(batchLogs.length > 0) && (
-                                        <div className="mt-4 bg-white border border-[#e5e5e7] rounded-xl p-4 font-mono text-xs text-[#1d1d1f] h-64 overflow-y-auto shadow-inner">
+                                        <div className="mt-4 bg-white border border-[#e5e5e7] rounded-xl p-4 font-mono text-xs text-[#1d1d1f] h-64 overflow-y-auto no-scrollbar shadow-inner">
                                             <div className="flex items-center gap-2 mb-2 pb-2 border-b border-[#e5e5e7] text-[#86868b]">
                                                 <Terminal size={12} />
                                                 <span>AUTO-PILOT LOGS</span>
