@@ -12,12 +12,17 @@ export async function GET(request: NextRequest) {
         const origin = request.nextUrl.origin;
         const redirectUri = process.env.YOUTUBE_REDIRECT_URI || `${origin}/api/youtube/callback`;
 
-        const app = keyManager.getAllYouTubeApps()[0]; // Consistently use first app for now
+        // Pick the first non-failed YouTube app
+        const app = keyManager.getAllYouTubeApps()[0];
         const clientId = app?.id || process.env.YOUTUBE_CLIENT_ID;
+        // Use the app's own secret — fall back to env var if no dedicated app
+        const clientSecret = app?.secret || process.env.YOUTUBE_CLIENT_SECRET;
 
-        if (!clientId || !process.env.YOUTUBE_CLIENT_SECRET) {
-            console.error('[YouTube Auth] Missing Client ID or Client Secret');
-            return NextResponse.redirect(new URL(`/settings?error=auth_failed&msg=${encodeURIComponent(`Missing API credentials. ID: ${clientId?.substring(0, 10)}... Link: ${redirectUri}`)}`, request.url));
+        if (!clientId || !clientSecret) {
+            console.error('[YouTube Auth] Missing Client ID or Client Secret. Apps loaded:', keyManager.getAllYouTubeApps().length);
+            return NextResponse.redirect(
+                new URL(`/settings?error=auth_failed&msg=${encodeURIComponent(`Missing API credentials. Please add YOUTUBE_CLIENT_ID and YOUTUBE_CLIENT_SECRET to your environment variables. Redirect URI: ${redirectUri}`)}`, request.url)
+            );
         }
 
         // --- Auth Scopes ---
@@ -25,6 +30,7 @@ export async function GET(request: NextRequest) {
             'https://www.googleapis.com/auth/youtube.upload',
             'https://www.googleapis.com/auth/youtube',
             'https://www.googleapis.com/auth/userinfo.profile',
+            'https://www.googleapis.com/auth/userinfo.email',  // needed to fetch email in callback
             'https://www.googleapis.com/auth/youtube.readonly'
         ];
 
@@ -35,11 +41,12 @@ export async function GET(request: NextRequest) {
         authUrl.searchParams.set('response_type', 'code');
         authUrl.searchParams.set('scope', scopes.join(' '));
         authUrl.searchParams.set('access_type', 'offline');
-        authUrl.searchParams.set('prompt', 'consent');
-        
-        // Pass the clientId in the state so the callback knows which app was used
+        authUrl.searchParams.set('prompt', 'consent');  // Force refresh_token to be returned
+
+        // Pass the clientId in state so the callback knows which app/secret to use
         authUrl.searchParams.set('state', clientId);
 
+        console.log(`[YouTube Auth] Redirecting to OAuth. ClientId: ${clientId.substring(0, 10)}... RedirectUri: ${redirectUri}`);
         return NextResponse.redirect(authUrl.toString());
     } catch (error) {
         console.error('YouTube auth error:', error);

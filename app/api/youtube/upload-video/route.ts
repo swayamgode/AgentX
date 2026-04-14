@@ -56,26 +56,31 @@ export async function POST(request: NextRequest) {
 
         oauth2Client.setCredentials(tokens);
 
-        // Check expiry and refresh if needed
-        if (tokens.expiry_date && tokens.expiry_date < Date.now() && tokens.refresh_token) {
+        // Proactively refresh if:
+        // 1. Token is expired (expiry_date exists and is in the past)
+        // 2. expiry_date is missing entirely (unknown — safer to refresh)
+        // Only skip refresh if expiry is in the future.
+        const isExpired = tokens.expiry_date
+            ? tokens.expiry_date < Date.now() + 60_000  // 1 min buffer
+            : true; // unknown expiry — assume expired
+
+        if (isExpired && tokens.refresh_token) {
+            console.log(`[upload-video] Proactively refreshing token for ${account.channelName} (expired=${tokens.expiry_date ? new Date(tokens.expiry_date).toISOString() : 'unknown'})`);
             try {
                 const { credentials } = await oauth2Client.refreshAccessToken();
-                await multiAccountStorage.updateTokens(userId, account.id, {
+                const updatedTokens = {
                     access_token: credentials.access_token!,
                     refresh_token: credentials.refresh_token || tokens.refresh_token,
                     expiry_date: credentials.expiry_date || undefined
-                });
-                tokens = {
-                    ...tokens,
-                    ...credentials,
-                    access_token: credentials.access_token!,
-                    refresh_token: credentials.refresh_token || tokens.refresh_token || undefined,
-                    expiry_date: credentials.expiry_date || undefined
                 };
-            } catch (err) {
-                console.error("Failed to refresh token", err);
+                await multiAccountStorage.updateTokens(userId, account.id, updatedTokens);
+                tokens = { ...tokens, ...updatedTokens };
+                oauth2Client.setCredentials(tokens);
+                console.log(`[upload-video] Token refreshed for ${account.channelName}, new expiry: ${tokens.expiry_date ? new Date(tokens.expiry_date).toISOString() : 'unknown'}`);
+            } catch (err: any) {
+                console.error(`[upload-video] Token refresh failed for ${account.channelName}:`, err.message);
                 return NextResponse.json({
-                    error: 'Authentication expired',
+                    error: 'Authentication expired. Please reconnect this YouTube account.',
                     code: 'AUTH_EXPIRED',
                     accountId: account.id,
                     channelName: account.channelName
@@ -128,41 +133,40 @@ export async function POST(request: NextRequest) {
 
             return NextResponse.json(jsonResponse);
         } catch (error: any) {
-            console.error('Initial upload failed:', error.message);
+            console.error('[upload-video] Initial upload failed:', error.message, 'code:', error.code, 'status:', error.status);
 
-            // If 401 and we have a refresh token, try to refresh and retry
-            if (error.code === 401 && tokens.refresh_token) {
-                console.log('Attempting to refresh token and retry...');
+            // If 401 and we have a refresh token, force-refresh and retry once
+            const isAuthError = error.code === 401 || error.status === 401 ||
+                error.message?.includes('invalid_grant') || error.message?.includes('Invalid Credentials');
+
+            if (isAuthError && tokens.refresh_token) {
+                console.log('[upload-video] Got 401, forcing token refresh and retrying...');
                 try {
                     const { credentials } = await oauth2Client.refreshAccessToken();
-
-                    // Update tokens in account storage
-                    await multiAccountStorage.updateTokens(userId, account.id, {
+                    const updatedTokens = {
                         access_token: credentials.access_token!,
                         refresh_token: credentials.refresh_token || tokens.refresh_token,
                         expiry_date: credentials.expiry_date || undefined
-                    });
-
-                    // Update client
-                    oauth2Client.setCredentials(credentials);
-
-                    // Retry upload
+                    };
+                    await multiAccountStorage.updateTokens(userId, account.id, updatedTokens);
+                    oauth2Client.setCredentials(updatedTokens);
                     const response = await uploadVideo(oauth2Client);
-                    const jsonResponse = {
+                    return NextResponse.json({
                         success: true,
                         videoId: response.data.id,
                         videoUrl: `https://www.youtube.com/watch?v=${response.data.id}`
-                    };
-
-                    // No analytics tracking
-
-                    return NextResponse.json(jsonResponse);
+                    });
                 } catch (retryError: any) {
-                    console.error('Retry failed:', retryError);
-                    throw retryError; // Throw to outer catch
+                    console.error('[upload-video] Retry after refresh also failed:', retryError.message);
+                    return NextResponse.json({
+                        error: `Authentication failed for ${account.channelName}. Please reconnect this account.`,
+                        code: 'AUTH_EXPIRED',
+                        accountId: account.id,
+                        channelName: account.channelName
+                    }, { status: 401 });
                 }
             }
-            throw error; // Throw if not 401 or no refresh token
+            throw error;
         }
 
     } catch (error: any) {

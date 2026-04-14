@@ -916,10 +916,14 @@ export default function AutoPilotPage() {
                             const upData = await upRes.json();
 
                             if (upRes.status === 429 || upData.error?.includes('Daily Upload Limit')) {
-                                addLog(`⚠️ QUOTA EXCEEDED: ${account.channelName}`, isNested ? group.name : undefined);
+                                addLog(`⚠️ QUOTA EXCEEDED: ${account.channelName} — switch to a different Google Cloud Project`, isNested ? group.name : undefined);
                                 quotaExceeded.add(account.id); failCount++;
+                            } else if (upRes.status === 401 || upData.code === 'AUTH_EXPIRED') {
+                                addLog(`🔑 AUTH EXPIRED: ${upData.channelName || account.channelName} — Go to Settings → YouTube Accounts and reconnect this channel`, isNested ? group.name : undefined);
+                                quotaExceeded.add(account.id); // Skip further uploads for this account
+                                failCount++;
                             } else if (!upData.success) {
-                                addLog(`❌ Upload failed: ${upData.error}`, isNested ? group.name : undefined); failCount++;
+                                addLog(`❌ Upload failed: ${upData.error || 'Unknown error'}`, isNested ? group.name : undefined); failCount++;
                             } else {
                                 addLog(`✅ Uploaded: ${upData.videoUrl}`, isNested ? group.name : undefined); successCount++;
                             }
@@ -1090,13 +1094,18 @@ export default function AutoPilotPage() {
                     const upData = await upRes.json();
 
                     if (upRes.status === 429 || upData.error?.includes('Daily Upload Limit')) {
-                        addBatchLog(`⚠️ QUOTA EXCEEDED: ${account.channelName}`);
+                        addBatchLog(`⚠️ QUOTA EXCEEDED: ${account.channelName} — switch to a different Google Cloud Project`);
                         quotaExceeded.add(account.id);
                         const avail = accs.find((a: any) => !quotaExceeded.has(a.id));
                         if (avail) { videosToGenerate[taskIdx] = { ...task, account: avail }; return processTask(taskIdx); }
                         failCount++; return;
                     }
-                    if (!upData.success) { addBatchLog(`❌ Upload failed: ${upData.error}`); failCount++; return; }
+                    if (upRes.status === 401 || upData.code === 'AUTH_EXPIRED') {
+                        addBatchLog(`🔑 AUTH EXPIRED: ${upData.channelName || account.channelName} — Go to Settings → YouTube Accounts and reconnect`);
+                        quotaExceeded.add(account.id); // Stop uploading to this account
+                        failCount++; return;
+                    }
+                    if (!upData.success) { addBatchLog(`❌ Upload failed: ${upData.error || 'Unknown error'}`); failCount++; return; }
                     addBatchLog(`✅ ${account.channelName} | ${upData.videoUrl}`); successCount++;
                     accountVideoCount.set(account.id, (accountVideoCount.get(account.id) || 0) + 1);
                 } finally {
