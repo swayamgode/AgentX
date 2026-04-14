@@ -11,7 +11,7 @@ export interface YouTubeAccount {
     id: string; // Map Convex _id to id
     channelName: string;
     channelId: string;
-    email: string;                      
+    email: string;
     watermark: string;
     thumbnailUrl?: string;
     subscriberCount?: string;
@@ -49,12 +49,22 @@ class ConvexTokenStorage {
     }
 
     async updateAccount(userId: string, accountId: string, updates: Partial<Omit<YouTubeAccount, 'id' | 'createdAt'>>): Promise<boolean> {
-        // Since addAccount in convex/youtube.ts handles patching if channelId matches, 
-        // we can use it, but we need the full account data usually.
-        // For simple updates like watermark:
-        await this.client.mutation(api.youtube.addAccount as any, {
+        const accounts = await this.getAllAccounts(userId);
+        const account = accounts.find(a => a.id === accountId);
+        if (!account) return false;
+
+        // Must pass all required fields to addAccount (which patches by channelId)
+        await this.client.mutation(api.youtube.addAccount, {
             userId,
-            account: { channelId: accountId, ...updates }
+            account: {
+                channelName: account.channelName,
+                channelId: account.channelId,
+                email: account.email,
+                watermark: updates.watermark ?? account.watermark,
+                thumbnailUrl: updates.thumbnailUrl ?? account.thumbnailUrl,
+                tokens: account.tokens,
+                appCredentials: updates.appCredentials ?? account.appCredentials,
+            }
         });
         return true;
     }
@@ -70,10 +80,10 @@ class ConvexTokenStorage {
     async getActiveAccount(userId: string): Promise<YouTubeAccount | null> {
         const settings = await this.client.query(api.youtube.getSettings, { userId });
         const accounts = await this.getAllAccounts(userId);
-        
+
         const activeId = settings?.activeAccountId || (accounts.length > 0 ? accounts[0].id : null);
         if (!activeId) return null;
-        
+
         return accounts.find(a => a.id === activeId) || null;
     }
 
@@ -90,20 +100,41 @@ class ConvexTokenStorage {
         })) as YouTubeAccount[];
     }
 
+    /**
+     * Updates tokens for an account.
+     * FIXED: Previously called addAccount with missing required fields (channelName, email, watermark),
+     * which caused Convex schema validation errors and silently discarded refreshed tokens,
+     * forcing every upload to fail with "Auth expired" after the first token expiry.
+     */
     async updateTokens(userId: string, accountId: string, tokens: Partial<YouTubeTokens>): Promise<boolean> {
-        // accountId here is likely the Convex ID or channelId? 
-        // In our API routes, we use Convex IDs now for accountId.
         const accounts = await this.getAllAccounts(userId);
         const account = accounts.find(a => a.id === accountId);
-        if (!account) return false;
+        if (!account) {
+            console.error(`[updateTokens] Account ${accountId} not found for user ${userId}`);
+            return false;
+        }
 
-        await this.client.mutation(api.youtube.addAccount as any, {
+        const mergedTokens: YouTubeTokens = {
+            access_token: tokens.access_token ?? account.tokens.access_token,
+            refresh_token: tokens.refresh_token ?? account.tokens.refresh_token,
+            expiry_date: tokens.expiry_date ?? account.tokens.expiry_date,
+        };
+
+        // Pass all required fields — addAccount patches existing record by channelId
+        await this.client.mutation(api.youtube.addAccount, {
             userId,
             account: {
+                channelName: account.channelName,
                 channelId: account.channelId,
-                tokens: { ...account.tokens, ...tokens }
+                email: account.email,
+                watermark: account.watermark,
+                thumbnailUrl: account.thumbnailUrl,
+                tokens: mergedTokens,
+                appCredentials: account.appCredentials,
             }
         });
+
+        console.log(`[updateTokens] Tokens saved for ${account.channelName} (expires ${mergedTokens.expiry_date ? new Date(mergedTokens.expiry_date).toISOString() : 'unknown'})`);
         return true;
     }
 }
