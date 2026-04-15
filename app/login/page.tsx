@@ -60,7 +60,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-[#111]>
+    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-[#111]">
       {/* Left Wall of Style */}
       <div className="hidden lg:flex flex-col justify-between p-20 bg-[#0D1117] relative overflow-hidden text-white">
          <div className="absolute inset-0 bg-gradient-to-br from-purple-900/10 via-transparent to-blue-900/10 scale-150 animate-pulse"></div>
@@ -68,7 +68,7 @@ export default function LoginPage() {
          
          <div className="relative z-10">
             <Link href="/" className="flex items-center gap-3 mb-20 group">
-                <div className="w-12 h-12 bg-[#111]rounded-2xl flex items-center justify-center group-hover:rotate-12 transition-all duration-500">
+                <div className="w-12 h-12 bg-[#111] rounded-2xl flex items-center justify-center group-hover:rotate-12 transition-all duration-500">
                     <span className="text-zinc-100 font-black text-2xl tracking-tighter">A.</span>
                 </div>
                 <span className="font-black text-2xl tracking-tight">AgentX</span>
@@ -108,7 +108,7 @@ export default function LoginPage() {
           <span className="font-black text-xl tracking-tight">AgentX</span>
         </div>
 
-        <div className="w-full max-w-md bg-[#111]p-8 sm:p-12 rounded-[2.5rem] border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.05)]">
+        <div className="w-full max-w-md bg-[#111] p-8 sm:p-12 rounded-[2.5rem] border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.05)]">
           <div className="mb-10 text-center">
             <h3 className="text-2xl sm:text-3xl font-black tracking-tight text-zinc-100 mb-2">
               {isSignUp ? "Create Account" : "Welcome Back"}
@@ -195,7 +195,7 @@ export default function LoginPage() {
 function FeatureItem({ icon, text }: { icon: React.ReactNode, text: string }) {
   return (
     <div className="flex items-center gap-4 group">
-      <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-[#111]group-hover:text-zinc-100 transition-all">
+      <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-[#111] group-hover:text-zinc-100 transition-all">
         {icon}
       </div>
       <span className="font-bold text-lg text-gray-400 group-hover:text-white transition-colors">{text}</span>
