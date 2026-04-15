@@ -485,10 +485,10 @@ export function UnifiedMemeWorkflow() {
         <div className="w-full max-w-7xl mx-auto space-y-8 pb-20">
             {/* Header */}
             <div className="text-center space-y-4 mb-12">
-                <h1 className="text-3xl md:text-5xl font-black text-[#1d1d1f] tracking-tight">
+                <h1 className="text-3xl md:text-5xl font-black text-zinc-100 tracking-tight">
                     Meme Studio
                 </h1>
-                <p className="text-lg md:text-xl text-[#86868b] font-light max-w-2xl mx-auto">
+                <p className="text-lg md:text-xl text-zinc-400 font-light max-w-2xl mx-auto">
                     Create viral, shorts-ready memes for your social media in seconds using AI.
                 </p>
             </div>
@@ -512,14 +512,14 @@ export function UnifiedMemeWorkflow() {
                                     w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center border transition-all duration-300 relative overflow-hidden
                                     ${isActive || isCompleted
                                         ? 'border-[#1d1d1f] bg-[#1d1d1f] text-white shadow-lg'
-                                        : 'border-[#e5e5e7] bg-white text-gray-400 group-hover:border-[#d1d1d6] group-hover:text-gray-600'}
+                                        : 'border-white/10 bg-[#111]text-gray-400 group-hover:border-white/20 group-hover:text-gray-600'}
                                 `}>
                                     {(isActive || isCompleted) && (
                                         <div className="absolute inset-0 bg-gradient-to-tr from-black/5 to-transparent" />
                                     )}
                                     <Icon size={20} className="relative z-10 md:w-6 md:h-6" />
                                 </div>
-                                <span className={`text-xs md:text-sm font-medium transition-colors ${isActive || isCompleted ? 'text-[#1d1d1f]' : 'text-gray-400'}`}>
+                                <span className={`text-xs md:text-sm font-medium transition-colors ${isActive || isCompleted ? 'text-zinc-100' : 'text-gray-400'}`}>
                                     {label}
                                 </span>
                             </div>
@@ -533,15 +533,15 @@ export function UnifiedMemeWorkflow() {
                 {/* Step 1: Generate */}
                 {currentStep === 'generate' && (
                     <div className="max-w-3xl mx-auto animate-in fade-in zoom-in-95 duration-500">
-                        <div className="bg-white border border-[#e5e5e7] rounded-[2rem] p-10 space-y-10 shadow-sm relative overflow-hidden group">
+                        <div className="bg-[#111] border border-white/10 rounded-[2rem] p-10 space-y-10 shadow-sm relative overflow-hidden group">
                             {/* Decorative gradients */}
                             <div className="absolute -top-40 -right-40 w-80 h-80 bg-black/3 rounded-full blur-[100px] group-hover:bg-black/5 transition-colors duration-700" />
                             <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-black/3 rounded-full blur-[100px] group-hover:bg-black/5 transition-colors duration-700" />
 
                             <div className="space-y-6 relative z-10">
                                 <div className="space-y-2">
-                                    <label className="text-lg font-bold text-[#1d1d1f] flex items-center gap-2">
-                                        <Wand2 className="text-[#1d1d1f]" size={20} />
+                                    <label className="text-lg font-bold text-zinc-100 flex items-center gap-2">
+                                        <Wand2 className="text-zinc-100" size={20} />
                                         Meme Topic
                                     </label>
                                     <div className="relative group/input">
@@ -550,14 +550,14 @@ export function UnifiedMemeWorkflow() {
                                             value={topic}
                                             onChange={(e) => setTopic(e.target.value)}
                                             placeholder="What's trending? e.g., 'POV: Senior Dev fixing bugs'..."
-                                            className="relative w-full bg-white border border-[#e5e5e7] rounded-xl px-6 py-6 text-xl text-[#1d1d1f] placeholder:text-gray-400 focus:outline-none focus:border-[#1d1d1f] transition-all"
+                                            className="relative w-full bg-[#111] border border-white/10 rounded-xl px-6 py-6 text-xl text-zinc-100 placeholder:text-gray-400 focus:outline-none focus:border-[#1d1d1f] transition-all"
                                             onKeyDown={(e) => e.key === 'Enter' && topic && !isGenerating && handleGenerate(false)}
                                         />
                                     </div>
                                 </div>
 
                                 <div className="space-y-4">
-                                    <label className="text-sm font-medium text-[#86868b] uppercase tracking-wider ml-1">Vibe / Persona</label>
+                                    <label className="text-sm font-medium text-zinc-400 uppercase tracking-wider ml-1">Vibe / Persona</label>
                                     <div className="flex flex-wrap gap-2">
                                         {[
                                             { id: 'default', label: '✨ Default', desc: 'Relatable & Viral' },
@@ -575,7 +575,7 @@ export function UnifiedMemeWorkflow() {
                                                     px-4 py-2 rounded-xl text-sm font-semibold transition-all border
                                                     ${persona === p.id
                                                         ? 'bg-[#1d1d1f] border-[#1d1d1f] text-white shadow-md'
-                                                        : 'bg-white border-[#e5e5e7] text-gray-500 hover:bg-[#F5F5F7] hover:border-[#d1d1d6]'}
+                                                        : 'bg-[#111] border-white/10 text-gray-500 hover:bg-white/5 hover:border-white/20'}
                                                 `}
                                             >
                                                 {p.label}
@@ -585,7 +585,7 @@ export function UnifiedMemeWorkflow() {
                                 </div>
 
                                 <div className="space-y-4">
-                                    <label className="text-sm font-medium text-[#86868b] uppercase tracking-wider ml-1">Quantity</label>
+                                    <label className="text-sm font-medium text-zinc-400 uppercase tracking-wider ml-1">Quantity</label>
                                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-6">
                                         {[10, 20, 50].map(num => (
                                             <button
@@ -595,7 +595,7 @@ export function UnifiedMemeWorkflow() {
                                                     relative py-4 md:py-6 rounded-2xl font-bold transition-all border group/btn overflow-hidden
                                                     ${quantity === num
                                                         ? 'bg-[#1d1d1f] border-[#1d1d1f] text-white shadow-lg'
-                                                        : 'bg-white border-[#e5e5e7] text-gray-500 hover:bg-[#F5F5F7] hover:border-[#d1d1d6] hover:text-gray-700'}
+                                                        : 'bg-[#111] border-white/10 text-gray-500 hover:bg-white/5 hover:border-white/20 hover:text-gray-700'}
                                                 `}
                                             >
                                                 {quantity === num && (
@@ -639,8 +639,8 @@ export function UnifiedMemeWorkflow() {
                                             ${!defaultDesign ? 'opacity-50 grayscale' : 'shadow-md'}
                                         `}
                                     >
-                                        <div className="relative bg-white border border-[#e5e5e7] rounded-xl px-8 py-6 transition-all group-hover/zap:bg-[#F5F5F7] h-full flex flex-col justify-center">
-                                            <div className="flex items-center justify-center gap-3 text-[#1d1d1f] font-black text-xl tracking-wide">
+                                        <div className="relative bg-[#111] border border-white/10 rounded-xl px-8 py-6 transition-all group-hover/zap:bg-white/5 h-full flex flex-col justify-center">
+                                            <div className="flex items-center justify-center gap-3 text-zinc-100 font-black text-xl tracking-wide">
                                                 <Zap className={`fill-current ${isGenerating ? 'animate-pulse' : ''}`} size={28} />
                                                 <span>USE SAVED DESIGN</span>
                                             </div>
@@ -658,17 +658,17 @@ export function UnifiedMemeWorkflow() {
                                         disabled={isBatchRunning || isGenerating}
                                         className="w-full group/batch relative overflow-hidden p-1 rounded-2xl transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 shadow-md"
                                     >
-                                        <div className="relative bg-white border border-[#e5e5e7] rounded-xl px-8 py-4 transition-all group-hover/batch:bg-[#F5F5F7] flex items-center justify-between">
+                                        <div className="relative bg-[#111] border border-white/10 rounded-xl px-8 py-4 transition-all group-hover/batch:bg-white/5 flex items-center justify-between">
                                             <div className="flex items-center gap-4">
                                                 <div className="bg-[#1d1d1f] p-2 rounded-lg">
                                                     <Rocket className={`text-white ${isBatchRunning ? 'animate-bounce' : ''}`} size={24} />
                                                 </div>
                                                 <div className="text-left">
-                                                    <h3 className="text-[#1d1d1f] font-bold text-lg">One-Click Auto Pilot</h3>
-                                                    <p className="text-[#86868b] text-xs">Read valid topics.txt • Generate for ALL Accounts • Auto Upload</p>
+                                                    <h3 className="text-zinc-100 font-bold text-lg">One-Click Auto Pilot</h3>
+                                                    <p className="text-zinc-400 text-xs">Read valid topics.txt • Generate for ALL Accounts • Auto Upload</p>
                                                 </div>
                                             </div>
-                                            <div className="text-[#1d1d1f]">
+                                            <div className="text-zinc-100">
                                                 {isBatchRunning ? <Loader2 className="animate-spin" /> : <span>Start &rarr;</span>}
                                             </div>
                                         </div>
@@ -676,8 +676,8 @@ export function UnifiedMemeWorkflow() {
 
                                     {/* Batch Logs Console */}
                                     {(batchLogs.length > 0) && (
-                                        <div className="mt-4 bg-white border border-[#e5e5e7] rounded-xl p-4 font-mono text-xs text-[#1d1d1f] h-64 overflow-y-auto no-scrollbar shadow-inner">
-                                            <div className="flex items-center gap-2 mb-2 pb-2 border-b border-[#e5e5e7] text-[#86868b]">
+                                        <div className="mt-4 bg-[#111] border border-white/10 rounded-xl p-4 font-mono text-xs text-zinc-100 h-64 overflow-y-auto no-scrollbar shadow-inner">
+                                            <div className="flex items-center gap-2 mb-2 pb-2 border-b border-white/10 text-zinc-400">
                                                 <Terminal size={12} />
                                                 <span>AUTO-PILOT LOGS</span>
                                             </div>
@@ -712,21 +712,21 @@ export function UnifiedMemeWorkflow() {
                 {/* Step 2: Review */}
                 {currentStep === 'review' && (
                     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        <div className="flex items-center justify-between bg-white backdrop-blur-xl p-6 rounded-2xl border border-[#e5e5e7] sticky top-4 z-50 shadow-lg">
+                        <div className="flex items-center justify-between bg-[#111]backdrop-blur-xl p-6 rounded-2xl border border-white/10 sticky top-4 z-50 shadow-lg">
                             <div className="flex items-center gap-4">
-                                <h2 className="text-2xl font-bold text-[#1d1d1f] flex items-center gap-2">
-                                    <CheckCircle className="text-[#1d1d1f]" />
+                                <h2 className="text-2xl font-bold text-zinc-100 flex items-center gap-2">
+                                    <CheckCircle className="text-zinc-100" />
                                     Review & Select
                                 </h2>
-                                <span className="px-3 py-1 bg-[#F5F5F7] rounded-full text-sm font-medium text-[#86868b]">
+                                <span className="px-3 py-1 bg-white/5 rounded-full text-sm font-medium text-zinc-400">
                                     {generatedMemes.filter(m => m.selected).length} selected
                                 </span>
                             </div>
                             <div className="flex gap-3">
-                                <button onClick={selectAll} className="px-4 py-2 bg-white hover:bg-[#F5F5F7] border border-[#e5e5e7] text-[#1d1d1f] rounded-lg text-sm font-bold transition-colors">
+                                <button onClick={selectAll} className="px-4 py-2 bg-[#111]hover:bg-white/5 border border-white/10 text-zinc-100 rounded-lg text-sm font-bold transition-colors">
                                     Select All
                                 </button>
-                                <button onClick={deselectAll} className="px-4 py-2 bg-white hover:bg-[#F5F5F7] border border-[#e5e5e7] text-[#1d1d1f] rounded-lg text-sm font-bold transition-colors">
+                                <button onClick={deselectAll} className="px-4 py-2 bg-[#111]hover:bg-white/5 border border-white/10 text-zinc-100 rounded-lg text-sm font-bold transition-colors">
                                     Deselect All
                                 </button>
                             </div>
@@ -745,7 +745,7 @@ export function UnifiedMemeWorkflow() {
                                             relative cursor-pointer rounded-2xl overflow-hidden border-2 transition-all duration-300 group
                                             ${meme.selected
                                                 ? 'border-[#1d1d1f] scale-105 shadow-xl z-10'
-                                                : 'border-[#e5e5e7] hover:border-[#d1d1d6] hover:scale-102 opacity-70 hover:opacity-100'}
+                                                : 'border-white/10 hover:border-white/20 hover:scale-102 opacity-70 hover:opacity-100'}
                                         `}
                                     >
                                         <div className="aspect-[9/16] relative bg-black flex items-center justify-center overflow-hidden">
@@ -813,7 +813,7 @@ export function UnifiedMemeWorkflow() {
                                                     absolute top-3 left-3 backdrop-blur-md rounded-full p-2 shadow-lg transition-all z-20 
                                                     ${defaultDesign?.templateId === meme.templateId
                                                         ? 'bg-[#1d1d1f] text-white opacity-100 scale-110'
-                                                        : 'bg-white/80 text-[#1d1d1f] hover:bg-[#1d1d1f] hover:text-white opacity-70 hover:opacity-100'}
+                                                        : 'bg-white/80 text-zinc-100 hover:bg-[#1d1d1f] hover:text-white opacity-70 hover:opacity-100'}
                                                 `}
                                                 title={defaultDesign?.templateId === meme.templateId ? "Current Default Design" : "Set as Default Design"}
                                             >
@@ -832,7 +832,7 @@ export function UnifiedMemeWorkflow() {
                             <button
                                 onClick={handleConvertToVideos}
                                 disabled={!generatedMemes.some(m => m.selected)}
-                                className="w-full bg-white border border-[#e5e5e7] text-[#1d1d1f] p-2 rounded-2xl shadow-lg disabled:opacity-0 transition-all duration-300 transform translate-y-0 disabled:translate-y-10"
+                                className="w-full bg-[#111] border border-white/10 text-zinc-100 p-2 rounded-2xl shadow-lg disabled:opacity-0 transition-all duration-300 transform translate-y-0 disabled:translate-y-10"
                             >
                                 <div className="bg-[#1d1d1f] rounded-xl py-4 px-8 flex items-center justify-center gap-3 font-bold text-lg text-white hover:bg-[#000] transition-all">
                                     <Video size={24} />
@@ -846,25 +846,25 @@ export function UnifiedMemeWorkflow() {
                 {/* Step 3: Convert */}
                 {currentStep === 'convert' && (
                     <div className="max-w-xl mx-auto pt-20 animate-in fade-in zoom-in-95 duration-500">
-                        <div className="bg-white border border-[#e5e5e7] p-12 rounded-[2.5rem] text-center space-y-10 shadow-lg relative overflow-hidden">
+                        <div className="bg-[#111] border border-white/10 p-12 rounded-[2.5rem] text-center space-y-10 shadow-lg relative overflow-hidden">
                             <div className="absolute inset-0 bg-gradient-to-b from-black/3 to-transparent pointer-events-none" />
 
                             <div className="relative">
-                                <div className="w-24 h-24 mx-auto bg-[#F5F5F7] rounded-full flex items-center justify-center mb-6">
-                                    <Loader2 className="animate-spin text-[#1d1d1f]" size={48} />
+                                <div className="w-24 h-24 mx-auto bg-white/5 rounded-full flex items-center justify-center mb-6">
+                                    <Loader2 className="animate-spin text-zinc-100" size={48} />
                                 </div>
-                                <h2 className="text-4xl font-bold text-[#1d1d1f] mb-2">Rendering Magic</h2>
-                                <p className="text-[#86868b]">Transforming your ideas into viral videos...</p>
+                                <h2 className="text-4xl font-bold text-zinc-100 mb-2">Rendering Magic</h2>
+                                <p className="text-zinc-400">Transforming your ideas into viral videos...</p>
                             </div>
 
                             <div className="space-y-4">
-                                <div className="w-full bg-[#F5F5F7] rounded-full h-4 overflow-hidden p-1 border border-[#e5e5e7]">
+                                <div className="w-full bg-white/5 rounded-full h-4 overflow-hidden p-1 border border-white/10">
                                     <div
                                         className="bg-[#1d1d1f] h-full rounded-full transition-all duration-300 shadow-md"
                                         style={{ width: `${conversionProgress}%` }}
                                     />
                                 </div>
-                                <div className="flex justify-between text-xs font-mono text-[#86868b] uppercase tracking-widest">
+                                <div className="flex justify-between text-xs font-mono text-zinc-400 uppercase tracking-widest">
                                     <span>Progress</span>
                                     <span>{Math.round(conversionProgress)}%</span>
                                 </div>
@@ -877,12 +877,12 @@ export function UnifiedMemeWorkflow() {
                 {currentStep === 'schedule' && (
                     <div className="space-y-8 animate-in fade-in slide-in-from-right-8 duration-500">
                         <div className="flex items-center justify-between">
-                            <h2 className="text-3xl font-bold text-[#1d1d1f]">Ready to Publish</h2>
+                            <h2 className="text-3xl font-bold text-zinc-100">Ready to Publish</h2>
                             <div className="flex gap-4">
                                 {!status.youtube.connected && (
                                     <Link
                                         href="/settings"
-                                        className="flex items-center gap-2 bg-[#F5F5F7] hover:bg-[#e5e5e7] text-[#1d1d1f] border border-[#e5e5e7] px-4 py-2 rounded-xl transition-all"
+                                        className="flex items-center gap-2 bg-white/5 hover:bg-[#e5e5e7] text-zinc-100 border border-white/10 px-4 py-2 rounded-xl transition-all"
                                     >
                                         <AlertCircle size={18} />
                                         <span>Connect YouTube</span>
@@ -891,7 +891,7 @@ export function UnifiedMemeWorkflow() {
                                 {!status.instagram.connected && (
                                     <Link
                                         href="/settings"
-                                        className="flex items-center gap-2 bg-[#F5F5F7] hover:bg-[#e5e5e7] text-[#1d1d1f] border border-[#e5e5e7] px-4 py-2 rounded-xl transition-all"
+                                        className="flex items-center gap-2 bg-white/5 hover:bg-[#e5e5e7] text-zinc-100 border border-white/10 px-4 py-2 rounded-xl transition-all"
                                     >
                                         <AlertCircle size={18} />
                                         <span>Connect Instagram</span>
@@ -905,7 +905,7 @@ export function UnifiedMemeWorkflow() {
                             {generatedMemes.filter(m => m.selected && m.videoBlob).map((meme, i) => {
                                 const videoUrl = meme.videoBlob ? URL.createObjectURL(meme.videoBlob) : '';
                                 return (
-                                    <div key={meme.id} className="bg-white rounded-2xl overflow-hidden border border-[#e5e5e7] group hover:border-[#d1d1d6] transition-all duration-300 hover:shadow-lg">
+                                    <div key={meme.id} className="bg-[#111]rounded-2xl overflow-hidden border border-white/10 group hover:border-white/20 transition-all duration-300 hover:shadow-lg">
                                         <div className="aspect-[9/16] bg-black relative">
                                             <video
                                                 src={videoUrl}
@@ -916,16 +916,16 @@ export function UnifiedMemeWorkflow() {
                                                 playsInline
                                             />
                                         </div>
-                                        <div className="p-4 space-y-3 bg-white border-t border-[#e5e5e7]">
+                                        <div className="p-4 space-y-3 bg-[#111] border-t border-white/10">
                                             <div className="flex items-start justify-between gap-2">
-                                                <p className="text-[#1d1d1f] text-sm font-semibold line-clamp-2 leading-relaxed">
+                                                <p className="text-zinc-100 text-sm font-semibold line-clamp-2 leading-relaxed">
                                                     {meme.texts[0]}
                                                 </p>
-                                                <span className="text-xs font-mono text-[#86868b] bg-[#F5F5F7] px-2 py-1 rounded">
+                                                <span className="text-xs font-mono text-zinc-400 bg-white/5 px-2 py-1 rounded">
                                                     #{i + 1}
                                                 </span>
                                             </div>
-                                            <div className="flex items-center gap-2 text-xs text-[#1d1d1f]">
+                                            <div className="flex items-center gap-2 text-xs text-zinc-100">
                                                 <CheckCircle size={12} />
                                                 {meme.videoBlob?.type === 'video/mp4' ? 'Audio Added' : 'Video Ready'}
                                             </div>
@@ -941,7 +941,7 @@ export function UnifiedMemeWorkflow() {
                                 onClick={handleSchedule}
                                 disabled={isScheduling || !status.youtube.connected || isSchedulingInstagram}
                                 className={`
-                                    w-full md:w-auto bg-white text-black rounded-2xl shadow-2xl transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:scale-100 disabled:grayscale
+                                    w-full md:w-auto bg-[#111]text-zinc-100 rounded-2xl shadow-2xl transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:scale-100 disabled:grayscale
                                     ${!status.youtube.connected ? 'opacity-50 cursor-not-allowed' : ''}
                                 `}
                             >
@@ -949,10 +949,10 @@ export function UnifiedMemeWorkflow() {
                                     <div className="bg-white/95 backdrop-blur-md rounded-xl px-8 py-4 flex items-center gap-4">
                                         {isScheduling ? (
                                             <>
-                                                <Loader2 className="animate-spin text-[#1d1d1f]" size={24} />
+                                                <Loader2 className="animate-spin text-zinc-100" size={24} />
                                                 <div className="text-left">
-                                                    <div className="text-[#1d1d1f] font-bold">Uploading to YouTube...</div>
-                                                    <div className="text-[#86868b] text-xs">Processing...</div>
+                                                    <div className="text-zinc-100 font-bold">Uploading to YouTube...</div>
+                                                    <div className="text-zinc-400 text-xs">Processing...</div>
                                                 </div>
                                             </>
                                         ) : (
@@ -960,9 +960,9 @@ export function UnifiedMemeWorkflow() {
                                                 <div className="p-3 bg-[#1d1d1f] rounded-lg text-white">
                                                     <Share2 size={24} />
                                                 </div>
-                                                <div className="text-left text-[#1d1d1f]">
+                                                <div className="text-left text-zinc-100">
                                                     <div className="font-bold text-lg">Post to YouTube</div>
-                                                    <div className="text-[#86868b] text-xs">
+                                                    <div className="text-zinc-400 text-xs">
                                                         Shorts / Reels
                                                     </div>
                                                 </div>
@@ -977,7 +977,7 @@ export function UnifiedMemeWorkflow() {
                                 onClick={handleInstagramUpload}
                                 disabled={isSchedulingInstagram || !status.instagram.connected || isScheduling}
                                 className={`
-                                    w-full md:w-auto bg-white text-black rounded-2xl shadow-2xl transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:scale-100 disabled:grayscale
+                                    w-full md:w-auto bg-[#111]text-zinc-100 rounded-2xl shadow-2xl transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:scale-100 disabled:grayscale
                                     ${!status.instagram.connected ? 'opacity-50 cursor-not-allowed' : ''}
                                 `}
                             >
@@ -985,10 +985,10 @@ export function UnifiedMemeWorkflow() {
                                     <div className="bg-white/95 backdrop-blur-md rounded-xl px-8 py-4 flex items-center gap-4">
                                         {isSchedulingInstagram ? (
                                             <>
-                                                <Loader2 className="animate-spin text-[#1d1d1f]" size={24} />
+                                                <Loader2 className="animate-spin text-zinc-100" size={24} />
                                                 <div className="text-left">
-                                                    <div className="text-[#1d1d1f] font-bold">Posting to Instagram...</div>
-                                                    <div className="text-[#86868b] text-xs">Processing via Graph API</div>
+                                                    <div className="text-zinc-100 font-bold">Posting to Instagram...</div>
+                                                    <div className="text-zinc-400 text-xs">Processing via Graph API</div>
                                                 </div>
                                             </>
                                         ) : (
@@ -996,9 +996,9 @@ export function UnifiedMemeWorkflow() {
                                                 <div className="p-3 bg-[#1d1d1f] rounded-lg text-white">
                                                     <Share2 size={24} />
                                                 </div>
-                                                <div className="text-left text-[#1d1d1f]">
+                                                <div className="text-left text-zinc-100">
                                                     <div className="font-bold text-lg">Post to Instagram</div>
-                                                    <div className="text-[#86868b] text-xs">
+                                                    <div className="text-zinc-400 text-xs">
                                                         Reels
                                                     </div>
                                                 </div>

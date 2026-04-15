@@ -884,14 +884,14 @@ export function QuotesGenerator() {
             />
 
             {/* Hero Section - Simplified/Removed since page header exists, or just a clean sub-banner */}
-            <div className="bg-white rounded-3xl p-8 border border-[#e5e5e7] shadow-sm relative overflow-hidden">
+            <div className="bg-[#111]rounded-3xl p-8 border border-white/10 shadow-sm relative overflow-hidden">
                 <div className="relative z-10 flex items-center justify-between">
                     <div>
-                        <h2 className="text-xl font-bold text-[#1d1d1f]">Create New Quote</h2>
-                        <p className="text-[#86868b] mt-1">Generate viral quote videos optimized for Shorts & Reels.</p>
+                        <h2 className="text-xl font-bold text-zinc-100">Create New Quote</h2>
+                        <p className="text-zinc-400 mt-1">Generate viral quote videos optimized for Shorts & Reels.</p>
                     </div>
-                    <div className="p-3 bg-[#F5F5F7] rounded-full">
-                        <Sparkles className="text-black" size={24} />
+                    <div className="p-3 bg-white/5 rounded-full">
+                        <Sparkles className="text-zinc-100" size={24} />
                     </div>
                 </div>
                 {/* Subtle background detail */}
@@ -903,25 +903,25 @@ export function QuotesGenerator() {
 
                 {/* Left Column: Quote Generation */}
                 <div className="lg:col-span-1 space-y-6">
-                    <div className="bg-white p-6 rounded-2xl border border-[#e5e5e7] hover:shadow-lg transition-shadow">
+                    <div className="bg-[#111]p-6 rounded-2xl border border-white/10 hover:shadow-lg transition-shadow">
                         <div className="flex items-center gap-2 mb-5">
-                            <Sparkles className="text-black" size={20} />
-                            <h2 className="text-lg font-bold text-[#1d1d1f]">Content</h2>
+                            <Sparkles className="text-zinc-100" size={20} />
+                            <h2 className="text-lg font-bold text-zinc-100">Content</h2>
                         </div>
 
                         <div className="space-y-5">
                             <div className="relative">
-                                <label className="text-xs font-bold text-[#86868b] uppercase tracking-wider mb-2 block">Topic</label>
+                                <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2 block">Topic</label>
                                 <input
                                     value={topic}
                                     onChange={(e) => setTopic(e.target.value)}
                                     placeholder="e.g., Success, Mindset, Love..."
-                                    className="w-full bg-[#F5F5F7] border border-transparent rounded-xl px-4 py-3 text-[#1d1d1f] placeholder-[#86868b] focus:bg-white focus:border-[#000] focus:ring-0 outline-none transition-all"
+                                    className="w-full bg-white/5 border border-transparent rounded-xl px-4 py-3 text-zinc-100 placeholder-[#86868b] focus:bg-[#111]focus:border-[#000] focus:ring-0 outline-none transition-all"
                                 />
                                 <button
                                     onClick={handleSuggestTopic}
                                     disabled={isSuggesting}
-                                    className="absolute right-2 top-[34px] p-2 hover:bg-gray-200 text-[#1d1d1f] rounded-lg transition-all"
+                                    className="absolute right-2 top-[34px] p-2 hover:bg-gray-200 text-zinc-100 rounded-lg transition-all"
                                     title="Suggest Trending Topic"
                                 >
                                     {isSuggesting ? (
@@ -933,7 +933,7 @@ export function QuotesGenerator() {
                             </div>
 
                             <div>
-                                <label className="text-xs font-bold text-[#86868b] uppercase tracking-wider mb-2 block">Vibe</label>
+                                <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2 block">Vibe</label>
                                 <div className="grid grid-cols-2 gap-2">
                                     {(['inspirational', 'funny', 'wisdom', 'success'] as const).map(s => (
                                         <button
@@ -941,7 +941,7 @@ export function QuotesGenerator() {
                                             onClick={() => setStyle(s)}
                                             className={`py-3 px-4 rounded-xl font-semibold text-sm transition-all border ${style === s
                                                 ? 'bg-black text-white border-black shadow-lg'
-                                                : 'bg-[#F5F5F7] text-[#86868b] border-transparent hover:bg-[#e5e5e7] hover:text-[#1d1d1f]'
+                                                : 'bg-white/5 text-zinc-400 border-transparent hover:bg-[#e5e5e7] hover:text-zinc-100'
                                                 }`}
                                         >
                                             {s.charAt(0).toUpperCase() + s.slice(1)}
@@ -951,10 +951,10 @@ export function QuotesGenerator() {
                             </div>
 
                             <div>
-                                <label className="text-xs font-bold text-[#86868b] uppercase tracking-wider mb-2 block">
-                                    Quantity <span className="text-black font-mono ml-2">{quoteCount}</span>
+                                <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2 block">
+                                    Quantity <span className="text-zinc-100 font-mono ml-2">{quoteCount}</span>
                                 </label>
-                                <div className="bg-[#F5F5F7] rounded-xl px-4 py-4">
+                                <div className="bg-white/5 rounded-xl px-4 py-4">
                                     <input
                                         type="range"
                                         min="1"
@@ -970,10 +970,10 @@ export function QuotesGenerator() {
                             </div>
 
                             <div>
-                                <label className="text-xs font-bold text-[#86868b] uppercase tracking-wider mb-2 block">
-                                    Video Duration <span className="text-black font-mono ml-2">{videoDuration}s</span>
+                                <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2 block">
+                                    Video Duration <span className="text-zinc-100 font-mono ml-2">{videoDuration}s</span>
                                 </label>
-                                <div className="bg-[#F5F5F7] rounded-xl px-4 py-4">
+                                <div className="bg-white/5 rounded-xl px-4 py-4">
                                     <input
                                         type="range"
                                         min="5"
@@ -986,7 +986,7 @@ export function QuotesGenerator() {
                                             background: `linear-gradient(to right, rgb(0, 0, 0) 0%, rgb(0, 0, 0) ${((videoDuration - 5) / 10) * 100}%, rgb(229, 231, 235) ${((videoDuration - 5) / 10) * 100}%, rgb(229, 231, 235) 100%)`
                                         }}
                                     />
-                                    <div className="flex justify-between text-xs text-[#86868b] mt-2 font-mono">
+                                    <div className="flex justify-between text-xs text-zinc-400 mt-2 font-mono">
                                         <span>5s</span>
                                         <span>15s</span>
                                     </div>
@@ -1041,7 +1041,7 @@ export function QuotesGenerator() {
                                                         onClick={() => setAutoPilotStyle(s)}
                                                         className={`py-2 px-3 rounded-lg font-medium text-xs transition-all border ${autoPilotStyle === s
                                                             ? 'bg-green-600 text-white border-green-600 shadow-md'
-                                                            : 'bg-white text-green-800 border-green-200 hover:bg-green-100'
+                                                            : 'bg-[#111]text-green-800 border-green-200 hover:bg-green-100'
                                                             }`}
                                                     >
                                                         {s === 'random' ? '🎲 Random' : s.charAt(0).toUpperCase() + s.slice(1)}
@@ -1055,7 +1055,7 @@ export function QuotesGenerator() {
                                             <label className="text-xs font-bold text-green-900 uppercase tracking-wider mb-2 block">
                                                 Generations Per Channel <span className="text-green-600 font-mono ml-2">{autoPilotGenerationsPerChannel}</span>
                                             </label>
-                                            <div className="bg-white rounded-lg px-4 py-3 border border-green-200">
+                                            <div className="bg-[#111]rounded-lg px-4 py-3 border border-green-200">
                                                 <input
                                                     type="range"
                                                     min="1"
@@ -1086,7 +1086,7 @@ export function QuotesGenerator() {
                                                         onClick={() => setAutoPilotBackgroundType(bg)}
                                                         className={`py-2 px-3 rounded-lg font-medium text-xs transition-all border ${autoPilotBackgroundType === bg
                                                             ? 'bg-green-600 text-white border-green-600 shadow-md'
-                                                            : 'bg-white text-green-800 border-green-200 hover:bg-green-100'
+                                                            : 'bg-[#111]text-green-800 border-green-200 hover:bg-green-100'
                                                             }`}
                                                     >
                                                         {bg === 'random' ? '🎲' : bg === 'gradient' ? '🌈' : '🖼️'} {bg.charAt(0).toUpperCase() + bg.slice(1)}
@@ -1107,7 +1107,7 @@ export function QuotesGenerator() {
                                                         onClick={() => setAutoPilotTextAlign(align)}
                                                         className={`py-2 px-3 rounded-lg font-medium text-xs transition-all border ${autoPilotTextAlign === align
                                                             ? 'bg-green-600 text-white border-green-600 shadow-md'
-                                                            : 'bg-white text-green-800 border-green-200 hover:bg-green-100'
+                                                            : 'bg-[#111]text-green-800 border-green-200 hover:bg-green-100'
                                                             }`}
                                                     >
                                                         {align === 'random' ? '🎲' : align === 'left' ? '⬅️' : align === 'center' ? '↔️' : '➡️'}
@@ -1160,10 +1160,10 @@ export function QuotesGenerator() {
 
                 {/* Middle Column: Preview */}
                 <div className="lg:col-span-1 space-y-6">
-                    <div className="bg-white p-6 rounded-2xl border border-[#e5e5e7] hover:shadow-lg transition-shadow">
+                    <div className="bg-[#111]p-6 rounded-2xl border border-white/10 hover:shadow-lg transition-shadow">
                         <div className="flex items-center gap-2 mb-5">
-                            <Monitor className="text-black" size={20} />
-                            <h2 className="text-lg font-bold text-[#1d1d1f]">Live Preview</h2>
+                            <Monitor className="text-zinc-100" size={20} />
+                            <h2 className="text-lg font-bold text-zinc-100">Live Preview</h2>
                         </div>
 
                         <div className="flex justify-center">
@@ -1209,13 +1209,13 @@ export function QuotesGenerator() {
 
                         {/* Format Selection */}
                         <div className="mt-6">
-                            <label className="text-xs font-bold text-[#86868b] uppercase tracking-wider mb-2 block">Format</label>
-                            <div className="grid grid-cols-2 gap-2 bg-[#F5F5F7] rounded-xl p-1.5 border border-[#e5e5e7]">
+                            <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2 block">Format</label>
+                            <div className="grid grid-cols-2 gap-2 bg-white/5 rounded-xl p-1.5 border border-white/10">
                                 <button
                                     onClick={() => setAspectRatio('square')}
                                     className={`flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-semibold transition-all ${aspectRatio === 'square'
-                                        ? 'bg-white text-black shadow-md'
-                                        : 'text-[#86868b] hover:text-[#1d1d1f]'
+                                        ? 'bg-[#111]text-zinc-100 shadow-md'
+                                        : 'text-zinc-400 hover:text-zinc-100'
                                         }`}
                                 >
                                     <Monitor size={16} /> Square
@@ -1237,10 +1237,10 @@ export function QuotesGenerator() {
                 {/* Right Column: Customization */}
                 <div className="lg:col-span-1 space-y-6">
                     {/* Background Settings */}
-                    <div className="bg-white p-6 rounded-2xl border border-[#e5e5e7] hover:shadow-lg transition-shadow">
+                    <div className="bg-[#111]p-6 rounded-2xl border border-white/10 hover:shadow-lg transition-shadow">
                         <div className="flex items-center gap-2 mb-5">
-                            <Palette className="text-black" size={20} />
-                            <h2 className="text-lg font-bold text-[#1d1d1f]">Background</h2>
+                            <Palette className="text-zinc-100" size={20} />
+                            <h2 className="text-lg font-bold text-zinc-100">Background</h2>
                         </div>
 
                         <div className="space-y-4">
@@ -1249,7 +1249,7 @@ export function QuotesGenerator() {
                                     onClick={() => setBackgroundType('gradient')}
                                     className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl border transition-all text-sm font-semibold ${backgroundType === 'gradient'
                                         ? 'bg-black text-white border-black'
-                                        : 'bg-[#F5F5F7] text-[#86868b] border-transparent hover:text-[#1d1d1f]'
+                                        : 'bg-white/5 text-zinc-400 border-transparent hover:text-zinc-100'
                                         }`}
                                 >
                                     <Palette size={16} /> Gradient
@@ -1258,7 +1258,7 @@ export function QuotesGenerator() {
                                     onClick={() => fileInputRef.current?.click()}
                                     className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl border transition-all text-sm font-semibold ${backgroundType === 'image'
                                         ? 'bg-black text-white border-black'
-                                        : 'bg-[#F5F5F7] text-[#86868b] border-transparent hover:text-[#1d1d1f]'
+                                        : 'bg-white/5 text-zinc-400 border-transparent hover:text-zinc-100'
                                         }`}
                                 >
                                     <ImageIcon size={16} /> Image
@@ -1267,7 +1267,7 @@ export function QuotesGenerator() {
 
                             {backgroundType === 'gradient' && (
                                 <div className="space-y-3 animate-in fade-in slide-in-from-top-2">
-                                    <div className="bg-[#F5F5F7] p-3 rounded-xl border border-transparent flex items-center gap-3">
+                                    <div className="bg-white/5 p-3 rounded-xl border border-transparent flex items-center gap-3">
                                         <input
                                             type="color"
                                             value={color1}
@@ -1275,11 +1275,11 @@ export function QuotesGenerator() {
                                             className="w-10 h-10 rounded-lg cursor-pointer border-2 border-white shadow-sm"
                                         />
                                         <div className="flex-1">
-                                            <div className="text-xs text-[#86868b] mb-1">Color 1</div>
-                                            <div className="text-sm text-[#1d1d1f] font-mono">{color1}</div>
+                                            <div className="text-xs text-zinc-400 mb-1">Color 1</div>
+                                            <div className="text-sm text-zinc-100 font-mono">{color1}</div>
                                         </div>
                                     </div>
-                                    <div className="bg-[#F5F5F7] p-3 rounded-xl border border-transparent flex items-center gap-3">
+                                    <div className="bg-white/5 p-3 rounded-xl border border-transparent flex items-center gap-3">
                                         <input
                                             type="color"
                                             value={color2}
@@ -1287,15 +1287,15 @@ export function QuotesGenerator() {
                                             className="w-10 h-10 rounded-lg cursor-pointer border-2 border-white shadow-sm"
                                         />
                                         <div className="flex-1">
-                                            <div className="text-xs text-[#86868b] mb-1">Color 2</div>
-                                            <div className="text-sm text-[#1d1d1f] font-mono">{color2}</div>
+                                            <div className="text-xs text-zinc-400 mb-1">Color 2</div>
+                                            <div className="text-sm text-zinc-100 font-mono">{color2}</div>
                                         </div>
                                     </div>
                                 </div>
                             )}
 
                             {backgroundType === 'image' && backgroundImage && (
-                                <div className="bg-[#F5F5F7] p-3 rounded-xl border border-transparent text-center">
+                                <div className="bg-white/5 p-3 rounded-xl border border-transparent text-center">
                                     <p className="text-sm text-green-600 flex items-center justify-center gap-2 font-medium">
                                         <ImageIcon size={14} /> Image uploaded
                                     </p>
@@ -1305,18 +1305,18 @@ export function QuotesGenerator() {
                     </div>
 
                     {/* Text Styling */}
-                    <div className="bg-white p-6 rounded-2xl border border-[#e5e5e7] hover:shadow-lg transition-shadow">
+                    <div className="bg-[#111]p-6 rounded-2xl border border-white/10 hover:shadow-lg transition-shadow">
                         <div className="flex items-center gap-2 mb-5">
-                            <Type className="text-black" size={20} />
-                            <h2 className="text-lg font-bold text-[#1d1d1f]">Text Style</h2>
+                            <Type className="text-zinc-100" size={20} />
+                            <h2 className="text-lg font-bold text-zinc-100">Text Style</h2>
                         </div>
 
                         <div className="space-y-4">
                             {/* Color */}
-                            <div className="bg-[#F5F5F7] p-3 rounded-xl border border-transparent">
+                            <div className="bg-white/5 p-3 rounded-xl border border-transparent">
                                 <div className="flex items-center justify-between mb-2">
-                                    <span className="text-xs font-bold text-[#86868b] uppercase">Color</span>
-                                    <span className="text-xs font-mono text-[#1d1d1f]">{textColor}</span>
+                                    <span className="text-xs font-bold text-zinc-400 uppercase">Color</span>
+                                    <span className="text-xs font-mono text-zinc-100">{textColor}</span>
                                 </div>
                                 <input
                                     type="color"
@@ -1327,8 +1327,8 @@ export function QuotesGenerator() {
                             </div>
 
                             {/* Alignment */}
-                            <div className="bg-[#F5F5F7] p-3 rounded-xl border border-transparent">
-                                <div className="text-xs font-bold text-[#86868b] uppercase mb-3">Alignment</div>
+                            <div className="bg-white/5 p-3 rounded-xl border border-transparent">
+                                <div className="text-xs font-bold text-zinc-400 uppercase mb-3">Alignment</div>
                                 <div className="grid grid-cols-3 gap-2">
                                     {[
                                         { id: 'left', icon: AlignLeft, label: 'Left' },
@@ -1339,8 +1339,8 @@ export function QuotesGenerator() {
                                             key={id}
                                             onClick={() => setTextAlign(id as any)}
                                             className={`flex flex-col items-center gap-1 py-2 rounded-lg transition-all ${textAlign === id
-                                                ? 'bg-white text-black shadow-md'
-                                                : 'text-[#86868b] hover:text-[#1d1d1f]'
+                                                ? 'bg-[#111]text-zinc-100 shadow-md'
+                                                : 'text-zinc-400 hover:text-zinc-100'
                                                 }`}
                                         >
                                             <Icon size={18} />
@@ -1351,15 +1351,15 @@ export function QuotesGenerator() {
                             </div>
 
                             {/* Size */}
-                            <div className="bg-[#F5F5F7] p-3 rounded-xl border border-transparent">
+                            <div className="bg-white/5 p-3 rounded-xl border border-transparent">
                                 <div className="flex items-center justify-between mb-3">
-                                    <span className="text-xs font-bold text-[#86868b] uppercase">Size</span>
-                                    <span className="text-sm font-mono text-black bg-white px-3 py-1 rounded-lg border border-[#e5e5e7]">{Math.round(fontSizeScale * 100)}%</span>
+                                    <span className="text-xs font-bold text-zinc-400 uppercase">Size</span>
+                                    <span className="text-sm font-mono text-zinc-100 bg-[#111]px-3 py-1 rounded-lg border border-white/10">{Math.round(fontSizeScale * 100)}%</span>
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <button
                                         onClick={() => setFontSizeScale(prev => Math.max(0.6, prev - 0.1))}
-                                        className="p-2 bg-white hover:bg-[#e5e5e7] text-[#1d1d1f] rounded-lg transition-all border border-[#e5e5e7]"
+                                        className="p-2 bg-[#111]hover:bg-[#e5e5e7] text-zinc-100 rounded-lg transition-all border border-white/10"
                                     >
                                         <Minus size={16} />
                                     </button>
@@ -1371,7 +1371,7 @@ export function QuotesGenerator() {
                                     </div>
                                     <button
                                         onClick={() => setFontSizeScale(prev => Math.min(2.0, prev + 0.1))}
-                                        className="p-2 bg-white hover:bg-[#e5e5e7] text-[#1d1d1f] rounded-lg transition-all border border-[#e5e5e7]"
+                                        className="p-2 bg-[#111]hover:bg-[#e5e5e7] text-zinc-100 rounded-lg transition-all border border-white/10"
                                     >
                                         <Plus size={16} />
                                     </button>
@@ -1381,19 +1381,19 @@ export function QuotesGenerator() {
                     </div>
 
                     {/* Audio / Music Selection */}
-                    <div className="bg-white p-6 rounded-2xl border border-[#e5e5e7] hover:shadow-lg transition-shadow">
+                    <div className="bg-[#111]p-6 rounded-2xl border border-white/10 hover:shadow-lg transition-shadow">
                         <div className="flex items-center gap-2 mb-4">
-                            <Music className="text-black" size={20} />
-                            <h2 className="text-lg font-bold text-[#1d1d1f]">Music</h2>
+                            <Music className="text-zinc-100" size={20} />
+                            <h2 className="text-lg font-bold text-zinc-100">Music</h2>
                         </div>
 
                         {/* Music Source Toggle */}
-                        <div className="grid grid-cols-2 gap-2 mb-4 bg-[#F5F5F7] rounded-xl p-1.5 border border-[#e5e5e7]">
+                        <div className="grid grid-cols-2 gap-2 mb-4 bg-white/5 rounded-xl p-1.5 border border-white/10">
                             <button
                                 onClick={() => setUseLibraryMusic(true)}
                                 className={`flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all ${useLibraryMusic
-                                    ? 'bg-white text-black shadow-md'
-                                    : 'text-[#86868b] hover:text-[#1d1d1f]'
+                                    ? 'bg-[#111]text-zinc-100 shadow-md'
+                                    : 'text-zinc-400 hover:text-zinc-100'
                                     }`}
                             >
                                 <Music size={16} /> Library
@@ -1401,8 +1401,8 @@ export function QuotesGenerator() {
                             <button
                                 onClick={() => setUseLibraryMusic(false)}
                                 className={`flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all ${!useLibraryMusic
-                                    ? 'bg-white text-black shadow-md'
-                                    : 'text-[#86868b] hover:text-[#1d1d1f]'
+                                    ? 'bg-[#111]text-zinc-100 shadow-md'
+                                    : 'text-zinc-400 hover:text-zinc-100'
                                     }`}
                             >
                                 <Upload size={16} /> Upload
@@ -1414,7 +1414,7 @@ export function QuotesGenerator() {
                                 {/* Mood Filter */}
                                 {musicLibrary && (
                                     <div className="space-y-3">
-                                        <label className="text-xs font-bold text-[#86868b] uppercase">Mood</label>
+                                        <label className="text-xs font-bold text-zinc-400 uppercase">Mood</label>
                                         <div className="grid grid-cols-2 gap-2">
                                             {musicLibrary.moods.map((mood) => (
                                                 <button
@@ -1422,7 +1422,7 @@ export function QuotesGenerator() {
                                                     onClick={() => setSelectedMood(mood.id)}
                                                     className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm font-medium transition-all ${selectedMood === mood.id
                                                         ? 'bg-black text-white'
-                                                        : 'bg-[#F5F5F7] text-[#86868b] hover:text-[#1d1d1f]'
+                                                        : 'bg-white/5 text-zinc-400 hover:text-zinc-100'
                                                         }`}
                                                 >
                                                     <span>{mood.icon}</span>
@@ -1433,7 +1433,7 @@ export function QuotesGenerator() {
 
                                         {/* Track Selection */}
                                         <div className="mt-4">
-                                            <label className="text-xs font-bold text-[#86868b] uppercase mb-2 block">Select Track</label>
+                                            <label className="text-xs font-bold text-zinc-400 uppercase mb-2 block">Select Track</label>
                                             <div className="space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
                                                 {musicLibrary.tracks
                                                     .filter(track => track.mood === selectedMood)
@@ -1442,17 +1442,17 @@ export function QuotesGenerator() {
                                                             key={track.id}
                                                             onClick={() => handleTrackSelect(track)}
                                                             className={`w-full text-left p-3 rounded-lg transition-all border ${selectedTrack?.id === track.id
-                                                                ? 'bg-[#F5F5F7] border-black'
-                                                                : 'bg-white border-[#e5e5e7] hover:border-[#86868b]'
+                                                                ? 'bg-white/5 border-black'
+                                                                : 'bg-[#111] border-white/10 hover:border-[#86868b]'
                                                                 }`}
                                                         >
                                                             <div className="flex items-center justify-between">
                                                                 <div className="flex-1">
-                                                                    <div className={`text-sm font-semibold ${selectedTrack?.id === track.id ? 'text-[#1d1d1f]' : 'text-[#86868b]'
+                                                                    <div className={`text-sm font-semibold ${selectedTrack?.id === track.id ? 'text-zinc-100' : 'text-zinc-400'
                                                                         }`}>
                                                                         {track.name}
                                                                     </div>
-                                                                    <div className="text-xs text-[#86868b] mt-1">{track.description}</div>
+                                                                    <div className="text-xs text-zinc-400 mt-1">{track.description}</div>
                                                                 </div>
                                                                 {selectedTrack?.id === track.id && (
                                                                     <div className="ml-2 w-2 h-2 bg-black rounded-full" />
@@ -1465,11 +1465,11 @@ export function QuotesGenerator() {
 
                                         {/* Audio Preview */}
                                         {selectedTrack && (
-                                            <div className="mt-4 bg-[#F5F5F7] p-3 rounded-xl border border-transparent">
+                                            <div className="mt-4 bg-white/5 p-3 rounded-xl border border-transparent">
                                                 <div className="flex items-center justify-between mb-2">
                                                     <div className="flex-1">
-                                                        <div className="text-xs text-[#86868b]">Now Playing</div>
-                                                        <div className="text-sm font-semibold text-[#1d1d1f]">{selectedTrack.name}</div>
+                                                        <div className="text-xs text-zinc-400">Now Playing</div>
+                                                        <div className="text-sm font-semibold text-zinc-100">{selectedTrack.name}</div>
                                                     </div>
                                                     <button
                                                         onClick={togglePreview}
@@ -1494,11 +1494,11 @@ export function QuotesGenerator() {
                                 onClick={() => audioInputRef.current?.click()}
                                 className={`w-full flex items-center justify-between px-4 py-4 rounded-xl border transition-all group ${audioFile
                                     ? 'border-black bg-black text-white'
-                                    : 'border-[#e5e5e7] bg-[#F5F5F7] text-[#86868b] hover:border-[#86868b]'
+                                    : 'border-white/10 bg-white/5 text-zinc-400 hover:border-[#86868b]'
                                     }`}
                             >
                                 <span className="flex items-center gap-3 text-sm font-semibold">
-                                    <Music size={18} className={audioFile ? "text-white" : "text-[#86868b]"} />
+                                    <Music size={18} className={audioFile ? "text-white" : "text-zinc-400"} />
                                     {audioFile ? audioFile.name : 'Upload Background Music'}
                                 </span>
                                 {!audioFile && <Upload size={16} className="opacity-50 group-hover:opacity-100" />}
@@ -1511,27 +1511,27 @@ export function QuotesGenerator() {
             {/* Scheduling Section */}
             {
                 quotes.length > 0 && (
-                    <div className="bg-white p-8 rounded-2xl border border-[#e5e5e7] shadow-lg animate-in fade-in slide-in-from-bottom-4">
+                    <div className="bg-[#111]p-8 rounded-2xl border border-white/10 shadow-lg animate-in fade-in slide-in-from-bottom-4">
                         <div className="flex items-center gap-3 mb-6">
                             <div className="p-3 bg-[#e5e5e7] rounded-full">
-                                <Calendar className="text-black" size={24} />
+                                <Calendar className="text-zinc-100" size={24} />
                             </div>
                             <div>
-                                <h2 className="text-2xl font-bold text-[#1d1d1f]">Schedule Posting</h2>
-                                <p className="text-[#86868b] text-sm mt-1">Automate your YouTube Shorts uploads</p>
+                                <h2 className="text-2xl font-bold text-zinc-100">Schedule Posting</h2>
+                                <p className="text-zinc-400 text-sm mt-1">Automate your YouTube Shorts uploads</p>
                             </div>
                         </div>
 
                         {/* YouTube Account Selector */}
                         <div>
-                            <label className="text-xs font-bold text-[#86868b] uppercase tracking-wider mb-2 block">
+                            <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2 block">
                                 YouTube Account
                             </label>
                             {youtubeAccounts.length > 0 ? (
                                 <select
                                     value={selectedAccountId || ''}
                                     onChange={(e) => setSelectedAccountId(e.target.value)}
-                                    className="w-full bg-[#F5F5F7] border border-transparent rounded-xl px-4 py-3 text-[#1d1d1f] focus:bg-white focus:border-black focus:ring-0 outline-none transition-all"
+                                    className="w-full bg-white/5 border border-transparent rounded-xl px-4 py-3 text-zinc-100 focus:bg-[#111]focus:border-black focus:ring-0 outline-none transition-all"
                                 >
                                     {youtubeAccounts.map((account) => (
                                         <option key={account.id} value={account.id}>
@@ -1540,12 +1540,12 @@ export function QuotesGenerator() {
                                     ))}
                                 </select>
                             ) : (
-                                <div className="bg-[#F5F5F7] border border-transparent rounded-xl px-4 py-3 flex items-center gap-3">
+                                <div className="bg-white/5 border border-transparent rounded-xl px-4 py-3 flex items-center gap-3">
                                     <Youtube className="text-red-500" size={20} />
-                                    <span className="text-[#86868b] text-sm">No YouTube accounts connected</span>
+                                    <span className="text-zinc-400 text-sm">No YouTube accounts connected</span>
                                     <a
                                         href="/settings"
-                                        className="ml-auto text-[#1d1d1f] hover:underline text-sm font-semibold"
+                                        className="ml-auto text-zinc-100 hover:underline text-sm font-semibold"
                                     >
                                         Connect
                                     </a>
@@ -1555,25 +1555,25 @@ export function QuotesGenerator() {
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
                             <div>
-                                <label className="text-xs font-bold text-[#86868b] uppercase tracking-wider mb-2 block">Start Time</label>
+                                <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2 block">Start Time</label>
                                 <input
                                     type="datetime-local"
                                     value={scheduleTime}
                                     onChange={(e) => setScheduleTime(e.target.value)}
-                                    className="w-full bg-[#F5F5F7] border border-transparent rounded-xl px-4 py-3 text-[#1d1d1f] focus:bg-white focus:border-black focus:ring-0 outline-none transition-all"
+                                    className="w-full bg-white/5 border border-transparent rounded-xl px-4 py-3 text-zinc-100 focus:bg-[#111]focus:border-black focus:ring-0 outline-none transition-all"
                                 />
                             </div>
 
                             <div>
-                                <label className="text-xs font-bold text-[#86868b] uppercase tracking-wider mb-2 block">Interval (Minutes)</label>
-                                <div className="flex items-center gap-3 bg-[#F5F5F7] border border-transparent rounded-xl px-4 py-3">
-                                    <Clock size={18} className="text-[#86868b]" />
+                                <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2 block">Interval (Minutes)</label>
+                                <div className="flex items-center gap-3 bg-white/5 border border-transparent rounded-xl px-4 py-3">
+                                    <Clock size={18} className="text-zinc-400" />
                                     <input
                                         type="number"
                                         min="1"
                                         value={scheduleInterval}
                                         onChange={(e) => setScheduleInterval(parseInt(e.target.value))}
-                                        className="w-full bg-transparent text-[#1d1d1f] outline-none"
+                                        className="w-full bg-transparent text-zinc-100 outline-none"
                                     />
                                 </div>
                             </div>
@@ -1598,8 +1598,8 @@ export function QuotesGenerator() {
                     <>
                         <div className="flex items-center justify-between pt-8">
                             <div>
-                                <h2 className="text-2xl font-bold text-[#1d1d1f]">Generated Quotes</h2>
-                                <p className="text-[#86868b] text-sm mt-1">{quotes.length} quote{quotes.length > 1 ? 's' : ''} ready to download</p>
+                                <h2 className="text-2xl font-bold text-zinc-100">Generated Quotes</h2>
+                                <p className="text-zinc-400 text-sm mt-1">{quotes.length} quote{quotes.length > 1 ? 's' : ''} ready to download</p>
                             </div>
                         </div>
 
@@ -1607,7 +1607,7 @@ export function QuotesGenerator() {
                             {quotes.map((quote, index) => (
                                 <div
                                     key={index}
-                                    className={`relative group overflow-hidden rounded-2xl border border-[#e5e5e7] transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] ${aspectRatio === 'story' ? 'aspect-[9/16]' : 'aspect-square'
+                                    className={`relative group overflow-hidden rounded-2xl border border-white/10 transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] ${aspectRatio === 'story' ? 'aspect-[9/16]' : 'aspect-square'
                                         }`}
                                 >
                                     {/* Preview Background */}
@@ -1668,7 +1668,7 @@ export function QuotesGenerator() {
                                     <div className="absolute inset-0 z-20 bg-black/80 flex flex-col justify-center items-center gap-3 opacity-0 group-hover:opacity-100 transition-all duration-300 backdrop-blur-sm">
                                         <button
                                             onClick={() => downloadImage(quote, index)}
-                                            className="w-60 bg-white text-black hover:bg-gray-200 py-3.5 rounded-xl font-bold transition-all flex items-center justify-center gap-2 transform hover:scale-105 shadow-xl"
+                                            className="w-60 bg-[#111]text-zinc-100 hover:bg-gray-200 py-3.5 rounded-xl font-bold transition-all flex items-center justify-center gap-2 transform hover:scale-105 shadow-xl"
                                         >
                                             <Download size={18} />
                                             Download Image

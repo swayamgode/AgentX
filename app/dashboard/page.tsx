@@ -3,11 +3,16 @@
 import { useState, useEffect } from "react";
 import { LeftSidebar } from "@/components/LeftSidebar";
 import { MobileNav } from "@/components/MobileNav";
-import { Rocket, Sparkles, Smile, Upload, Activity, ArrowRight, CheckCircle, Clock } from "lucide-react";
+import {
+  Rocket, Sparkles, Smile, Activity, ArrowRight,
+  CheckCircle, Clock, XCircle, BarChart3, TrendingUp, Zap
+} from "lucide-react";
 import Link from "next/link";
 
 export default function DashboardPage() {
   const [schedulerStatus, setSchedulerStatus] = useState<any>(null);
+  const [analytics, setAnalytics] = useState<any>(null);
+  const [loadingAnalytics, setLoadingAnalytics] = useState(true);
 
   const fetchSchedulerStatus = async () => {
     try {
@@ -19,96 +24,206 @@ export default function DashboardPage() {
     }
   };
 
+  const fetchAnalytics = async () => {
+    try {
+      const res = await fetch('/api/youtube/analytics');
+      if (res.ok) {
+        const data = await res.json();
+        setAnalytics(data);
+      }
+    } catch (e) {
+      console.error('Failed to fetch analytics');
+    } finally {
+      setLoadingAnalytics(false);
+    }
+  };
+
   useEffect(() => {
     fetchSchedulerStatus();
+    fetchAnalytics();
     const interval = setInterval(fetchSchedulerStatus, 30000);
     return () => clearInterval(interval);
   }, []);
 
+  const successRate = analytics
+    ? analytics.total > 0
+      ? Math.round((analytics.success / analytics.total) * 100)
+      : 100
+    : null;
+
   return (
-    <div className="flex min-h-screen bg-[#000000] text-white selection:bg-purple-500/30">
+    <div className="flex min-h-screen bg-[#0a0a0a] text-zinc-100 selection:bg-indigo-500/30">
       <LeftSidebar />
 
-      <main className="flex-1 ml-0 md:ml-0 pb-28 md:pb-8 relative overflow-hidden">
-        {/* Abstract Background Orbs */}
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-600/20 shadow-[0_0_150px_rgba(147,51,234,0.3)] rounded-full blur-[100px] animate-pulse"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/10 shadow-[0_0_150px_rgba(37,99,235,0.2)] rounded-full blur-[100px]"></div>
+      <main className="flex-1 ml-0 md:ml-0 pb-28 md:pb-8 relative">
 
-        <div className="sticky top-0 md:top-5 mx-0 md:mx-8 rounded-none md:rounded-[2.5rem] bg-white/5 backdrop-blur-3xl z-40 border-b md:border border-white/10 shadow-2xl transition-all">
-          <div className="max-w-[1400px] mx-auto px-4 md:px-10 py-3 md:py-7 flex flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-3 md:gap-7">
-              <div className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-tr from-purple-500 to-blue-500 rounded-xl md:rounded-2xl blur-lg opacity-40 group-hover:opacity-100 transition-opacity"></div>
-                <div className="relative w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-black border border-white/20 flex items-center justify-center shadow-2xl">
-                  <Activity className="text-white w-5 h-5 md:w-7 md:h-7 animate-pulse" />
-                </div>
+        {/* Header */}
+        <div className="sticky top-0 z-40 bg-[#0a0a0a]/80 backdrop-blur-md border-b border-white/5">
+          <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-4 flex flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center">
+                <Activity className="text-zinc-300 w-5 h-5" />
               </div>
               <div>
-                <h1 className="text-base md:text-3xl font-black text-white tracking-tighter leading-none italic">
-                  COMMAND
+                <h1 className="text-lg font-semibold text-white tracking-tight">
+                  Dashboard
                 </h1>
-                <p className="text-[8px] md:text-[11px] font-bold text-gray-400 mt-1 flex items-center gap-1.5 uppercase tracking-widest">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                  Online
+                <p className="text-[10px] text-zinc-400 mt-0.5 flex items-center gap-1.5 uppercase tracking-widest font-medium">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  System Online
                 </p>
               </div>
             </div>
-            
-            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-[9px] font-black uppercase tracking-widest transition-all ${schedulerStatus?.status === 'RUNNING'
+
+            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-md border text-[10px] font-medium uppercase tracking-widest transition-all ${schedulerStatus?.status === 'RUNNING'
               ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-              : 'bg-white/5 text-gray-500 border-white/10'
+              : 'bg-white/5 text-zinc-400 border-white/10'
               }`}>
-              <div className={`w-1 h-1 rounded-full ${schedulerStatus?.status === 'RUNNING' ? 'bg-emerald-400 animate-pulse' : 'bg-gray-600'}`} />
+              <div className={`w-1.5 h-1.5 rounded-full ${schedulerStatus?.status === 'RUNNING' ? 'bg-emerald-400 animate-pulse' : 'bg-zinc-500'}`} />
               <span className="hidden xs:inline">{schedulerStatus?.status === 'RUNNING' ? 'Engine Running' : 'Engine Idle'}</span>
               <span className="xs:hidden">{schedulerStatus?.status === 'RUNNING' ? 'Running' : 'Idle'}</span>
             </div>
           </div>
         </div>
 
-        <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-8 md:py-16 space-y-8 relative z-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-            <DashboardCard 
-              href="/autopilot" 
-              icon={<Rocket className="w-7 h-7" />} 
-              title="Auto-Pilot" 
+        <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-8 space-y-8 relative z-10">
+
+          {/* Module Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            <DashboardCard
+              href="/autopilot"
+              icon={<Rocket className="w-6 h-6" />}
+              title="Auto-Pilot"
               desc="Full-scale automation swarm. Multi-channel scheduling & generation."
-              color="from-purple-600 to-indigo-600"
             />
-
-            <DashboardCard 
-              href="/quotes" 
-              icon={<Sparkles className="w-7 h-7" />} 
-              title="Quotes Flow" 
+            <DashboardCard
+              href="/quotes"
+              icon={<Sparkles className="w-6 h-6" />}
+              title="Quotes Flow"
               desc="Generate aesthetic high-retention quote videos with AI."
-              color="from-blue-600 to-cyan-600"
             />
-
-            <DashboardCard 
-              href="/memes" 
-              icon={<Smile className="w-7 h-7" />} 
-              title="Meme Forge" 
+            <DashboardCard
+              href="/memes"
+              icon={<Smile className="w-6 h-6" />}
+              title="Meme Forge"
               desc="Trending high-organic reach meme content generator."
-              color="from-orange-600 to-rose-600"
             />
           </div>
 
-          {/* Quick Metrics */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-12">
-            {[
-              { label: 'Active Channels', value: schedulerStatus?.accountsCount || '0', icon: <Activity size={14}/> },
-              { label: 'Pending Batch', value: schedulerStatus?.pendingCount || '0', icon: <Clock size={14}/> },
-              { label: 'Success Rate', value: '98%', icon: <CheckCircle size={14}/> },
-              { label: 'Uptime', value: '24/7', icon: <Rocket size={14}/> }
-            ].map((stat, i) => (
-              <div key={i} className="bg-white/5 border border-white/10 rounded-2xl p-4 md:p-6 backdrop-blur-md">
-                <div className="flex items-center gap-2 text-gray-500 mb-2">
-                  {stat.icon}
-                  <span className="text-[10px] font-bold uppercase tracking-wider">{stat.label}</span>
-                </div>
-                <div className="text-xl md:text-2xl font-black text-white">{stat.value}</div>
-              </div>
-            ))}
+          {/* Live Metrics */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <MetricCard
+              label="Active Channels"
+              value={schedulerStatus?.accountsCount ?? '–'}
+              icon={<Activity size={14} />}
+              loading={false}
+            />
+            <MetricCard
+              label="Pending Batch"
+              value={schedulerStatus?.pendingCount ?? '0'}
+              icon={<Clock size={14} />}
+              loading={false}
+            />
+            <MetricCard
+              label="Success Rate"
+              value={loadingAnalytics ? '…' : successRate !== null ? `${successRate}%` : 'N/A'}
+              icon={<CheckCircle size={14} />}
+              loading={loadingAnalytics}
+              highlight={successRate !== null ? (successRate >= 80 ? 'emerald' : successRate >= 50 ? 'amber' : 'red') : undefined}
+            />
+            <MetricCard
+              label="Total Uploads"
+              value={loadingAnalytics ? '…' : analytics?.total?.toLocaleString() ?? '0'}
+              icon={<TrendingUp size={14} />}
+              loading={loadingAnalytics}
+            />
           </div>
+
+          {/* Analytics Quick Panel */}
+          {!loadingAnalytics && analytics && analytics.total > 0 && (
+            <div className="bg-[#111] border border-white/10 rounded-xl p-5 md:p-6">
+              <div className="flex items-center justify-between mb-5">
+                <div className="flex items-center gap-2">
+                  <BarChart3 className="w-4 h-4 text-emerald-500" />
+                  <h2 className="text-xs font-semibold text-white uppercase tracking-wider">Upload Analytics</h2>
+                </div>
+                <Link
+                  href="/analytics"
+                  className="flex items-center gap-1 text-[11px] font-medium text-zinc-400 hover:text-white transition-colors"
+                >
+                  Full Report <ArrowRight size={11} />
+                </Link>
+              </div>
+
+              {/* Rate bar */}
+              <div className="mb-5">
+                <div className="flex justify-between text-[11px] font-medium mb-2">
+                  <span className="text-zinc-400">Success Rate</span>
+                  <span className={successRate! >= 80 ? 'text-emerald-500' : successRate! >= 50 ? 'text-amber-500' : 'text-red-500'}>
+                    {successRate}%
+                  </span>
+                </div>
+                <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all duration-1000"
+                    style={{
+                      width: `${successRate}%`,
+                      background: successRate! >= 80 ? '#10b981' : successRate! >= 50 ? '#f59e0b' : '#ef4444'
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Stats row */}
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { label: '24h Uploads', value: analytics.last24h?.total ?? 0, color: 'text-zinc-100' },
+                  { label: '24h Success', value: analytics.last24h?.success ?? 0, color: 'text-emerald-500' },
+                  { label: '24h Failed', value: analytics.last24h?.failed ?? 0, color: 'text-red-500' },
+                ].map((s, i) => (
+                  <div key={i} className="bg-white/5 rounded-lg p-3 border border-white/5 text-center transition-colors hover:bg-white/10">
+                    <div className={`text-xl font-semibold ${s.color}`}>{s.value}</div>
+                    <div className="text-[10px] font-medium text-zinc-500 uppercase tracking-wider mt-1">{s.label}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Per-channel mini breakdown */}
+              {analytics.byChannel?.length > 0 && (
+                <div className="mt-5 space-y-2.5">
+                  {analytics.byChannel.slice(0, 4).map((ch: any, i: number) => (
+                    <div key={i} className="flex items-center gap-3">
+                      <span className="text-[11px] text-zinc-400 font-medium truncate w-32 flex-shrink-0">{ch.channelName}</span>
+                      <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full"
+                          style={{
+                            width: `${ch.rate}%`,
+                            background: ch.rate >= 80 ? '#10b981' : ch.rate >= 50 ? '#f59e0b' : '#ef4444'
+                          }}
+                        />
+                      </div>
+                      <span className="text-[11px] font-medium text-zinc-300 w-10 text-right tabular-nums">{ch.rate}%</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Analytics CTA if no data */}
+          {!loadingAnalytics && (!analytics || analytics.total === 0) && (
+            <Link
+              href="/analytics"
+              className="block bg-[#111] border border-dashed border-white/10 rounded-xl p-6 text-center group hover:bg-white/5 transition-all"
+            >
+              <Zap className="w-6 h-6 text-zinc-600 mx-auto mb-3 group-hover:text-emerald-500 transition-colors" />
+              <p className="text-sm font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors">
+                No upload analytics yet — Run Auto-Pilot to start tracking
+              </p>
+              <p className="text-[11px] text-zinc-500 mt-2 font-medium">View Analytics →</p>
+            </Link>
+          )}
         </div>
       </main>
 
@@ -117,29 +232,48 @@ export default function DashboardPage() {
   );
 }
 
-function DashboardCard({ href, icon, title, desc, color }: any) {
+function MetricCard({
+  label, value, icon, loading, highlight
+}: {
+  label: string; value: string | number; icon: React.ReactNode;
+  loading?: boolean; highlight?: 'emerald' | 'amber' | 'red';
+}) {
   return (
-    <Link 
-      href={href} 
-      className="group relative bg-white/5 border border-white/10 rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-10 transition-all hover:-translate-y-2 hover:bg-white/[0.08] hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)] overflow-hidden"
-    >
-      <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${color} opacity-0 group-hover:opacity-20 blur-[40px] transition-opacity`}></div>
-      
-      <div className={`w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br ${color} text-white rounded-2xl md:rounded-3xl flex items-center justify-center mb-6 md:mb-8 shadow-2xl group-hover:scale-110 transition-transform duration-500`}>
+    <div className="bg-[#111] border border-white/10 rounded-xl p-4 md:p-5 hover:bg-white/5 transition-colors">
+      <div className="flex items-center gap-2 text-zinc-500 mb-3">
         {icon}
+        <span className="text-[10px] font-medium uppercase tracking-wider">{label}</span>
       </div>
-      
-      <div className="relative z-10">
-        <h2 className="text-xl md:text-2xl font-black text-white mb-2 md:mb-3 tracking-tight italic group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-gray-400">
-          {title.toUpperCase()}
+      <div className={`text-xl md:text-2xl font-semibold ${loading ? 'animate-pulse text-zinc-600' : highlight === 'emerald' ? 'text-emerald-500' : highlight === 'amber' ? 'text-amber-500' : highlight === 'red' ? 'text-red-500' : 'text-zinc-100'}`}>
+        {value}
+      </div>
+    </div>
+  );
+}
+
+function DashboardCard({ href, icon, title, desc }: any) {
+  return (
+    <Link
+      href={href}
+      className="group relative bg-[#111] border border-white/10 rounded-xl p-6 flex flex-col justify-between hover:bg-white/5 transition-colors h-48"
+    >
+      <div className="flex items-center gap-4 text-zinc-300">
+        <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center">
+            {icon}
+        </div>
+        <h2 className="text-lg font-semibold text-zinc-100 group-hover:text-white transition-colors">
+          {title}
         </h2>
-        <p className="text-xs md:text-sm text-gray-400 leading-relaxed font-medium">
+      </div>
+
+      <div className="mt-4">
+        <p className="text-sm text-zinc-400 font-medium leading-relaxed">
           {desc}
         </p>
       </div>
 
-      <div className="mt-6 md:mt-8 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-500 group-hover:text-white transition-colors">
-        Access Module <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+      <div className="mt-4 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wider text-zinc-500 group-hover:text-zinc-300 transition-colors">
+        Access Module <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
       </div>
     </Link>
   );

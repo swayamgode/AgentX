@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Settings, MoreHorizontal, Smile, Calendar, Sparkles, Rocket, LogOut, Repeat } from "lucide-react";
+import { Home, Settings, Smile, Sparkles, Rocket, LogOut, Repeat, BarChart3 } from "lucide-react";
 import { useAuthActions } from "@convex-dev/auth/react";
 
 export function LeftSidebar() {
@@ -10,13 +10,13 @@ export function LeftSidebar() {
     const authActions = useAuthActions();
     const signOut = authActions?.signOut;
 
-
     const navItems = [
         { icon: Home, label: "Dashboard", href: "/dashboard" },
         { icon: Sparkles, label: "Quotes", href: "/quotes" },
         { icon: Smile, label: "Meme Studio", href: "/memes" },
         { icon: Repeat, label: "Trend Repost", href: "/repost" },
         { icon: Rocket, label: "Auto-Pilot", href: "/autopilot" },
+        { icon: BarChart3, label: "Analytics", href: "/analytics" },
         { icon: Settings, label: "Settings", href: "/settings" },
     ];
 

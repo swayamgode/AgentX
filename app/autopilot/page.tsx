@@ -294,56 +294,56 @@ function GroupEditor({
         setTheme({ topics: draft.theme.topics.filter(x => x !== t) });
 
     return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end md:items-center justify-center p-0 md:p-4 animate-in fade-in duration-300">
-            <div className="bg-white rounded-t-3xl md:rounded-2xl shadow-2xl w-full max-w-2xl h-[95vh] md:max-h-[90vh] overflow-y-auto slide-in-from-bottom-full duration-500">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-end md:items-center justify-center p-0 md:p-4 animate-in fade-in duration-300">
+            <div className="bg-[#111] md:border border-white/10 rounded-t-3xl md:rounded-2xl shadow-2xl w-full max-w-2xl h-[95vh] md:max-h-[90vh] overflow-y-auto slide-in-from-bottom-full duration-500">
                 {/* Header */}
-                <div className="sticky top-0 bg-white border-b border-[#e5e5e7] px-4 py-3 flex items-center justify-between rounded-t-2xl z-10">
+                <div className="sticky top-0 bg-[#111] border-b border-white/10 px-4 py-3 flex items-center justify-between rounded-t-2xl z-10">
                     <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-lg bg-black flex items-center justify-center">
+                        <div className="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center">
                             <Layers className="w-3.5 h-3.5 text-white" />
                         </div>
-                        <h2 className="text-xs font-bold text-[#1d1d1f]">
+                        <h2 className="text-xs font-bold text-white">
                             {isNew ? 'Create Group' : 'Edit Group'}
                         </h2>
                     </div>
-                    <button onClick={onCancel} className="p-1 rounded-lg hover:bg-[#F5F5F7] transition-colors">
-                        <X className="w-3.5 h-3.5 text-[#86868b]" />
+                    <button onClick={onCancel} className="p-1 rounded-lg hover:bg-white/10 transition-colors">
+                        <X className="w-3.5 h-3.5 text-gray-400" />
                     </button>
                 </div>
 
                 <div className="p-4 space-y-4">
                     {/* Group Name */}
                     <div>
-                        <label className="text-[9px] font-bold text-[#86868b] uppercase tracking-wider mb-1 block">Group Name</label>
+                        <label className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1 block">Group Name</label>
                         <input
                             type="text"
                             value={draft.name}
                             onChange={e => setDraft(d => ({ ...d, name: e.target.value }))}
                             placeholder="e.g. Motivation Channels"
-                            className="w-full bg-[#F5F5F7] rounded-lg px-2 py-1.5 text-xs font-medium text-[#1d1d1f] focus:outline-none border border-transparent"
+                            className="w-full bg-black border border-white/10 rounded-lg px-2 py-1.5 text-xs font-medium text-white focus:outline-none focus:border-white/30"
                         />
                     </div>
 
                     {/* Channel Selection */}
                     <div>
-                        <label className="text-[9px] font-bold text-[#86868b] uppercase tracking-wider mb-1 flex items-center gap-1">
+                        <label className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1 flex items-center gap-1">
                             <Users className="w-2.5 h-2.5" /> Channels ({draft.channelIds.length})
                         </label>
-                        <div className="bg-[#F5F5F7] rounded-xl p-1.5 max-h-32 overflow-y-auto space-y-0.5">
+                        <div className="bg-black border border-white/10 rounded-xl p-1.5 max-h-32 overflow-y-auto space-y-0.5">
                             {accounts.length === 0 && (
-                                <p className="text-xs text-[#86868b] text-center py-3">No accounts connected</p>
+                                <p className="text-xs text-gray-500 text-center py-3">No accounts connected</p>
                             )}
                             {accounts.map(acc => (
                                 <button
                                     key={acc.id}
                                     onClick={() => toggleChannel(acc.id)}
                                     className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left transition-all text-xs font-medium ${draft.channelIds.includes(acc.id)
-                                        ? 'bg-black text-white'
-                                        : 'hover:bg-white text-[#1d1d1f]'
+                                        ? 'bg-white text-black'
+                                        : 'hover:bg-white/10 text-gray-300'
                                         }`}
                                 >
-                                    <div className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-all ${draft.channelIds.includes(acc.id) ? 'bg-white border-white' : 'border-[#86868b]'}`}>
-                                        {draft.channelIds.includes(acc.id) && <Check className="w-2.5 h-2.5 text-black" />}
+                                    <div className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-all ${draft.channelIds.includes(acc.id) ? 'bg-black border-black' : 'border-gray-600'}`}>
+                                        {draft.channelIds.includes(acc.id) && <Check className="w-2.5 h-2.5 text-white" />}
                                     </div>
                                     {acc.channelName}
                                 </button>
@@ -353,37 +353,37 @@ function GroupEditor({
 
                     {/* Visual Theme */}
                     <div className="space-y-4">
-                        <label className="text-[10px] font-bold text-[#86868b] uppercase tracking-wider flex items-center gap-1">
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1">
                             <Palette className="w-3 h-3" /> Visual Theme
                         </label>
 
                         {/* Colors row */}
                         <div className="grid grid-cols-3 gap-3">
                             <div>
-                                <label className="text-[10px] text-[#86868b] mb-1 block">BG Color 1</label>
-                                <div className="flex items-center gap-2 bg-[#F5F5F7] rounded-lg px-2 py-1.5">
+                                <label className="text-[10px] text-gray-500 mb-1 block">BG Color 1</label>
+                                <div className="flex items-center gap-2 bg-black border border-white/10 rounded-lg px-2 py-1.5">
                                     <input type="color" value={draft.theme.bgColor}
                                         onChange={e => setTheme({ bgColor: e.target.value })}
                                         className="w-6 h-6 rounded cursor-pointer border-0 bg-transparent" />
-                                    <span className="text-[10px] font-mono text-[#1d1d1f]">{draft.theme.bgColor}</span>
+                                    <span className="text-[10px] font-mono text-gray-300">{draft.theme.bgColor}</span>
                                 </div>
                             </div>
                             <div>
-                                <label className="text-[10px] text-[#86868b] mb-1 block">BG Color 2</label>
-                                <div className="flex items-center gap-2 bg-[#F5F5F7] rounded-lg px-2 py-1.5">
+                                <label className="text-[10px] text-gray-500 mb-1 block">BG Color 2</label>
+                                <div className="flex items-center gap-2 bg-black border border-white/10 rounded-lg px-2 py-1.5">
                                     <input type="color" value={draft.theme.bgColor2}
                                         onChange={e => setTheme({ bgColor2: e.target.value })}
                                         className="w-6 h-6 rounded cursor-pointer border-0 bg-transparent" />
-                                    <span className="text-[10px] font-mono text-[#1d1d1f]">{draft.theme.bgColor2}</span>
+                                    <span className="text-[10px] font-mono text-gray-300">{draft.theme.bgColor2}</span>
                                 </div>
                             </div>
                             <div>
-                                <label className="text-[10px] text-[#86868b] mb-1 block">Text Color</label>
-                                <div className="flex items-center gap-2 bg-[#F5F5F7] rounded-lg px-2 py-1.5">
+                                <label className="text-[10px] text-gray-500 mb-1 block">Text Color</label>
+                                <div className="flex items-center gap-2 bg-black border border-white/10 rounded-lg px-2 py-1.5">
                                     <input type="color" value={draft.theme.textColor}
                                         onChange={e => setTheme({ textColor: e.target.value })}
                                         className="w-6 h-6 rounded cursor-pointer border-0 bg-transparent" />
-                                    <span className="text-[10px] font-mono text-[#1d1d1f]">{draft.theme.textColor}</span>
+                                    <span className="text-[10px] font-mono text-gray-300">{draft.theme.textColor}</span>
                                 </div>
                             </div>
                         </div>
@@ -404,12 +404,12 @@ function GroupEditor({
 
                         {/* Background type */}
                         <div>
-                            <label className="text-[10px] font-bold text-[#86868b] uppercase tracking-wider mb-1.5 block">Background Type</label>
+                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">Background Type</label>
                             <div className="grid grid-cols-3 gap-1.5">
                                 {(['gradient', 'plain', 'image'] as const).map(bt => (
                                     <button key={bt}
                                         onClick={() => setTheme({ backgroundType: bt })}
-                                        className={`py-1.5 px-3 rounded-lg text-[11px] font-medium border transition-all ${draft.theme.backgroundType === bt ? 'bg-black text-white border-black' : 'bg-[#F5F5F7] text-[#86868b] border-transparent hover:border-[#e5e5e7]'}`}
+                                        className={`py-1.5 px-3 rounded-lg text-[11px] font-medium border transition-all ${draft.theme.backgroundType === bt ? 'bg-white text-black border-white' : 'bg-black text-gray-400 border-white/10 hover:border-white/30'}`}
                                     >
                                         {bt === 'gradient' ? '🌈 Gradient' : bt === 'plain' ? '🟥 Plain' : '🖼️ Image'}
                                     </button>
@@ -419,12 +419,12 @@ function GroupEditor({
 
                         {/* Text align */}
                         <div>
-                            <label className="text-[10px] font-bold text-[#86868b] uppercase tracking-wider mb-1.5 block">Text Align</label>
+                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">Text Align</label>
                             <div className="grid grid-cols-3 gap-1.5">
                                 {(['left', 'center', 'right'] as const).map(a => (
                                     <button key={a}
                                         onClick={() => setTheme({ textAlign: a })}
-                                        className={`py-1.5 px-3 rounded-lg text-[11px] font-medium border transition-all ${draft.theme.textAlign === a ? 'bg-black text-white border-black' : 'bg-[#F5F5F7] text-[#86868b] border-transparent hover:border-[#e5e5e7]'}`}
+                                        className={`py-1.5 px-3 rounded-lg text-[11px] font-medium border transition-all ${draft.theme.textAlign === a ? 'bg-white text-black border-white' : 'bg-black text-gray-400 border-white/10 hover:border-white/30'}`}
                                     >
                                         {a === 'left' ? '⬅️ Left' : a === 'center' ? '↔️ Center' : '➡️ Right'}
                                     </button>
@@ -434,33 +434,32 @@ function GroupEditor({
 
                         {/* Font size */}
                         <div>
-                            <label className="text-[10px] font-bold text-[#86868b] uppercase tracking-wider mb-1.5 block">
-                                Font Size Scale <span className="text-[#1d1d1f] font-mono ml-1">{draft.theme.fontSizeScale.toFixed(2)}x</span>
+                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">
+                                Font Size Scale <span className="text-white font-mono ml-1">{draft.theme.fontSizeScale.toFixed(2)}x</span>
                             </label>
                             <input type="range" min="0.3" max="1.0" step="0.05"
                                 value={draft.theme.fontSizeScale}
                                 onChange={e => setTheme({ fontSizeScale: parseFloat(e.target.value) })}
-                                className="w-full accent-black h-1.5 rounded-lg appearance-none cursor-pointer"
-                                style={{ background: `linear-gradient(to right,#000 0%,#000 ${((draft.theme.fontSizeScale - 0.3) / 0.7) * 100}%,#e5e7eb ${((draft.theme.fontSizeScale - 0.3) / 0.7) * 100}%,#e5e7eb 100%)` }}
+                                className="w-full accent-white h-1.5 rounded-lg appearance-none cursor-pointer bg-white/10"
                             />
-                            <div className="flex justify-between text-[10px] text-[#86868b] mt-1 font-mono"><span>0.3x</span><span>1.0x</span></div>
+                            <div className="flex justify-between text-[10px] text-gray-500 mt-1 font-mono"><span>0.3x</span><span>1.0x</span></div>
                         </div>
                     </div>
 
                     {/* Content Settings */}
-                    <div className="space-y-3 pt-3 border-t border-[#e5e5e7]">
-                        <label className="text-[9px] font-bold text-[#86868b] uppercase tracking-wider flex items-center gap-1">
+                    <div className="space-y-3 pt-3 border-t border-white/10">
+                        <label className="text-[9px] font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1">
                             <Tag className="w-2.5 h-2.5" /> Content Settings
                         </label>
 
                         {/* Style */}
                         <div>
-                            <label className="text-[10px] font-bold text-[#86868b] uppercase tracking-wider mb-1.5 block">Quote Style</label>
+                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">Quote Style</label>
                             <div className="grid grid-cols-3 gap-1.5">
                                 {(['random', 'inspirational', 'funny', 'wisdom', 'success'] as const).map(s => (
                                     <button key={s}
                                         onClick={() => setTheme({ style: s })}
-                                        className={`py-1.5 px-2 rounded-lg text-[10px] font-medium border transition-all ${draft.theme.style === s ? 'bg-black text-white border-black' : 'bg-[#F5F5F7] text-[#86868b] border-transparent hover:border-[#e5e5e7]'}`}
+                                        className={`py-1.5 px-2 rounded-lg text-[10px] font-medium border transition-all ${draft.theme.style === s ? 'bg-white text-black border-white' : 'bg-black text-gray-400 border-white/10 hover:border-white/30'}`}
                                     >
                                         {s === 'random' ? '🎲 Random' : s.charAt(0).toUpperCase() + s.slice(1)}
                                     </button>
@@ -470,23 +469,22 @@ function GroupEditor({
 
                         {/* Generations per channel */}
                         <div>
-                            <label className="text-[10px] font-bold text-[#86868b] uppercase tracking-wider mb-1.5 block">
-                                Videos Per Channel <span className="text-[#1d1d1f] font-mono ml-1">{draft.theme.generationsPerChannel}</span>
+                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">
+                                Videos Per Channel <span className="text-white font-mono ml-1">{draft.theme.generationsPerChannel}</span>
                             </label>
                             <input type="range" min="1" max="50"
                                 value={draft.theme.generationsPerChannel}
                                 onChange={e => setTheme({ generationsPerChannel: parseInt(e.target.value) })}
-                                className="w-full accent-black h-1.5 rounded-lg appearance-none cursor-pointer"
-                                style={{ background: `linear-gradient(to right,#000 0%,#000 ${(draft.theme.generationsPerChannel / 50) * 100}%,#e5e7eb ${(draft.theme.generationsPerChannel / 50) * 100}%,#e5e7eb 100%)` }}
+                                className="w-full accent-white h-1.5 rounded-lg appearance-none cursor-pointer bg-white/10"
                             />
-                            <div className="flex justify-between text-[10px] text-[#86868b] mt-1 font-mono"><span>1</span><span>50</span></div>
+                            <div className="flex justify-between text-[10px] text-gray-500 mt-1 font-mono"><span>1</span><span>50</span></div>
                         </div>
 
                         {/* Topics */}
                         <div>
-                            <label className="text-[10px] font-bold text-[#86868b] uppercase tracking-wider mb-1.5 block">
+                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">
                                 Custom Topics
-                                <span className="ml-1 font-normal normal-case text-[#86868b]">(empty = use global topics.txt)</span>
+                                <span className="ml-1 font-normal normal-case text-gray-600">(empty = use global topics.txt)</span>
                             </label>
                             <div className="flex gap-2 mb-2">
                                 <input
@@ -495,18 +493,18 @@ function GroupEditor({
                                     onChange={e => setTopicInput(e.target.value)}
                                     onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addTopic(); } }}
                                     placeholder="Add a topic and press Enter..."
-                                    className="flex-1 bg-[#F5F5F7] rounded-lg px-3 py-2 text-xs font-medium text-[#1d1d1f] focus:outline-none focus:ring-2 focus:ring-black/20 border border-transparent"
+                                    className="flex-1 bg-black rounded-lg px-3 py-2 text-xs font-medium text-white focus:outline-none focus:ring-1 focus:ring-white border border-white/10 focus:border-white"
                                 />
-                                <button onClick={addTopic} className="px-3 py-2 bg-black text-white rounded-lg text-xs font-medium hover:bg-[#333] transition-colors">
+                                <button onClick={addTopic} className="px-3 py-2 bg-white text-black rounded-lg text-xs font-medium hover:bg-gray-200 transition-colors">
                                     Add
                                 </button>
                             </div>
                             {draft.theme.topics.length > 0 && (
                                 <div className="flex flex-wrap gap-1.5">
                                     {draft.theme.topics.map(t => (
-                                        <span key={t} className="flex items-center gap-1 bg-[#F5F5F7] border border-[#e5e5e7] text-[#1d1d1f] text-[10px] font-medium py-1 px-2 rounded-full">
+                                        <span key={t} className="flex items-center gap-1 bg-black border border-white/10 text-white text-[10px] font-medium py-1 px-2 rounded-full">
                                             {t}
-                                            <button onClick={() => removeTopic(t)} className="text-[#86868b] hover:text-red-500 transition-colors"><X className="w-2.5 h-2.5" /></button>
+                                            <button onClick={() => removeTopic(t)} className="text-gray-500 hover:text-red-500 transition-colors"><X className="w-2.5 h-2.5" /></button>
                                         </span>
                                     ))}
                                 </div>
@@ -514,11 +512,11 @@ function GroupEditor({
                         </div>
 
                         {/* Gemini API Key */}
-                        <div className="pt-4 border-t border-[#e5e5e7]">
-                            <label className="text-[10px] font-bold text-[#86868b] uppercase tracking-wider mb-1 flex items-center gap-1">
+                        <div className="pt-4 border-t border-white/10">
+                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1 flex items-center gap-1">
                                 <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                                 Gemini API Key
-                                <span className="ml-1 font-normal normal-case text-[#86868b]">(optional — isolates quota)</span>
+                                <span className="ml-1 font-normal normal-case text-gray-600">(optional — isolates quota)</span>
                             </label>
                             <div className="relative">
                                 <input
@@ -528,29 +526,29 @@ function GroupEditor({
                                     placeholder="AIza... (leave empty to use shared key pool)"
                                     spellCheck={false}
                                     autoComplete="off"
-                                    className="w-full bg-[#F5F5F7] rounded-lg px-3 py-2 text-xs font-mono text-[#1d1d1f] focus:outline-none focus:ring-2 focus:ring-black/20 border border-transparent pr-24"
+                                    className="w-full bg-black border border-white/10 rounded-lg px-3 py-2 text-xs font-mono text-white focus:outline-none focus:ring-1 focus:ring-white pr-24"
                                 />
                                 {draft.theme.geminiKey && (
-                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
                                         ✓ Dedicated
                                     </span>
                                 )}
                             </div>
-                            <p className="text-[9px] text-[#86868b] mt-1">
-                                Get a free key at <span className="font-medium text-[#1d1d1f]">aistudio.google.com</span> · Each group with its own key avoids shared quota exhaustion
+                            <p className="text-[9px] text-gray-500 mt-1">
+                                Get a free key at <span className="font-medium text-white">aistudio.google.com</span> · Each group with its own key avoids shared quota exhaustion
                             </p>
                         </div>
                     </div>
                 </div>
 
                 {/* Footer */}
-                <div className="sticky bottom-0 bg-white border-t border-[#e5e5e7] px-4 py-3 flex gap-2 rounded-b-2xl">
-                    <button onClick={onCancel} className="flex-1 py-1.5 rounded-lg border border-[#e5e5e7] text-[10px] font-medium text-[#86868b] hover:bg-[#F5F5F7]">
+                <div className="sticky bottom-0 bg-[#111] border-t border-white/10 px-4 py-3 flex gap-2 rounded-b-2xl">
+                    <button onClick={onCancel} className="flex-1 py-1.5 rounded-lg border border-white/10 text-[10px] font-medium text-gray-400 hover:bg-white/5">
                         Cancel
                     </button>
                     <button
                         onClick={() => onSave(draft)}
-                        className="flex-1 py-1.5 rounded-lg bg-black text-white text-[10px] font-bold flex items-center justify-center gap-1.5"
+                        className="flex-1 py-1.5 rounded-lg bg-white text-black text-[10px] font-bold flex items-center justify-center gap-1.5"
                     >
                         <Check className="w-3 h-3" />
                         {isNew ? 'Create' : 'Save'}
@@ -576,7 +574,7 @@ function GroupCard({
     const members = accounts.filter(a => group.channelIds.includes(a.id));
 
     return (
-        <div className="bg-white border border-[#e5e5e7] rounded-xl p-3 shadow-sm hover:shadow-md transition-all group">
+        <div className="bg-white/5 border border-white/10 rounded-xl p-3 shadow-sm hover:shadow-md transition-all group backdrop-blur-md">
             {/* Color preview bar */}
             <div
                 className="h-1.5 w-full rounded-full mb-2"
@@ -586,47 +584,56 @@ function GroupCard({
             <div className="flex items-start justify-between mb-2">
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5 flex-wrap">
-                        <h3 className="text-[13px] font-bold text-[#1d1d1f] leading-tight">{group.name}</h3>
+                        <h3 className="text-[13px] font-bold text-white leading-tight">{group.name}</h3>
                         {group.theme.geminiKey && (
-                            <span className="inline-flex items-center gap-0.5 text-[8px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1 py-0.5 rounded-full flex-shrink-0">
+                            <span className="inline-flex items-center gap-0.5 text-[8px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1 py-0.5 rounded-full flex-shrink-0">
                                 🔑 Key
                             </span>
                         )}
                     </div>
-                    <p className="text-[9px] text-[#86868b] mt-0.5">
+                    <p className="text-[9px] text-gray-400 mt-0.5">
                         {members.length} ch · {group.theme.generationsPerChannel} vids/ch · {group.theme.style}
                     </p>
                 </div>
                 <div className="flex items-center gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-                    <button onClick={onEdit} className="p-2 md:p-1 rounded-lg hover:bg-[#F5F5F7] text-[#86868b] hover:text-[#1d1d1f] transition-colors border border-[#e5e5e7] md:border-none">
-                        <Edit3 className="w-3.5 h-3.5 md:w-3 md:h-3" />
+                    <button onClick={onEdit} className="p-1.5 text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-lg transition-colors">
+                        <Edit3 className="w-3.5 h-3.5" />
                     </button>
-                    <button onClick={onDelete} className="p-2 md:p-1 rounded-lg hover:bg-red-50 text-[#86868b] hover:text-red-500 transition-colors border border-[#e5e5e7] md:border-none">
-                        <Trash2 className="w-3.5 h-3.5 md:w-3 md:h-3" />
+                    <button onClick={onDelete} className="p-1.5 text-gray-400 hover:text-red-400 bg-white/5 hover:bg-white/10 rounded-lg transition-colors">
+                        <Trash2 className="w-3.5 h-3.5" />
                     </button>
                 </div>
             </div>
 
-            {/* Channels & Topics */}
-            <div className="flex flex-wrap gap-1 mb-2">
-                {members.slice(0, 3).map(m => (
-                    <span key={m.id} className="bg-[#F5F5F7] text-[#1d1d1f] text-[9px] font-medium px-1.5 py-0.5 rounded-full border border-[#e5e5e7]">
-                        {m.channelName}
-                    </span>
+            {/* Channels preview */}
+            <div className="flex -space-x-2 overflow-hidden mb-3">
+                {members.slice(0, 5).map(m => (
+                    <div key={m.id} className="w-6 h-6 rounded-full bg-black border border-white/20 flex items-center justify-center shadow-sm z-10" title={m.channelName}>
+                        <span className="text-[9px] font-bold text-white">{m.channelName.charAt(0)}</span>
+                    </div>
                 ))}
-                {group.theme.topics.slice(0, 2).map(t => (
-                    <span key={t} className="bg-black/5 text-[#1d1d1f] text-[8px] font-medium px-1.5 py-0.5 rounded-full">
-                        # {t}
-                    </span>
-                ))}
+                {members.length > 5 && (
+                    <div className="w-6 h-6 rounded-full bg-black border border-white/20 flex items-center justify-center shadow-sm z-0">
+                        <span className="text-[8px] font-bold text-gray-400">+{members.length - 5}</span>
+                    </div>
+                )}
+                {members.length === 0 && <span className="text-[10px] text-gray-500 italic">No channels added</span>}
             </div>
 
+            {/* Run Button */}
             <button
                 onClick={onRun}
                 disabled={isRunning || members.length === 0}
-                className="w-full py-2.5 md:py-1.5 rounded-lg bg-black text-white text-[10px] font-extrabold hover:bg-[#333] disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.98]"
+                className={`w-full py-2 rounded-lg text-xs font-bold transition-all shadow-sm disabled:opacity-50 flex items-center justify-center gap-1.5 ${isRunning
+                    ? 'bg-amber-500/10 text-amber-500 hover:bg-amber-500/20'
+                    : 'bg-white text-black hover:bg-gray-200'
+                    }`}
             >
-                {isRunning ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> RUNNING</> : <><Play className="w-3.5 h-3.5" /> RUN GROUP</>}
+                {isRunning ? (
+                    <><RefreshCw className="w-3.5 h-3.5 animate-spin" /> Processing...</>
+                ) : (
+                    <><Play className="w-3.5 h-3.5" /> Run Automations</>
+                )}
             </button>
         </div>
     );
@@ -1134,7 +1141,7 @@ export default function AutoPilotPage() {
     // ── Render ─────────────────────────────────────────────────────────────
 
     return (
-        <div className="flex min-h-screen bg-[#F5F5F7]">
+        <div className="flex min-h-screen bg-[#000000] text-white selection:bg-indigo-500/30">
             <LeftSidebar />
 
             {/* Group Editor Modal */}
@@ -1148,21 +1155,31 @@ export default function AutoPilotPage() {
                 />
             )}
 
-            <main className="flex-1 ml-0 md:ml-0 pb-20 md:pb-8">
+            <main className="flex-1 ml-0 md:ml-0 pb-20 md:pb-8 relative overflow-hidden">
+                {/* Background orbs */}
+                <div className="pointer-events-none absolute top-[-10%] left-[-5%] w-[40%] h-[40%] bg-indigo-600/10 rounded-full blur-[120px]" />
+                <div className="pointer-events-none absolute bottom-[-10%] right-[-5%] w-[30%] h-[30%] bg-purple-600/10 rounded-full blur-[100px]" />
+
                 {/* Header */}
-                <div className="sticky top-0 bg-white/80 backdrop-blur-xl z-20 border-b border-[#e5e5e7]">
+                <div className="sticky top-0 bg-black/70 backdrop-blur-2xl z-20 border-b border-white/10 shadow-2xl">
                     <div className="max-w-[1400px] mx-auto px-4 md:px-6 py-2 md:py-3">
                         <div className="flex items-center justify-between gap-3">
-                            <div className="flex items-center gap-2">
-                                <div className="p-1 bg-black rounded-lg">
-                                    <Rocket className="w-3.5 h-3.5 text-white" />
+                            <div className="flex items-center gap-3">
+                                <div className="relative">
+                                    <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-xl blur-md opacity-40" />
+                                    <div className="relative p-1.5 md:p-2 bg-black border border-white/20 rounded-xl flex items-center justify-center">
+                                        <Rocket className="w-4 h-4 md:w-5 md:h-5 text-indigo-400" />
+                                    </div>
                                 </div>
-                                <h1 className="text-xs md:text-sm font-bold text-[#1d1d1f]">Auto-Pilot</h1>
+                                <div>
+                                    <h1 className="text-sm md:text-xl font-black text-white italic tracking-tighter">AUTO-PILOT</h1>
+                                    <p className="text-[8px] text-gray-500 font-bold uppercase tracking-widest hidden md:block">Mass Automation</p>
+                                </div>
                             </div>
-                            <div className="flex gap-1 bg-[#F5F5F7] p-0.5 rounded-lg border border-[#e5e5e7] shrink-0">
+                            <div className="flex gap-1 bg-white/5 p-1 rounded-xl border border-white/10 shrink-0">
                                 {([['groups', '📦 Groups'], ['global', '🌍 Global']] as const).map(([t, label]) => (
                                     <button key={t} onClick={() => setActiveTab(t)}
-                                        className={`px-3 py-1.5 md:py-1 rounded-md text-[10px] font-bold transition-all ${activeTab === t ? 'bg-black text-white shadow-sm' : 'text-[#86868b] hover:text-[#1d1d1f]'}`}
+                                        className={`px-4 py-1.5 md:py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${activeTab === t ? 'bg-white text-black shadow-lg' : 'text-gray-500 hover:text-white'}`}
                                     >
                                         <span className="hidden sm:inline">{label}</span>
                                         <span className="sm:hidden">{label.split(' ')[1]}</span>
@@ -1172,17 +1189,17 @@ export default function AutoPilotPage() {
                         </div>
                     </div>
                 </div>
-                <div className="max-w-[1400px] mx-auto px-4 md:px-6 py-3 space-y-3">
+                <div className="max-w-[1400px] mx-auto px-4 md:px-6 py-3 space-y-3 relative z-10">
                     {/* ── GROUPS TAB ── */}
                     {activeTab === 'groups' && (
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                             {/* Groups grid */}
                             <div className="space-y-3">
                                     <div className="flex items-center justify-between">
-                                        <h2 className="text-[11px] font-bold text-[#1d1d1f] uppercase tracking-wider hidden xs:block">Channel Groups</h2>
+                                        <h2 className="text-[11px] font-bold text-white uppercase tracking-wider hidden xs:block">Channel Groups</h2>
                                         <div className="flex gap-1 w-full xs:w-auto">
-                                            <button onClick={refreshGroups} className="p-2 md:p-1 rounded-lg border border-[#e5e5e7] bg-white hover:bg-[#F5F5F7]">
-                                                <RefreshCw className="w-3.5 h-3.5 md:w-3 md:h-3 text-[#86868b]" />
+                                            <button onClick={refreshGroups} className="p-2 md:p-1 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10">
+                                                <RefreshCw className="w-3.5 h-3.5 md:w-3 md:h-3 text-gray-400" />
                                             </button>
                                             <button
                                                 onClick={handleRunAllGroups}
@@ -1194,7 +1211,7 @@ export default function AutoPilotPage() {
                                             </button>
                                             <button
                                                 onClick={handleNewGroup}
-                                                className="flex-1 xs:flex-none flex items-center justify-center gap-1 px-3 py-2 md:px-2.5 md:py-1 bg-black text-white rounded-lg text-[10px] font-bold"
+                                                className="flex-1 xs:flex-none flex items-center justify-center gap-1 px-3 py-2 md:px-2.5 md:py-1 bg-white text-black rounded-lg text-[10px] font-bold"
                                             >
                                                 <Plus className="w-3.5 h-3.5 md:w-3 md:h-3" />
                                                 <span className="xs:inline">New Group</span>
@@ -1204,14 +1221,14 @@ export default function AutoPilotPage() {
 
                                 {isLoadingGroups ? (
                                     <div className="flex items-center justify-center py-12">
-                                        <Loader2 className="w-5 h-5 animate-spin text-[#86868b]" />
+                                        <Loader2 className="w-5 h-5 animate-spin text-gray-500" />
                                     </div>
                                 ) : groups.length === 0 ? (
-                                    <div className="bg-white border border-dashed border-[#e5e5e7] rounded-xl p-8 text-center">
-                                        <Layers className="w-8 h-8 text-[#86868b] mx-auto mb-3 opacity-50" />
-                                        <p className="text-xs font-bold text-[#1d1d1f] mb-1">No groups yet</p>
-                                        <p className="text-[10px] text-[#86868b] mb-4">Create your first channel group to assign themes and topics</p>
-                                        <button onClick={handleNewGroup} className="px-4 py-2 bg-black text-white rounded-lg text-xs font-bold hover:bg-[#333] transition-colors inline-flex items-center gap-1.5">
+                                    <div className="bg-white/5 border border-dashed border-white/10 rounded-xl p-8 text-center">
+                                        <Layers className="w-8 h-8 text-gray-600 mx-auto mb-3 opacity-50" />
+                                        <p className="text-xs font-bold text-gray-300 mb-1">No groups yet</p>
+                                        <p className="text-[10px] text-gray-500 mb-4">Create your first channel group to assign themes and topics</p>
+                                        <button onClick={handleNewGroup} className="px-4 py-2 bg-white text-black rounded-lg text-xs font-bold hover:bg-gray-200 transition-colors inline-flex items-center gap-1.5">
                                             <Plus className="w-3.5 h-3.5" /> Create First Group
                                         </button>
                                     </div>
@@ -1232,17 +1249,17 @@ export default function AutoPilotPage() {
 
                             {/* Logs */}
                             <div className="space-y-3">
-                                <div className="bg-white border border-[#e5e5e7] rounded-xl p-4 shadow-sm">
+                                <div className="bg-white/5 border border-white/10 rounded-xl p-4 shadow-sm backdrop-blur-md">
                                     <div className="flex items-center gap-1.5 mb-3">
-                                        <Terminal className="text-[#1d1d1f]" size={14} />
-                                        <h2 className="text-xs font-bold text-[#1d1d1f] uppercase tracking-wider">System Logs</h2>
+                                        <Terminal className="text-white" size={14} />
+                                        <h2 className="text-xs font-bold text-white uppercase tracking-wider">System Logs</h2>
                                         <div className="ml-auto flex items-center gap-3">
                                             {batchLogs.length > 0 && (
-                                                <button onClick={() => setBatchLogs([])} className="text-[10px] text-[#86868b] hover:text-red-500 transition-colors">Clear</button>
+                                                <button onClick={() => setBatchLogs([])} className="text-[10px] text-gray-500 hover:text-red-500 transition-colors">Clear</button>
                                             )}
                                             <button 
                                                 onClick={() => setIsTerminalFullScreen(true)}
-                                                className="p-1 hover:bg-[#F5F5F7] rounded-md text-[#86868b] hover:text-[#1d1d1f] transition-all"
+                                                className="p-1 rounded-md text-gray-400 hover:text-white transition-all hover:bg-white/10"
                                                 title="Full Screen Terminal"
                                             >
                                                 <Plus size={14} />
@@ -1250,30 +1267,30 @@ export default function AutoPilotPage() {
                                         </div>
                                     </div>
                                     {batchLogs.length > 0 ? (
-                                        <div className="bg-[#111] border border-[#333] rounded-lg p-3 font-mono text-[10px] h-[400px] overflow-y-auto no-scrollbar shadow-inner">
+                                        <div className="bg-black/50 border border-white/5 rounded-lg p-3 font-mono text-[10px] h-[400px] overflow-y-auto no-scrollbar shadow-inner">
                                             <div className="space-y-0.5">
                                                 {batchLogs.map((log, i) => (
-                                                    <div key={i} className="whitespace-pre-wrap text-white">{log}</div>
+                                                    <div key={i} className="whitespace-pre-wrap text-white/80">{log}</div>
                                                 ))}
                                                 <div ref={logsEndRef} />
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="bg-[#F5F5F7] border border-[#e5e5e7] rounded-lg p-6 text-center">
-                                            <Terminal className="w-8 h-8 text-[#86868b] mx-auto mb-2 opacity-50" />
-                                            <p className="text-xs text-[#86868b]">Run a group to see activity here</p>
+                                        <div className="bg-black/20 border border-white/5 rounded-lg p-6 text-center">
+                                            <Terminal className="w-8 h-8 text-gray-600 mx-auto mb-2 opacity-50" />
+                                            <p className="text-xs text-gray-500">Run a group to see activity here</p>
                                         </div>
                                     )}
                                 </div>
 
                                 {/* Scheduling options for group runs */}
-                                <div className="bg-white border border-[#e5e5e7] rounded-xl p-3 shadow-sm">
+                                <div className="bg-white/5 border border-white/10 rounded-xl p-3 shadow-sm backdrop-blur-md">
                                     <div className="flex items-center gap-1.5 mb-2">
-                                        <Clock className="text-[#1d1d1f]" size={13} />
-                                        <h2 className="text-[10px] font-bold text-[#1d1d1f] uppercase tracking-wider">Scheduling</h2>
+                                        <Clock className="text-white" size={13} />
+                                        <h2 className="text-[10px] font-bold text-white uppercase tracking-wider">Scheduling</h2>
                                         <button
                                             onClick={() => setIsScheduled(!isScheduled)}
-                                            className={`ml-auto relative inline-flex h-4 w-7 items-center rounded-full transition-colors ${isScheduled ? 'bg-black' : 'bg-gray-200'}`}
+                                            className={`ml-auto relative inline-flex h-4 w-7 items-center rounded-full transition-colors ${isScheduled ? 'bg-indigo-500' : 'bg-white/10'}`}
                                         >
                                             <span className={`inline-block h-2.5 w-2.5 rounded-full bg-white transition-transform ${isScheduled ? 'translate-x-3.5' : 'translate-x-0.5'}`} />
                                         </button>
@@ -1281,17 +1298,17 @@ export default function AutoPilotPage() {
                                     {isScheduled && (
                                         <div className="space-y-3">
                                             <div>
-                                                <label className="text-[10px] font-bold text-[#86868b] uppercase tracking-wider mb-1.5 block">First Publish Time</label>
+                                                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">First Publish Time</label>
                                                 <input type="datetime-local" value={scheduleStartTime} onChange={e => setScheduleStartTime(e.target.value)}
-                                                    className="w-full bg-[#F5F5F7] rounded-md px-3 py-2 text-xs font-medium focus:outline-none" />
+                                                    className="w-full bg-black border border-white/10 rounded-md px-3 py-2 text-xs font-medium focus:outline-none text-white" />
                                             </div>
                                             <div>
-                                                <label className="text-[10px] font-bold text-[#86868b] uppercase tracking-wider mb-1.5 block">Interval (Minutes)</label>
+                                                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">Interval (Minutes)</label>
                                                 <div className="flex items-center gap-2">
                                                     <input type="number" min="15" max="1440" value={scheduleInterval}
                                                         onChange={e => setScheduleInterval(parseInt(e.target.value))}
-                                                        className="flex-1 bg-[#F5F5F7] rounded-md px-3 py-2 text-xs font-medium focus:outline-none" />
-                                                    <span className="text-[10px] text-[#86868b] min-w-[50px]">{Math.floor(scheduleInterval / 60)}h {scheduleInterval % 60}m</span>
+                                                        className="flex-1 bg-black border border-white/10 rounded-md px-3 py-2 text-xs font-medium focus:outline-none text-white" />
+                                                    <span className="text-[10px] text-gray-500 min-w-[50px]">{Math.floor(scheduleInterval / 60)}h {scheduleInterval % 60}m</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -1306,19 +1323,19 @@ export default function AutoPilotPage() {
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                             {/* Settings */}
                             <div className="space-y-4">
-                                <div className="bg-white border border-[#e5e5e7] rounded-xl p-3 shadow-sm">
+                                <div className="bg-white/5 border border-white/10 rounded-xl p-3 shadow-sm backdrop-blur-md">
                                     <div className="flex items-center gap-1.5 mb-3">
-                                        <SettingsIcon className="text-[#1d1d1f]" size={13} />
-                                        <h2 className="text-[10px] font-bold text-[#1d1d1f] uppercase tracking-wider">Global Settings</h2>
+                                        <SettingsIcon className="text-white" size={13} />
+                                        <h2 className="text-[10px] font-bold text-white uppercase tracking-wider">Global Settings</h2>
                                     </div>
                                     <div className="space-y-3">
                                         {/* Style */}
                                         <div>
-                                            <label className="text-[9px] font-bold text-[#86868b] uppercase tracking-wider mb-1 block">Style</label>
+                                            <label className="text-[9px] font-bold text-gray-500 uppercase tracking-wider mb-1 block">Style</label>
                                             <div className="grid grid-cols-2 gap-1">
                                                 {(['random', 'inspirational', 'funny', 'wisdom', 'success'] as const).map(s => (
                                                     <button key={s} onClick={() => setAutoPilotStyle(s)}
-                                                        className={`py-1 px-1.5 rounded-md font-medium text-[10px] transition-all border ${autoPilotStyle === s ? 'bg-black text-white border-black' : 'bg-[#F5F5F7] text-[#86868b] border-transparent'}`}
+                                                        className={`py-1 px-1.5 rounded-md font-medium text-[10px] transition-all border ${autoPilotStyle === s ? 'bg-white text-black border-white' : 'bg-white/5 text-gray-400 border-transparent hover:bg-white/10'}`}
                                                     >
                                                         {s === 'random' ? '🎲' : s.charAt(0).toUpperCase() + s.slice(1)}
                                                     </button>
@@ -1328,24 +1345,23 @@ export default function AutoPilotPage() {
 
                                         {/* Generations */}
                                         <div>
-                                            <label className="text-[10px] font-bold text-[#86868b] uppercase tracking-wider mb-1.5 block">
-                                                Generations Per Channel <span className="text-[#1d1d1f] font-mono ml-1">{autoPilotGenerationsPerChannel}</span>
+                                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">
+                                                Generations Per Channel <span className="text-white font-mono ml-1">{autoPilotGenerationsPerChannel}</span>
                                             </label>
                                             <input type="range" min="1" max="50" value={autoPilotGenerationsPerChannel}
                                                 onChange={e => setAutoPilotGenerationsPerChannel(parseInt(e.target.value))}
-                                                className="w-full accent-black h-1.5 rounded-lg appearance-none cursor-pointer"
-                                                style={{ background: `linear-gradient(to right,#000 0%,#000 ${(autoPilotGenerationsPerChannel / 50) * 100}%,#e5e7eb ${(autoPilotGenerationsPerChannel / 50) * 100}%,#e5e7eb 100%)` }}
+                                                className="w-full accent-white h-1.5 rounded-lg appearance-none cursor-pointer bg-white/10"
                                             />
-                                            <div className="flex justify-between text-[10px] text-[#86868b] mt-1 font-mono"><span>1</span><span>50</span></div>
+                                            <div className="flex justify-between text-[10px] text-gray-500 mt-1 font-mono"><span>1</span><span>50</span></div>
                                         </div>
 
                                         {/* BG Type */}
                                         <div>
-                                            <label className="text-[10px] font-bold text-[#86868b] uppercase tracking-wider mb-1.5 block">Background Type</label>
+                                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">Background Type</label>
                                             <div className="grid grid-cols-3 gap-1.5">
                                                 {(['random', 'gradient', 'image'] as const).map(bg => (
                                                     <button key={bg} onClick={() => setAutoPilotBackgroundType(bg)}
-                                                        className={`py-1.5 px-2 rounded-md font-medium text-[11px] transition-all border ${autoPilotBackgroundType === bg ? 'bg-black text-white border-black' : 'bg-[#F5F5F7] text-[#86868b] border-transparent hover:bg-[#e5e5e7]'}`}
+                                                        className={`py-1.5 px-2 rounded-md font-medium text-[11px] transition-all border ${autoPilotBackgroundType === bg ? 'bg-white text-black border-white' : 'bg-white/5 text-gray-400 border-transparent hover:bg-white/10'}`}
                                                     >
                                                         {bg === 'random' ? '🎲' : bg === 'gradient' ? '🌈' : '🖼️'}
                                                     </button>
@@ -1355,11 +1371,11 @@ export default function AutoPilotPage() {
 
                                         {/* Text align */}
                                         <div>
-                                            <label className="text-[10px] font-bold text-[#86868b] uppercase tracking-wider mb-1.5 block">Text Alignment</label>
+                                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">Text Alignment</label>
                                             <div className="grid grid-cols-4 gap-1.5">
                                                 {(['random', 'left', 'center', 'right'] as const).map(a => (
                                                     <button key={a} onClick={() => setAutoPilotTextAlign(a)}
-                                                        className={`py-1.5 px-2 rounded-md font-medium text-[11px] transition-all border ${autoPilotTextAlign === a ? 'bg-black text-white border-black' : 'bg-[#F5F5F7] text-[#86868b] border-transparent hover:bg-[#e5e5e7]'}`}
+                                                        className={`py-1.5 px-2 rounded-md font-medium text-[11px] transition-all border ${autoPilotTextAlign === a ? 'bg-white text-black border-white' : 'bg-white/5 text-gray-400 border-transparent hover:bg-white/10'}`}
                                                     >
                                                         {a === 'random' ? '🎲' : a === 'left' ? '⬅️' : a === 'center' ? '↔️' : '➡️'}
                                                     </button>
@@ -1368,14 +1384,14 @@ export default function AutoPilotPage() {
                                         </div>
 
                                         {/* Scheduling */}
-                                        <div className="pt-3 border-t border-[#e5e5e7]">
+                                        <div className="pt-3 border-t border-white/10">
                                             <div className="flex items-center justify-between mb-3">
                                                 <div>
-                                                    <label className="text-[11px] font-bold text-[#1d1d1f] block">YouTube Native Scheduling</label>
-                                                    <p className="text-[10px] text-[#86868b]">Upload now, publish automatically later</p>
+                                                    <label className="text-[11px] font-bold text-white block">YouTube Native Scheduling</label>
+                                                    <p className="text-[10px] text-gray-500">Upload now, publish automatically later</p>
                                                 </div>
                                                 <button onClick={() => setIsScheduled(!isScheduled)}
-                                                    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${isScheduled ? 'bg-black' : 'bg-gray-200'}`}
+                                                    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${isScheduled ? 'bg-indigo-500' : 'bg-white/10'}`}
                                                 >
                                                     <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${isScheduled ? 'translate-x-4' : 'translate-x-0.5'}`} />
                                                 </button>
@@ -1383,17 +1399,17 @@ export default function AutoPilotPage() {
                                             {isScheduled && (
                                                 <div className="space-y-3">
                                                     <div>
-                                                        <label className="text-[10px] font-bold text-[#86868b] uppercase tracking-wider mb-1.5 block">First Video Publish Time</label>
+                                                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">First Video Publish Time</label>
                                                         <input type="datetime-local" value={scheduleStartTime} onChange={e => setScheduleStartTime(e.target.value)}
-                                                            className="w-full bg-[#F5F5F7] rounded-md px-3 py-2 text-xs font-medium focus:outline-none" />
+                                                            className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-xs font-medium focus:outline-none" />
                                                     </div>
                                                     <div>
-                                                        <label className="text-[10px] font-bold text-[#86868b] uppercase tracking-wider mb-1.5 block">Post Interval (Minutes)</label>
+                                                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">Post Interval (Minutes)</label>
                                                         <div className="flex items-center gap-2">
                                                             <input type="number" min="15" max="1440" value={scheduleInterval}
                                                                 onChange={e => setScheduleInterval(parseInt(e.target.value))}
-                                                                className="flex-1 bg-[#F5F5F7] rounded-md px-3 py-2 text-xs font-medium focus:outline-none" />
-                                                            <span className="text-[10px] text-[#86868b] min-w-[50px]">{Math.floor(scheduleInterval / 60)}h {scheduleInterval % 60}m</span>
+                                                                className="flex-1 bg-white/5 border border-white/10 rounded-md px-3 py-2 text-xs font-medium focus:outline-none" />
+                                                            <span className="text-[10px] text-gray-500 min-w-[50px]">{Math.floor(scheduleInterval / 60)}h {scheduleInterval % 60}m</span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1401,23 +1417,23 @@ export default function AutoPilotPage() {
                                         </div>
 
                                         {/* Delayed execution */}
-                                        <div className="pt-3 border-t border-[#e5e5e7]">
+                                        <div className="pt-3 border-t border-white/10">
                                             <div className="flex items-center justify-between mb-3">
                                                 <div>
-                                                    <label className="text-[11px] font-bold text-[#1d1d1f] block">Delayed Execution</label>
-                                                    <p className="text-[10px] text-[#86868b]">Wait for a specific time to start</p>
+                                                    <label className="text-[11px] font-bold text-white block">Delayed Execution</label>
+                                                    <p className="text-[10px] text-gray-500">Wait for a specific time to start</p>
                                                 </div>
                                                 <button onClick={() => { if (!delayUntil) { const d = new Date(); d.setMinutes(d.getMinutes() + 5); setDelayUntil(d.toISOString().slice(0, 16)); } else { setDelayUntil(''); setIsWaitingForDelay(false); } }}
-                                                    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${delayUntil ? 'bg-indigo-600' : 'bg-gray-200'}`}
+                                                    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${delayUntil ? 'bg-indigo-500' : 'bg-white/10'}`}
                                                 >
                                                     <span className={`inline-block h-3.5 w-3.5 rounded-full bg-white transition-transform ${delayUntil ? 'translate-x-4' : 'translate-x-0.5'}`} />
                                                 </button>
                                             </div>
                                             {delayUntil && (
                                                 <div>
-                                                    <label className="text-[10px] font-bold text-[#86868b] uppercase tracking-wider mb-1.5 block">Start At</label>
+                                                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">Start At</label>
                                                     <input type="datetime-local" value={delayUntil} onChange={e => setDelayUntil(e.target.value)} disabled={isWaitingForDelay}
-                                                        className="w-full bg-[#F5F5F7] rounded-md px-3 py-2 text-xs font-medium focus:outline-none disabled:opacity-50" />
+                                                        className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-xs font-medium focus:outline-none disabled:opacity-50" />
                                                 </div>
                                             )}
                                         </div>
@@ -1430,7 +1446,7 @@ export default function AutoPilotPage() {
                                                 else handleStartAutoPilot();
                                             }}
                                             disabled={isBatchRunning}
-                                            className={`w-full font-bold py-2.5 rounded-lg text-xs transition-all shadow-sm disabled:opacity-50 flex items-center justify-center gap-2 ${isWaitingForDelay ? 'bg-indigo-600 text-white' : 'bg-black hover:bg-[#333] text-white'}`}
+                                            className={`w-full font-bold py-2.5 rounded-lg text-xs transition-all shadow-sm disabled:opacity-50 flex items-center justify-center gap-2 ${isWaitingForDelay ? 'bg-indigo-600 text-white' : 'bg-white hover:bg-gray-200 text-black'}`}
                                         >
                                             {isBatchRunning ? <><Loader2 className="animate-spin" size={14} /> Running...</>
                                                 : isWaitingForDelay ? <><Clock className="animate-pulse" size={14} />{timeLeftMessage || 'Waiting...'}</>
@@ -1442,21 +1458,21 @@ export default function AutoPilotPage() {
 
                             {/* Logs */}
                             <div>
-                                <div className="bg-white border border-[#e5e5e7] rounded-xl p-3 shadow-sm">
+                                <div className="bg-white/5 border border-white/10 rounded-xl p-3 shadow-sm backdrop-blur-md">
                                     <div className="flex items-center gap-1.5 mb-2">
-                                        <Terminal className="text-[#1d1d1f]" size={13} />
-                                        <h2 className="text-[10px] font-bold text-[#1d1d1f] uppercase tracking-wider">System Logs</h2>
-                                        {batchLogs.length > 0 && <button onClick={() => setBatchLogs([])} className="ml-auto text-[9px] text-[#86868b] hover:text-red-500">Clear</button>}
+                                        <Terminal className="text-white" size={13} />
+                                        <h2 className="text-[10px] font-bold text-white uppercase tracking-wider">System Logs</h2>
+                                        {batchLogs.length > 0 && <button onClick={() => setBatchLogs([])} className="ml-auto text-[9px] text-gray-500 hover:text-red-500">Clear</button>}
                                     </div>
                                     {batchLogs.length > 0 ? (
-                                        <div className="bg-[#111] border border-[#333] rounded-lg p-3 font-mono text-[9px] h-[350px] overflow-y-auto no-scrollbar shadow-inner">
-                                            {batchLogs.map((log, i) => <div key={i} className="whitespace-pre-wrap text-white/90">{log}</div>)}
+                                        <div className="bg-black/50 border border-white/5 rounded-lg p-3 font-mono text-[9px] h-[350px] overflow-y-auto no-scrollbar shadow-inner">
+                                            {batchLogs.map((log, i) => <div key={i} className="whitespace-pre-wrap text-white/80">{log}</div>)}
                                             <div ref={logsEndRef} />
                                         </div>
                                     ) : (
-                                        <div className="bg-[#F5F5F7] border border-[#e5e5e7] rounded-lg p-5 text-center">
-                                            <Terminal className="w-7 h-7 text-[#86868b] mx-auto mb-2 opacity-50" />
-                                            <p className="text-[10px] text-[#86868b]">Logs will appear here</p>
+                                        <div className="bg-black/20 border border-white/5 rounded-lg p-5 text-center">
+                                            <Terminal className="w-7 h-7 text-gray-600 mx-auto mb-2 opacity-50" />
+                                            <p className="text-[10px] text-gray-500">Logs will appear here</p>
                                         </div>
                                     )}
                                 </div>

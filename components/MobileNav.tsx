@@ -2,21 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Settings, Sparkles, Smile, Rocket, LogOut, Repeat } from "lucide-react";
-import { useAuthActions } from "@convex-dev/auth/react";
+import { Home, Settings, Sparkles, Smile, Rocket, Repeat, BarChart3 } from "lucide-react";
 
 export function MobileNav() {
     const pathname = usePathname();
-    const authActions = useAuthActions();
-    const signOut = authActions?.signOut;
-
 
     const navItems = [
         { icon: Home, label: "Home", href: "/dashboard" },
         { icon: Sparkles, label: "Quotes", href: "/quotes" },
-        { icon: Smile, label: "Memes", href: "/memes" },
-        { icon: Repeat, label: "Repost", href: "/repost" },
-        { icon: Rocket, label: "Auto-Pilot", href: "/autopilot" },
+        { icon: Rocket, label: "Pilot", href: "/autopilot" },
+        { icon: BarChart3, label: "Stats", href: "/analytics" },
         { icon: Settings, label: "Settings", href: "/settings" },
     ];
 

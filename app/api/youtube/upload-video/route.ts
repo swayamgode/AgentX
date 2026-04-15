@@ -3,6 +3,7 @@ import { google } from 'googleapis';
 import { tokenStorage, multiAccountStorage } from '@/lib/token-storage';
 import { getAuthUser } from '@/lib/auth-util';
 import { Readable } from 'stream';
+import { trackUpload } from '@/lib/upload-analytics';
 
 export async function POST(request: NextRequest) {
     let account: any = null;
@@ -123,13 +124,25 @@ export async function POST(request: NextRequest) {
 
         try {
             const response = await uploadVideo(oauth2Client);
+            const videoId = response.data.id!;
+            const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
             const jsonResponse = {
                 success: true,
-                videoId: response.data.id,
-                videoUrl: `https://www.youtube.com/watch?v=${response.data.id}`
+                videoId,
+                videoUrl,
             };
 
-            // No analytics tracking
+            // Track successful upload
+            await trackUpload({
+                accountId: account.id,
+                channelName: account.channelName || 'Unknown',
+                topic: topic || 'general',
+                success: true,
+                videoId,
+                videoUrl,
+                groupId: templateId?.startsWith('group-') ? templateId.replace('group-', '') : undefined,
+                groupName: undefined,
+            });
 
             return NextResponse.json(jsonResponse);
         } catch (error: any) {
@@ -158,6 +171,14 @@ export async function POST(request: NextRequest) {
                     });
                 } catch (retryError: any) {
                     console.error('[upload-video] Retry after refresh also failed:', retryError.message);
+                    await trackUpload({
+                        accountId: account?.id || 'unknown',
+                        channelName: account?.channelName || 'Unknown',
+                        topic: topic || 'general',
+                        success: false,
+                        error: retryError.message,
+                        errorType: 'AUTH_EXPIRED',
+                    });
                     return NextResponse.json({
                         error: `Authentication failed for ${account.channelName}. Please reconnect this account.`,
                         code: 'AUTH_EXPIRED',
@@ -180,6 +201,15 @@ export async function POST(request: NextRequest) {
                 keyManager.markYouTubeAppFailed(clientId);
             }
 
+            await trackUpload({
+                accountId: account?.id || 'unknown',
+                channelName: account?.channelName || 'Unknown',
+                topic: 'general',
+                success: false,
+                error: 'YouTube Daily Upload Limit Reached',
+                errorType: 'QUOTA_EXCEEDED',
+            });
+
             return NextResponse.json({
                 error: 'YouTube Daily Upload Limit Reached',
                 message: 'This API project has reached its daily upload quota. Please select an account connected to a different Project, or wait until midnight PST for the reset.',
@@ -194,6 +224,15 @@ export async function POST(request: NextRequest) {
                 }
             }, { status: 429 });
         }
+
+        await trackUpload({
+            accountId: account?.id || 'unknown',
+            channelName: account?.channelName || 'Unknown',
+            topic: 'general',
+            success: false,
+            error: error.message || 'Unknown error',
+            errorType: 'UNKNOWN',
+        });
 
         return NextResponse.json({
             error: error.message || 'Upload failed',

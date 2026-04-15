@@ -113,7 +113,7 @@ export default function RepostPage() {
     };
 
     return (
-        <div className="flex h-screen bg-[#f5f5f7] text-[#1d1d1f] font-sans selection:bg-[#8B5CF6] selection:text-white overflow-hidden">
+        <div className="flex h-screen bg-white/5 text-zinc-100 font-sans selection:bg-[#8B5CF6] selection:text-white overflow-hidden">
             <LeftSidebar />
 
             <main className="flex-1 flex flex-col min-w-0 overflow-y-auto">
@@ -121,16 +121,16 @@ export default function RepostPage() {
                     {/* Header */}
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                         <div>
-                            <h1 className="text-4xl md:text-5xl font-black tracking-tight text-black mb-2 flex items-center gap-3">
+                            <h1 className="text-4xl md:text-5xl font-black tracking-tight text-zinc-100 mb-2 flex items-center gap-3">
                                 TREND REPOST <Repeat className="w-8 h-8 text-[#8B5CF6]" />
                             </h1>
-                            <p className="text-[#86868b] text-lg font-medium max-w-2xl">
+                            <p className="text-zinc-400 text-lg font-medium max-w-2xl">
                                 Hijack trending Shorts and auto-repost them to your channels to maximize reach.
                             </p>
                         </div>
-                        <div className="flex bg-white px-4 py-2 rounded-2xl border border-[#e5e5e7] hover:border-[#8B5CF6] transition-all shadow-sm">
+                        <div className="flex bg-[#111]px-4 py-2 rounded-2xl border border-white/10 hover:border-[#8B5CF6] transition-all shadow-sm">
                             <select
-                                className="bg-transparent border-none outline-none font-bold text-black"
+                                className="bg-transparent border-none outline-none font-bold text-zinc-100"
                                 value={selectedAccount}
                                 onChange={(e) => setSelectedAccount(e.target.value)}
                             >
@@ -157,12 +157,12 @@ export default function RepostPage() {
                     )}
 
                     {/* Search Section */}
-                    <div className="bg-white p-6 rounded-3xl border border-[#e5e5e7] shadow-sm flex flex-col md:flex-row gap-4 items-center">
+                    <div className="bg-[#111]p-6 rounded-3xl border border-white/10 shadow-sm flex flex-col md:flex-row gap-4 items-center">
                         <div className="relative flex-1 w-full relative">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#86868b]" />
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400" />
                             <input
                                 type="text"
-                                className="w-full bg-[#f5f5f7] border-2 border-transparent hover:border-[#e5e5e7] focus:border-[#8B5CF6] focus:bg-white rounded-2xl py-4 pl-12 pr-4 text-black font-semibold placeholder:text-[#86868b] outline-none transition-all"
+                                className="w-full bg-white/5 border-2 border-transparent hover:border-white/10 focus:border-[#8B5CF6] focus:bg-[#111]rounded-2xl py-4 pl-12 pr-4 text-zinc-100 font-semibold placeholder:text-zinc-400 outline-none transition-all"
                                 placeholder="Search trending topic (e.g. #shorts comedy)"
                                 value={topic}
                                 onChange={(e) => setTopic(e.target.value)}
@@ -183,7 +183,7 @@ export default function RepostPage() {
                     {videos.length > 0 && (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                             {videos.map((video) => (
-                                <div key={video.id} className="bg-white rounded-3xl border border-[#e5e5e7] overflow-hidden group hover:shadow-xl transition-all hover:-translate-y-1 duration-300">
+                                <div key={video.id} className="bg-[#111]rounded-3xl border border-white/10 overflow-hidden group hover:shadow-xl transition-all hover:-translate-y-1 duration-300">
                                     <div className="aspect-[9/16] relative bg-black overflow-hidden">
                                         <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-4">
@@ -197,7 +197,7 @@ export default function RepostPage() {
                                         </div>
                                     </div>
                                     <div className="p-4 flex flex-col gap-4">
-                                        <div className="text-sm text-[#86868b] font-medium truncate">
+                                        <div className="text-sm text-zinc-400 font-medium truncate">
                                             By {video.channelTitle}
                                         </div>
                                         <button
@@ -205,7 +205,7 @@ export default function RepostPage() {
                                             disabled={repostingId === video.id || !selectedAccount}
                                             className={`w-full py-3 rounded-xl font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${
                                                 repostingId === video.id
-                                                    ? 'bg-[#f5f5f7] text-[#86868b] cursor-wait'
+                                                    ? 'bg-white/5 text-zinc-400 cursor-wait'
                                                     : 'bg-[#8B5CF6]/10 text-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white'
                                             }`}
                                         >

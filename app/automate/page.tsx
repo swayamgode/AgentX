@@ -7,22 +7,22 @@ import { Rocket, Calendar, TrendingUp, Zap } from "lucide-react";
 
 export default function AutomatePage() {
     return (
-        <div className="flex min-h-screen bg-[#F5F5F7]">
+        <div className="flex min-h-screen bg-white/5">
             <LeftSidebar />
 
             <main className="flex-1 ml-0 md:ml-0 pb-20 md:pb-8">
                 {/* Top Header */}
-                <div className="sticky top-0 bg-white/80 backdrop-blur-xl z-20 border-b border-[#e5e5e7]">
+                <div className="sticky top-0 bg-white/80 backdrop-blur-xl z-20 border-b border-white/10">
                     <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-4">
                         <div className="flex items-center gap-3">
                             <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl">
                                 <Rocket className="w-6 h-6 text-white" />
                             </div>
                             <div>
-                                <h1 className="text-xl md:text-2xl font-bold text-[#1d1d1f]">
+                                <h1 className="text-xl md:text-2xl font-bold text-zinc-100">
                                     Automated Posting
                                 </h1>
-                                <p className="text-xs md:text-sm text-[#86868b] mt-0.5">
+                                <p className="text-xs md:text-sm text-zinc-400 mt-0.5">
                                     Schedule and upload content across all accounts
                                 </p>
                             </div>
@@ -69,7 +69,7 @@ export default function AutomatePage() {
                             </li>
                             <li className="flex gap-2">
                                 <span className="font-bold">2.</span>
-                                <span>Edit <code className="bg-white px-2 py-0.5 rounded">topics.txt</code> to customize content themes</span>
+                                <span>Edit <code className="bg-[#111]px-2 py-0.5 rounded">topics.txt</code> to customize content themes</span>
                             </li>
                             <li className="flex gap-2">
                                 <span className="font-bold">3.</span>
@@ -77,7 +77,7 @@ export default function AutomatePage() {
                             </li>
                             <li className="flex gap-2">
                                 <span className="font-bold">4.</span>
-                                <span>Run <code className="bg-white px-2 py-0.5 rounded">npm run scheduler</code> to enable automatic uploads</span>
+                                <span>Run <code className="bg-[#111]px-2 py-0.5 rounded">npm run scheduler</code> to enable automatic uploads</span>
                             </li>
                             <li className="flex gap-2">
                                 <span className="font-bold">5.</span>
@@ -100,12 +100,12 @@ function FeatureCard({ icon, title, description, color }: {
     color: string;
 }) {
     return (
-        <div className="bg-white border border-[#e5e5e7] rounded-xl p-5 hover:shadow-lg transition-shadow">
+        <div className="bg-[#111] border border-white/10 rounded-xl p-5 hover:shadow-lg transition-shadow">
             <div className={`inline-flex p-2.5 rounded-lg bg-gradient-to-br ${color} text-white mb-3`}>
                 {icon}
             </div>
-            <h3 className="font-bold text-[#1d1d1f] mb-1">{title}</h3>
-            <p className="text-sm text-[#86868b]">{description}</p>
+            <h3 className="font-bold text-zinc-100 mb-1">{title}</h3>
+            <p className="text-sm text-zinc-400">{description}</p>
         </div>
     );
 }
