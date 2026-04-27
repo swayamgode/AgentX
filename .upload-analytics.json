@@ -1,375 +1,635 @@
 {
   "uploads": [
     {
-      "accountId": "kd7czzbz2t1madm9373e5ctrkd84sn09",
+      "accountId": "kd777c4yt15vmbhn0tza4pp3cx85gx0w",
       "channelName": "AgentX.quotes1",
+      "topic": "Self-love & confidence",
+      "success": true,
+      "videoId": "KE7mCFgs8dY",
+      "videoUrl": "https://www.youtube.com/watch?v=KE7mCFgs8dY",
+      "groupId": "k571c2663bzr0sxvhjph9rw7v184sccd",
+      "id": "0fcgquq31r0qmoe7rc0m",
+      "timestamp": "2026-04-25T10:45:45.238Z"
+    },
+    {
+      "accountId": "kd7407dkhbdqz32tm53rdbxqgs85hhew",
+      "channelName": "Agentx-quotes7",
+      "topic": "Stoic philosophy",
+      "success": true,
+      "videoId": "LGhnJTY_WeQ",
+      "videoUrl": "https://www.youtube.com/watch?v=LGhnJTY_WeQ",
+      "groupId": "k57a6s6vp5r1je3xqxwn586cyn84rfs9",
+      "id": "av8if8sksm9moe7rl0m",
+      "timestamp": "2026-04-25T10:45:56.902Z"
+    },
+    {
+      "accountId": "kd79vthz7b7xv7ppkrq4kapr8h85h321",
+      "channelName": "agentx-z4w",
+      "topic": "Daily motivation",
+      "success": true,
+      "videoId": "3kTV2Iorsgg",
+      "videoUrl": "https://www.youtube.com/watch?v=3kTV2Iorsgg",
+      "groupId": "k57a6s6vp5r1je3xqxwn586cyn84rfs9",
+      "id": "l2b3jhyo18moe7rl9e",
+      "timestamp": "2026-04-25T10:45:57.218Z"
+    },
+    {
+      "accountId": "kd75hbjxmwdt8xj8cjty3chh2h85g2cp",
+      "channelName": "Agentx.quotes6",
+      "topic": "Overcoming failure",
+      "success": true,
+      "videoId": "TCoPF4_q6Tw",
+      "videoUrl": "https://www.youtube.com/watch?v=TCoPF4_q6Tw",
+      "groupId": "k57a6s6vp5r1je3xqxwn586cyn84rfs9",
+      "id": "y2987uid4smoe7ruix",
+      "timestamp": "2026-04-25T10:46:09.225Z"
+    },
+    {
+      "accountId": "kd7asyza0ahxzxtpx7ey0003kh85ge5z",
+      "channelName": "AgentX-quotes2",
+      "topic": "Marriage & commitment",
+      "success": true,
+      "videoId": "fvP4CYaMgP0",
+      "videoUrl": "https://www.youtube.com/watch?v=fvP4CYaMgP0",
+      "groupId": "k571c2663bzr0sxvhjph9rw7v184sccd",
+      "id": "s3sys3hbr4moe7rv8f",
+      "timestamp": "2026-04-25T10:46:10.143Z"
+    },
+    {
+      "accountId": "kd71k4g2ggp0fa2fccajmrr4yh85ht9g",
+      "channelName": "PaperPoet",
+      "topic": "Long distance love",
+      "success": true,
+      "videoId": "LDQUM78aC4s",
+      "videoUrl": "https://www.youtube.com/watch?v=LDQUM78aC4s",
+      "groupId": "k571c2663bzr0sxvhjph9rw7v184sccd",
+      "id": "5imghomruzbmoe7s3gd",
+      "timestamp": "2026-04-25T10:46:20.797Z"
+    },
+    {
+      "accountId": "kd759wc8fd1p76k83bv5z11kjs85gf8h",
+      "channelName": "Agentx.quote-5",
+      "topic": "Discipline & habits",
+      "success": true,
+      "videoId": "4rgXuPqpsfU",
+      "videoUrl": "https://www.youtube.com/watch?v=4rgXuPqpsfU",
+      "groupId": "k57a6s6vp5r1je3xqxwn586cyn84rfs9",
+      "id": "51qtzrk5mzrmoe7s3wy",
+      "timestamp": "2026-04-25T10:46:21.394Z"
+    },
+    {
+      "accountId": "kd7cyq8k8p7amc9hzq1fyac7p585hknz",
+      "channelName": "Agentx-quotes4",
+      "topic": "Success & hustle",
+      "success": true,
+      "videoId": "HjyHyeO3WgM",
+      "videoUrl": "https://www.youtube.com/watch?v=HjyHyeO3WgM",
+      "groupId": "k57a6s6vp5r1je3xqxwn586cyn84rfs9",
+      "id": "dcq7t13qqpmoe7scu4",
+      "timestamp": "2026-04-25T10:46:32.956Z"
+    },
+    {
+      "accountId": "kd79d4vmnd2q2ps1m910jetf2n85h5wm",
+      "channelName": "Agentxx-feminist",
+      "topic": "Heartbreak & healing",
+      "success": true,
+      "videoId": "n60wycJSeC8",
+      "videoUrl": "https://www.youtube.com/watch?v=n60wycJSeC8",
+      "groupId": "k571c2663bzr0sxvhjph9rw7v184sccd",
+      "id": "micuusbn2ufmoe7sd0g",
+      "timestamp": "2026-04-25T10:46:33.184Z"
+    },
+    {
+      "accountId": "kd7aa4g7w5wyxw4q2qaaz9qra585h9bd",
+      "channelName": "Book kida",
+      "topic": "Romantic love quotes",
+      "success": true,
+      "videoId": "7GUykoSZv4g",
+      "videoUrl": "https://www.youtube.com/watch?v=7GUykoSZv4g",
+      "groupId": "k571c2663bzr0sxvhjph9rw7v184sccd",
+      "id": "qlzhqndmxumoe7skv7",
+      "timestamp": "2026-04-25T10:46:43.363Z"
+    },
+    {
+      "accountId": "kd75hbjxmwdt8xj8cjty3chh2h85g2cp",
+      "channelName": "Agentx.quotes6",
+      "topic": "Overcoming failure",
+      "success": true,
+      "videoId": "2WXliWV7idI",
+      "videoUrl": "https://www.youtube.com/watch?v=2WXliWV7idI",
+      "groupId": "k57a6s6vp5r1je3xqxwn586cyn84rfs9",
+      "id": "6azsk5hmj0lmoe7slb0",
+      "timestamp": "2026-04-25T10:46:43.932Z"
+    },
+    {
+      "accountId": "kd7407dkhbdqz32tm53rdbxqgs85hhew",
+      "channelName": "Agentx-quotes7",
+      "topic": "Stoic philosophy",
+      "success": true,
+      "videoId": "4U5Jpg3xn3k",
+      "videoUrl": "https://www.youtube.com/watch?v=4U5Jpg3xn3k",
+      "groupId": "k57a6s6vp5r1je3xqxwn586cyn84rfs9",
+      "id": "pc5sqojv4nhmoe7stp3",
+      "timestamp": "2026-04-25T10:46:54.807Z"
+    },
+    {
+      "accountId": "kd77j5emsh9nvt14z14fy94g4n85h4rq",
+      "channelName": "agentx.quote3",
+      "topic": "Toxic relationship red flags",
+      "success": true,
+      "videoId": "jChh9HANk2Q",
+      "videoUrl": "https://www.youtube.com/watch?v=jChh9HANk2Q",
+      "groupId": "k571c2663bzr0sxvhjph9rw7v184sccd",
+      "id": "hsz9g1xzh4wmoe7stzw",
+      "timestamp": "2026-04-25T10:46:55.196Z"
+    },
+    {
+      "accountId": "kd777c4yt15vmbhn0tza4pp3cx85gx0w",
+      "channelName": "AgentX.quotes1",
+      "topic": "Self-love & confidence",
+      "success": true,
+      "videoId": "7Io8Ew6DHEk",
+      "videoUrl": "https://www.youtube.com/watch?v=7Io8Ew6DHEk",
+      "groupId": "k571c2663bzr0sxvhjph9rw7v184sccd",
+      "id": "rg4u30osnimoe7t39e",
+      "timestamp": "2026-04-25T10:47:07.202Z"
+    },
+    {
+      "accountId": "kd79vthz7b7xv7ppkrq4kapr8h85h321",
+      "channelName": "agentx-z4w",
+      "topic": "Daily motivation",
+      "success": true,
+      "videoId": "np1ogEBdtWs",
+      "videoUrl": "https://www.youtube.com/watch?v=np1ogEBdtWs",
+      "groupId": "k57a6s6vp5r1je3xqxwn586cyn84rfs9",
+      "id": "i417g3uszhbmoe7t3yk",
+      "timestamp": "2026-04-25T10:47:08.108Z"
+    },
+    {
+      "accountId": "kd7cyq8k8p7amc9hzq1fyac7p585hknz",
+      "channelName": "Agentx-quotes4",
+      "topic": "Success & hustle",
+      "success": true,
+      "videoId": "pgFSDLALaEA",
+      "videoUrl": "https://www.youtube.com/watch?v=pgFSDLALaEA",
+      "groupId": "k57a6s6vp5r1je3xqxwn586cyn84rfs9",
+      "id": "55hop65wo2mmoe7tbei",
+      "timestamp": "2026-04-25T10:47:17.754Z"
+    },
+    {
+      "accountId": "kd7asyza0ahxzxtpx7ey0003kh85ge5z",
+      "channelName": "AgentX-quotes2",
+      "topic": "Marriage & commitment",
+      "success": true,
+      "videoId": "CrfHkI4Weas",
+      "videoUrl": "https://www.youtube.com/watch?v=CrfHkI4Weas",
+      "groupId": "k571c2663bzr0sxvhjph9rw7v184sccd",
+      "id": "acvong5dmncmoe7tclx",
+      "timestamp": "2026-04-25T10:47:19.317Z"
+    },
+    {
+      "accountId": "kd71k4g2ggp0fa2fccajmrr4yh85ht9g",
+      "channelName": "PaperPoet",
+      "topic": "Long distance love",
+      "success": true,
+      "videoId": "n_Q6Du_G96I",
+      "videoUrl": "https://www.youtube.com/watch?v=n_Q6Du_G96I",
+      "groupId": "k571c2663bzr0sxvhjph9rw7v184sccd",
+      "id": "rptxtak5aohmoe7tk45",
+      "timestamp": "2026-04-25T10:47:29.045Z"
+    },
+    {
+      "accountId": "kd759wc8fd1p76k83bv5z11kjs85gf8h",
+      "channelName": "Agentx.quote-5",
+      "topic": "Discipline & habits",
+      "success": true,
+      "videoId": "0QReu_61Evw",
+      "videoUrl": "https://www.youtube.com/watch?v=0QReu_61Evw",
+      "groupId": "k57a6s6vp5r1je3xqxwn586cyn84rfs9",
+      "id": "n26210zn56jmoe7tk6t",
+      "timestamp": "2026-04-25T10:47:29.141Z"
+    },
+    {
+      "accountId": "kd75hbjxmwdt8xj8cjty3chh2h85g2cp",
+      "channelName": "Agentx.quotes6",
+      "topic": "Overcoming failure",
+      "success": true,
+      "videoId": "nu8f7bTh--s",
+      "videoUrl": "https://www.youtube.com/watch?v=nu8f7bTh--s",
+      "groupId": "k57a6s6vp5r1je3xqxwn586cyn84rfs9",
+      "id": "hs2wyrz1uxvmoe7ttjx",
+      "timestamp": "2026-04-25T10:47:41.277Z"
+    },
+    {
+      "accountId": "kd77j5emsh9nvt14z14fy94g4n85h4rq",
+      "channelName": "agentx.quote3",
+      "topic": "Toxic relationship red flags",
+      "success": true,
+      "videoId": "CNf6o5hgGfg",
+      "videoUrl": "https://www.youtube.com/watch?v=CNf6o5hgGfg",
+      "groupId": "k571c2663bzr0sxvhjph9rw7v184sccd",
+      "id": "4kpsrhkmcaumoe7ttso",
+      "timestamp": "2026-04-25T10:47:41.592Z"
+    },
+    {
+      "accountId": "kd79d4vmnd2q2ps1m910jetf2n85h5wm",
+      "channelName": "Agentxx-feminist",
+      "topic": "Heartbreak & healing",
+      "success": true,
+      "videoId": "0TfQecMLRd8",
+      "videoUrl": "https://www.youtube.com/watch?v=0TfQecMLRd8",
+      "groupId": "k571c2663bzr0sxvhjph9rw7v184sccd",
+      "id": "xp8s0bwt3camoe7u2hx",
+      "timestamp": "2026-04-25T10:47:52.869Z"
+    },
+    {
+      "accountId": "kd7407dkhbdqz32tm53rdbxqgs85hhew",
+      "channelName": "Agentx-quotes7",
+      "topic": "Stoic philosophy",
+      "success": true,
+      "videoId": "4AUdafTLanc",
+      "videoUrl": "https://www.youtube.com/watch?v=4AUdafTLanc",
+      "groupId": "k57a6s6vp5r1je3xqxwn586cyn84rfs9",
+      "id": "2tknroco63emoe7u3og",
+      "timestamp": "2026-04-25T10:47:54.400Z"
+    },
+    {
+      "accountId": "kd7aa4g7w5wyxw4q2qaaz9qra585h9bd",
+      "channelName": "Book kida",
+      "topic": "Romantic love quotes",
+      "success": true,
+      "videoId": "1Pj8l9voMas",
+      "videoUrl": "https://www.youtube.com/watch?v=1Pj8l9voMas",
+      "groupId": "k571c2663bzr0sxvhjph9rw7v184sccd",
+      "id": "x0ydiqdrbeemoe7ub2z",
+      "timestamp": "2026-04-25T10:48:03.995Z"
+    },
+    {
+      "accountId": "kd79vthz7b7xv7ppkrq4kapr8h85h321",
+      "channelName": "agentx-z4w",
+      "topic": "Daily motivation",
+      "success": true,
+      "videoId": "Ap3ycKkN31c",
+      "videoUrl": "https://www.youtube.com/watch?v=Ap3ycKkN31c",
+      "groupId": "k57a6s6vp5r1je3xqxwn586cyn84rfs9",
+      "id": "n5kf556prtimoe7ub3o",
+      "timestamp": "2026-04-25T10:48:04.020Z"
+    },
+    {
+      "accountId": "kd7cyq8k8p7amc9hzq1fyac7p585hknz",
+      "channelName": "Agentx-quotes4",
+      "topic": "Success & hustle",
+      "success": true,
+      "videoId": "1x-haMJjE5Y",
+      "videoUrl": "https://www.youtube.com/watch?v=1x-haMJjE5Y",
+      "groupId": "k57a6s6vp5r1je3xqxwn586cyn84rfs9",
+      "id": "o6fcvkrg3zmoe7ukcb",
+      "timestamp": "2026-04-25T10:48:15.995Z"
+    },
+    {
+      "accountId": "kd777c4yt15vmbhn0tza4pp3cx85gx0w",
+      "channelName": "AgentX.quotes1",
+      "topic": "Self-love & confidence",
+      "success": true,
+      "videoId": "T1Mjw_JRiDE",
+      "videoUrl": "https://www.youtube.com/watch?v=T1Mjw_JRiDE",
+      "groupId": "k571c2663bzr0sxvhjph9rw7v184sccd",
+      "id": "t2ta6rfp88emoe7ul8d",
+      "timestamp": "2026-04-25T10:48:17.149Z"
+    },
+    {
+      "accountId": "kd7asyza0ahxzxtpx7ey0003kh85ge5z",
+      "channelName": "AgentX-quotes2",
+      "topic": "Marriage & commitment",
+      "success": true,
+      "videoId": "UVCmxDg_TDo",
+      "videoUrl": "https://www.youtube.com/watch?v=UVCmxDg_TDo",
+      "groupId": "k571c2663bzr0sxvhjph9rw7v184sccd",
+      "id": "0cl4jvhrbeasmoe7uugs",
+      "timestamp": "2026-04-25T10:48:29.116Z"
+    },
+    {
+      "accountId": "kd71k4g2ggp0fa2fccajmrr4yh85ht9g",
+      "channelName": "PaperPoet",
+      "topic": "Long distance love",
+      "success": true,
+      "videoId": "uJyIwpjwLvA",
+      "videoUrl": "https://www.youtube.com/watch?v=uJyIwpjwLvA",
+      "groupId": "k571c2663bzr0sxvhjph9rw7v184sccd",
+      "id": "b9aj9ut3imumoe7uuhj",
+      "timestamp": "2026-04-25T10:48:29.143Z"
+    },
+    {
+      "accountId": "kd79d4vmnd2q2ps1m910jetf2n85h5wm",
+      "channelName": "Agentxx-feminist",
       "topic": "general",
       "success": false,
       "error": "YouTube Daily Upload Limit Reached",
       "errorType": "QUOTA_EXCEEDED",
-      "id": "nm6gxnffwkpmnyyzwo5",
-      "timestamp": "2026-04-14T18:43:56.069Z"
+      "id": "pvwx8rh94hamoe7v28d",
+      "timestamp": "2026-04-25T10:48:39.181Z"
     },
     {
-      "accountId": "kd78npwe9kp0d6bnqdhtsc4s2d84sth0",
+      "accountId": "kd759wc8fd1p76k83bv5z11kjs85gf8h",
+      "channelName": "Agentx.quote-5",
+      "topic": "Discipline & habits",
+      "success": true,
+      "videoId": "XzzCbGyQrMY",
+      "videoUrl": "https://www.youtube.com/watch?v=XzzCbGyQrMY",
+      "groupId": "k57a6s6vp5r1je3xqxwn586cyn84rfs9",
+      "id": "u08nriyaj2qmoe7v4c9",
+      "timestamp": "2026-04-25T10:48:41.913Z"
+    },
+    {
+      "accountId": "kd77j5emsh9nvt14z14fy94g4n85h4rq",
       "channelName": "agentx.quote3",
       "topic": "general",
       "success": false,
       "error": "YouTube Daily Upload Limit Reached",
       "errorType": "QUOTA_EXCEEDED",
-      "id": "jgeynw9w3upmnyyzx53",
-      "timestamp": "2026-04-14T18:43:56.679Z"
+      "id": "56ycpt8455gmoe7vasv",
+      "timestamp": "2026-04-25T10:48:50.287Z"
     },
     {
-      "accountId": "kd728fc8jbx688z6rdfctanam584sjqt",
-      "channelName": "AgentX-quotes2",
+      "accountId": "kd7aa4g7w5wyxw4q2qaaz9qra585h9bd",
+      "channelName": "Book kida",
       "topic": "general",
       "success": false,
       "error": "YouTube Daily Upload Limit Reached",
       "errorType": "QUOTA_EXCEEDED",
-      "id": "z8frkwqndqgmnyyzxk7",
-      "timestamp": "2026-04-14T18:43:57.223Z"
+      "id": "sufq14gffhmoe7vbat",
+      "timestamp": "2026-04-25T10:48:50.933Z"
     },
     {
-      "accountId": "kd73bczerm9bw3jk4g2y41bxhd84rtc8",
-      "channelName": "Agentx-quotes-9",
-      "topic": "general",
-      "success": false,
-      "error": "YouTube Daily Upload Limit Reached",
-      "errorType": "QUOTA_EXCEEDED",
-      "id": "j2nvku2ypymnyyzxyy",
-      "timestamp": "2026-04-14T18:43:57.754Z"
-    },
-    {
-      "accountId": "kd733k35xt21a9tm8mv5qsk2wn84sv5a",
-      "channelName": "Agentx-quotes8",
-      "topic": "general",
-      "success": false,
-      "error": "YouTube Daily Upload Limit Reached",
-      "errorType": "QUOTA_EXCEEDED",
-      "id": "otcfnb0pw9pmnyyzz4i",
-      "timestamp": "2026-04-14T18:43:59.250Z"
-    },
-    {
-      "accountId": "kd7ebryv9vxzke312vt428xryh84s7fa",
-      "channelName": "Agentx-quotes7",
-      "topic": "general",
-      "success": false,
-      "error": "YouTube Daily Upload Limit Reached",
-      "errorType": "QUOTA_EXCEEDED",
-      "id": "go6g2f0ftglmnyz0180",
-      "timestamp": "2026-04-14T18:44:01.968Z"
-    },
-    {
-      "accountId": "kd75w121dp0nda0r90c82q2kg184rf6z",
-      "channelName": "Agentx-quotes10",
-      "topic": "general",
-      "success": false,
-      "error": "YouTube Daily Upload Limit Reached",
-      "errorType": "QUOTA_EXCEEDED",
-      "id": "7o2trzho0ammnyz0c4n",
-      "timestamp": "2026-04-14T18:44:16.103Z"
-    },
-    {
-      "accountId": "kd7cgkedxph022dvywm0j0dkfh84r4rx",
-      "channelName": "Agentx-quotes4",
-      "topic": "general",
-      "success": false,
-      "error": "YouTube Daily Upload Limit Reached",
-      "errorType": "QUOTA_EXCEEDED",
-      "id": "1ynvg7xklafmnyz0dyg",
-      "timestamp": "2026-04-14T18:44:18.472Z"
-    },
-    {
-      "accountId": "kd70tfcedr3yzh3fhf9srj6z2s84rayg",
-      "channelName": "Agentx.quotes6",
-      "topic": "general",
-      "success": false,
-      "error": "YouTube Daily Upload Limit Reached",
-      "errorType": "QUOTA_EXCEEDED",
-      "id": "eypg94ge5camnyz0m6c",
-      "timestamp": "2026-04-14T18:44:29.124Z"
-    },
-    {
-      "accountId": "kd75w121dp0nda0r90c82q2kg184rf6z",
-      "channelName": "Agentx-quotes10",
-      "topic": "general",
-      "success": false,
-      "error": "YouTube Daily Upload Limit Reached",
-      "errorType": "QUOTA_EXCEEDED",
-      "id": "7u68lg3qhyhmnyz0peu",
-      "timestamp": "2026-04-14T18:44:33.318Z"
-    },
-    {
-      "accountId": "kd760bpstqnmgf14nh0aehdjh584rsyz",
-      "channelName": "Agentx-quotes11",
-      "topic": "general",
-      "success": false,
-      "error": "YouTube Daily Upload Limit Reached",
-      "errorType": "QUOTA_EXCEEDED",
-      "id": "9cu5ylzf5jnmnyz0rw6",
-      "timestamp": "2026-04-14T18:44:36.534Z"
-    },
-    {
-      "accountId": "kd7byg9rmw5fgvjyakjdnerjp584sgqy",
-      "channelName": "Agentx.quote-5",
-      "topic": "general",
-      "success": false,
-      "error": "YouTube Daily Upload Limit Reached",
-      "errorType": "QUOTA_EXCEEDED",
-      "id": "yq5z4qskwc9mnyz0yc2",
-      "timestamp": "2026-04-14T18:44:44.882Z"
-    },
-    {
-      "accountId": "kd760bpstqnmgf14nh0aehdjh584rsyz",
-      "channelName": "Agentx-quotes11",
-      "topic": "general",
-      "success": false,
-      "error": "YouTube Daily Upload Limit Reached",
-      "errorType": "QUOTA_EXCEEDED",
-      "id": "n1fx7mwz1ocmnyz0z1w",
-      "timestamp": "2026-04-14T18:44:45.812Z"
-    },
-    {
-      "accountId": "kd70tfcedr3yzh3fhf9srj6z2s84rayg",
-      "channelName": "Agentx.quotes6",
-      "topic": "general",
-      "success": false,
-      "error": "YouTube Daily Upload Limit Reached",
-      "errorType": "QUOTA_EXCEEDED",
-      "id": "5fqfc846q4qmnyz15ig",
-      "timestamp": "2026-04-14T18:44:54.185Z"
-    },
-    {
-      "accountId": "kd760bpstqnmgf14nh0aehdjh584rsyz",
-      "channelName": "Agentx-quotes11",
-      "topic": "general",
-      "success": false,
-      "error": "YouTube Daily Upload Limit Reached",
-      "errorType": "QUOTA_EXCEEDED",
-      "id": "r9wrs6vrub8mnyz16pz",
-      "timestamp": "2026-04-14T18:44:55.751Z"
-    },
-    {
-      "accountId": "kd7a1e271n2yfd4wrk2h7eq9mh84s417",
-      "channelName": "Agentx-quotes17",
-      "topic": "general",
-      "success": false,
-      "error": "YouTube Daily Upload Limit Reached",
-      "errorType": "QUOTA_EXCEEDED",
-      "id": "oq9risouuhmnyz1osj",
-      "timestamp": "2026-04-14T18:45:19.172Z"
-    },
-    {
-      "accountId": "kd7czzbz2t1madm9373e5ctrkd84sn09",
+      "accountId": "kd777c4yt15vmbhn0tza4pp3cx85gx0w",
       "channelName": "AgentX.quotes1",
       "topic": "general",
       "success": false,
       "error": "YouTube Daily Upload Limit Reached",
       "errorType": "QUOTA_EXCEEDED",
-      "id": "t2p5ubr4qpmnyz1pbb",
-      "timestamp": "2026-04-14T18:45:19.847Z"
+      "id": "e3f2akuwl2moe7vk20",
+      "timestamp": "2026-04-25T10:49:02.280Z"
     },
     {
-      "accountId": "kd7fkpwg3ycpefm8wfzbqrntvn84srzt",
-      "channelName": "Agentx-quotes18",
-      "topic": "general",
-      "success": false,
-      "error": "YouTube Daily Upload Limit Reached",
-      "errorType": "QUOTA_EXCEEDED",
-      "id": "p3l327zmfxmnyz1pp6",
-      "timestamp": "2026-04-14T18:45:20.346Z"
-    },
-    {
-      "accountId": "kd728fc8jbx688z6rdfctanam584sjqt",
+      "accountId": "kd7asyza0ahxzxtpx7ey0003kh85ge5z",
       "channelName": "AgentX-quotes2",
       "topic": "general",
       "success": false,
       "error": "YouTube Daily Upload Limit Reached",
       "errorType": "QUOTA_EXCEEDED",
-      "id": "30eggm98i6smnyz1qdf",
-      "timestamp": "2026-04-14T18:45:21.219Z"
+      "id": "w2ssgwzm3gmoe7vklg",
+      "timestamp": "2026-04-25T10:49:02.980Z"
     },
     {
-      "accountId": "kd7d3b52btpgsaa3max1kjpxad84r5kp",
-      "channelName": "Agentx-quotes16",
+      "accountId": "kd71k4g2ggp0fa2fccajmrr4yh85ht9g",
+      "channelName": "PaperPoet",
       "topic": "general",
       "success": false,
       "error": "YouTube Daily Upload Limit Reached",
       "errorType": "QUOTA_EXCEEDED",
-      "id": "mij5vbwc267mnyz1shp",
-      "timestamp": "2026-04-14T18:45:23.965Z"
+      "id": "tvkrgql0cpnmoe7vsjo",
+      "timestamp": "2026-04-25T10:49:13.284Z"
     },
     {
-      "accountId": "kd7btsxajm11y143a6yezs2we184rf30",
+      "accountId": "kd7asyza0ahxzxtpx7ey0003kh85ge5z",
+      "channelName": "AgentX-quotes2",
+      "topic": "general",
+      "success": false,
+      "error": "YouTube Daily Upload Limit Reached",
+      "errorType": "QUOTA_EXCEEDED",
+      "id": "23bn1qsrntemoe7vutq",
+      "timestamp": "2026-04-25T10:49:16.238Z"
+    },
+    {
+      "accountId": "kd72hcn8nz56ntxw2gd6psfr9h85hqvj",
+      "channelName": "Agentx-quotes-9",
+      "topic": "general",
+      "success": false,
+      "error": "YouTube Daily Upload Limit Reached",
+      "errorType": "QUOTA_EXCEEDED",
+      "id": "1i14v3offfwmoe7w4sy",
+      "timestamp": "2026-04-25T10:49:29.170Z"
+    },
+    {
+      "accountId": "kd7b2cn0ktfy6sqg4tn7engca985h1f5",
+      "channelName": "Agentx-quotes11",
+      "topic": "general",
+      "success": false,
+      "error": "YouTube Daily Upload Limit Reached",
+      "errorType": "QUOTA_EXCEEDED",
+      "id": "xrayuulmejmoe7w4xn",
+      "timestamp": "2026-04-25T10:49:29.339Z"
+    },
+    {
+      "accountId": "kd72k9c8a6dgm7rn2mv79vz03185hdy6",
       "channelName": "Agentx-quotes12",
       "topic": "general",
       "success": false,
       "error": "YouTube Daily Upload Limit Reached",
       "errorType": "QUOTA_EXCEEDED",
-      "id": "7fy5jwwgjy5mnyz1uau",
-      "timestamp": "2026-04-14T18:45:26.310Z"
+      "id": "m71r6vz6659moe7wdbt",
+      "timestamp": "2026-04-25T10:49:40.217Z"
     },
     {
-      "accountId": "kd78npwe9kp0d6bnqdhtsc4s2d84sth0",
-      "channelName": "agentx.quote3",
+      "accountId": "kd7b253e4staqy9h4tvetr9p5n85hg3j",
+      "channelName": "Agentx-quotes10",
       "topic": "general",
       "success": false,
       "error": "YouTube Daily Upload Limit Reached",
       "errorType": "QUOTA_EXCEEDED",
-      "id": "v6qxxhpfdqmnyz1yyx",
-      "timestamp": "2026-04-14T18:45:32.362Z"
+      "id": "ixujrrkvykpmoe7wdgq",
+      "timestamp": "2026-04-25T10:49:40.394Z"
     },
     {
-      "accountId": "kd73bczerm9bw3jk4g2y41bxhd84rtc8",
-      "channelName": "Agentx-quotes-9",
-      "topic": "general",
-      "success": false,
-      "error": "YouTube Daily Upload Limit Reached",
-      "errorType": "QUOTA_EXCEEDED",
-      "id": "mroura5zvfmnyz1zt0",
-      "timestamp": "2026-04-14T18:45:33.444Z"
-    },
-    {
-      "accountId": "kd76h0v8ryw416kph2pbbnamds84r9vq",
-      "channelName": "Agentx-quotes13",
-      "topic": "general",
-      "success": false,
-      "error": "YouTube Daily Upload Limit Reached",
-      "errorType": "QUOTA_EXCEEDED",
-      "id": "mjz5iky77prmnyz21np",
-      "timestamp": "2026-04-14T18:45:35.845Z"
-    },
-    {
-      "accountId": "kd70nbm801ect4w0z3nh23s0sn84rwb4",
-      "channelName": "Agentx-quotes14",
-      "topic": "general",
-      "success": false,
-      "error": "YouTube Daily Upload Limit Reached",
-      "errorType": "QUOTA_EXCEEDED",
-      "id": "6gw9jla0yl9mnyz244q",
-      "timestamp": "2026-04-14T18:45:39.050Z"
-    },
-    {
-      "accountId": "kd7ebryv9vxzke312vt428xryh84s7fa",
-      "channelName": "Agentx-quotes7",
-      "topic": "general",
-      "success": false,
-      "error": "YouTube Daily Upload Limit Reached",
-      "errorType": "QUOTA_EXCEEDED",
-      "id": "nlu3t370unmnyz253m",
-      "timestamp": "2026-04-14T18:45:40.306Z"
-    },
-    {
-      "accountId": "kd733k35xt21a9tm8mv5qsk2wn84sv5a",
+      "accountId": "kd7de8p7fscqdwx76stcqmb14185hzzm",
       "channelName": "Agentx-quotes8",
       "topic": "general",
       "success": false,
       "error": "YouTube Daily Upload Limit Reached",
       "errorType": "QUOTA_EXCEEDED",
-      "id": "xpw4x7fu88nmnyz25mg",
-      "timestamp": "2026-04-14T18:45:40.984Z"
+      "id": "doj2jjrq015moe7wlhi",
+      "timestamp": "2026-04-25T10:49:50.790Z"
     },
     {
-      "accountId": "kd72d5gg4qdqhg4gqv4fxrnqvx84r596",
-      "channelName": "Agentx-quotes19",
-      "topic": "general",
-      "success": false,
-      "error": "YouTube Daily Upload Limit Reached",
-      "errorType": "QUOTA_EXCEEDED",
-      "id": "tt14fh1lp0amnyz27jd",
-      "timestamp": "2026-04-14T18:45:43.465Z"
-    },
-    {
-      "accountId": "kd7d43pmyhjhz0xe0eee46nysx84r2pa",
-      "channelName": "Agentx-quotes15",
-      "topic": "general",
-      "success": false,
-      "error": "YouTube Daily Upload Limit Reached",
-      "errorType": "QUOTA_EXCEEDED",
-      "id": "3n0fmhvghhjmnyz2910",
-      "timestamp": "2026-04-14T18:45:45.396Z"
-    },
-    {
-      "accountId": "kd7cgkedxph022dvywm0j0dkfh84r4rx",
-      "channelName": "Agentx-quotes4",
-      "topic": "general",
-      "success": false,
-      "error": "YouTube Daily Upload Limit Reached",
-      "errorType": "QUOTA_EXCEEDED",
-      "id": "simktqp2kzmnyz2amw",
-      "timestamp": "2026-04-14T18:45:47.480Z"
-    },
-    {
-      "accountId": "kd7byg9rmw5fgvjyakjdnerjp584sgqy",
-      "channelName": "Agentx.quote-5",
-      "topic": "general",
-      "success": false,
-      "error": "YouTube Daily Upload Limit Reached",
-      "errorType": "QUOTA_EXCEEDED",
-      "id": "kx8ru3w4s2pmnyz2cg6",
-      "timestamp": "2026-04-14T18:45:49.830Z"
-    },
-    {
-      "accountId": "kd72d5gg4qdqhg4gqv4fxrnqvx84r596",
-      "channelName": "Agentx-quotes19",
-      "topic": "general",
-      "success": false,
-      "error": "YouTube Daily Upload Limit Reached",
-      "errorType": "QUOTA_EXCEEDED",
-      "id": "fdib8gfjmqmnyz2d76",
-      "timestamp": "2026-04-14T18:45:50.802Z"
-    },
-    {
-      "accountId": "kd7d3b52btpgsaa3max1kjpxad84r5kp",
-      "channelName": "Agentx-quotes16",
-      "topic": "general",
-      "success": false,
-      "error": "YouTube Daily Upload Limit Reached",
-      "errorType": "QUOTA_EXCEEDED",
-      "id": "vaiclg9ghr9mnyz2iez",
-      "timestamp": "2026-04-14T18:45:57.563Z"
-    },
-    {
-      "accountId": "kd75w121dp0nda0r90c82q2kg184rf6z",
-      "channelName": "Agentx-quotes10",
-      "topic": "general",
-      "success": false,
-      "error": "YouTube Daily Upload Limit Reached",
-      "errorType": "QUOTA_EXCEEDED",
-      "id": "yows7x3b76mnyz2mww",
-      "timestamp": "2026-04-14T18:46:03.392Z"
-    },
-    {
-      "accountId": "kd75w121dp0nda0r90c82q2kg184rf6z",
-      "channelName": "Agentx-quotes10",
-      "topic": "general",
-      "success": false,
-      "error": "YouTube Daily Upload Limit Reached",
-      "errorType": "QUOTA_EXCEEDED",
-      "id": "laf29tnehrkmnyz2o4x",
-      "timestamp": "2026-04-14T18:46:04.977Z"
-    },
-    {
-      "accountId": "kd70nbm801ect4w0z3nh23s0sn84rwb4",
+      "accountId": "kd72kb51nyjt6rc8hfzrpwfnv185gepm",
       "channelName": "Agentx-quotes14",
       "topic": "general",
       "success": false,
       "error": "YouTube Daily Upload Limit Reached",
       "errorType": "QUOTA_EXCEEDED",
-      "id": "6t72cc22s5jmnyz2opo",
-      "timestamp": "2026-04-14T18:46:05.724Z"
+      "id": "9d9jicgq04emoe7wmnt",
+      "timestamp": "2026-04-25T10:49:52.313Z"
     },
     {
-      "accountId": "kd7d43pmyhjhz0xe0eee46nysx84r2pa",
+      "accountId": "kd7fx93q4b11e1dvb2rqtpcjnx85h19n",
       "channelName": "Agentx-quotes15",
       "topic": "general",
       "success": false,
       "error": "YouTube Daily Upload Limit Reached",
       "errorType": "QUOTA_EXCEEDED",
-      "id": "hy4roxkaw6rmnyz2s8i",
-      "timestamp": "2026-04-14T18:46:10.290Z"
+      "id": "i7tfvemhayqmoe7wutd",
+      "timestamp": "2026-04-25T10:50:02.881Z"
+    },
+    {
+      "accountId": "kd7bkfwmzwae4w4xegp5w2f53n85ha43",
+      "channelName": "Agentx-quotes13",
+      "topic": "general",
+      "success": false,
+      "error": "YouTube Daily Upload Limit Reached",
+      "errorType": "QUOTA_EXCEEDED",
+      "id": "xg5otyiguomoe7wuzl",
+      "timestamp": "2026-04-25T10:50:03.105Z"
+    },
+    {
+      "accountId": "kd7de8p7fscqdwx76stcqmb14185hzzm",
+      "channelName": "Agentx-quotes8",
+      "topic": "general",
+      "success": false,
+      "error": "YouTube Daily Upload Limit Reached",
+      "errorType": "QUOTA_EXCEEDED",
+      "id": "4v8ulg1plzhmoe7x4sh",
+      "timestamp": "2026-04-25T10:50:15.809Z"
+    },
+    {
+      "accountId": "kd7b253e4staqy9h4tvetr9p5n85hg3j",
+      "channelName": "Agentx-quotes10",
+      "topic": "general",
+      "success": false,
+      "error": "YouTube Daily Upload Limit Reached",
+      "errorType": "QUOTA_EXCEEDED",
+      "id": "thsegl1pefsmoe7x4wy",
+      "timestamp": "2026-04-25T10:50:15.970Z"
+    },
+    {
+      "accountId": "kd7bkfwmzwae4w4xegp5w2f53n85ha43",
+      "channelName": "Agentx-quotes13",
+      "topic": "general",
+      "success": false,
+      "error": "YouTube Daily Upload Limit Reached",
+      "errorType": "QUOTA_EXCEEDED",
+      "id": "7kkw0jv150emoe7xdog",
+      "timestamp": "2026-04-25T10:50:27.328Z"
+    },
+    {
+      "accountId": "kd7bkfwmzwae4w4xegp5w2f53n85ha43",
+      "channelName": "Agentx-quotes13",
+      "topic": "general",
+      "success": false,
+      "error": "YouTube Daily Upload Limit Reached",
+      "errorType": "QUOTA_EXCEEDED",
+      "id": "w044ejxzramoe7xe15",
+      "timestamp": "2026-04-25T10:50:27.785Z"
+    },
+    {
+      "accountId": "kd71kheqw4esgwkg6pgxtzy6es85gb6g",
+      "channelName": "Agentx-quotes18",
+      "topic": "general",
+      "success": false,
+      "error": "YouTube Daily Upload Limit Reached",
+      "errorType": "QUOTA_EXCEEDED",
+      "id": "0198u1gqev64qmoe7xo78",
+      "timestamp": "2026-04-25T10:50:40.964Z"
+    },
+    {
+      "accountId": "kd70a245y4jstdnpzz3e8mnev185ggz8",
+      "channelName": "Agentx-quotes21",
+      "topic": "general",
+      "success": false,
+      "error": "YouTube Daily Upload Limit Reached",
+      "errorType": "QUOTA_EXCEEDED",
+      "id": "67dd114z9f2moe7xp94",
+      "timestamp": "2026-04-25T10:50:42.328Z"
+    },
+    {
+      "accountId": "kd78pcvcmh0f53e75dpec6tq3n85hwe6",
+      "channelName": "Agentx-quotes22",
+      "topic": "general",
+      "success": false,
+      "error": "YouTube Daily Upload Limit Reached",
+      "errorType": "QUOTA_EXCEEDED",
+      "id": "2vm4p4ldho9moe7xxqe",
+      "timestamp": "2026-04-25T10:50:53.318Z"
+    },
+    {
+      "accountId": "kd7c3epdm48q3esha99ckt91vx85gfj5",
+      "channelName": "Agentx-quotes16",
+      "topic": "general",
+      "success": false,
+      "error": "YouTube Daily Upload Limit Reached",
+      "errorType": "QUOTA_EXCEEDED",
+      "id": "o5o4sg0k9snmoe7xy5v",
+      "timestamp": "2026-04-25T10:50:53.875Z"
+    },
+    {
+      "accountId": "kd7331vqgvs5j4f0basxpe5r8h85h7n5",
+      "channelName": "Agentx-quotes19",
+      "topic": "general",
+      "success": false,
+      "error": "YouTube Daily Upload Limit Reached",
+      "errorType": "QUOTA_EXCEEDED",
+      "id": "6v42rb3l9b5moe7y66m",
+      "timestamp": "2026-04-25T10:51:04.270Z"
+    },
+    {
+      "accountId": "kd706smsk54fqyj0tc106vwk9h85hkws",
+      "channelName": "Agentx-quotes17",
+      "topic": "general",
+      "success": false,
+      "error": "YouTube Daily Upload Limit Reached",
+      "errorType": "QUOTA_EXCEEDED",
+      "id": "36l0ngt06u3moe7y7gm",
+      "timestamp": "2026-04-25T10:51:05.926Z"
+    },
+    {
+      "accountId": "kd7enx46m1kpghp50mhxp3byw985hqvz",
+      "channelName": "Agentx-quotes20",
+      "topic": "general",
+      "success": false,
+      "error": "YouTube Daily Upload Limit Reached",
+      "errorType": "QUOTA_EXCEEDED",
+      "id": "fjnbszh9formoe7yfcx",
+      "timestamp": "2026-04-25T10:51:16.161Z"
+    },
+    {
+      "accountId": "kd7enx46m1kpghp50mhxp3byw985hqvz",
+      "channelName": "Agentx-quotes20",
+      "topic": "general",
+      "success": false,
+      "error": "YouTube Daily Upload Limit Reached",
+      "errorType": "QUOTA_EXCEEDED",
+      "id": "0mgsjsg1gnkomoe7yfy6",
+      "timestamp": "2026-04-25T10:51:16.926Z"
+    },
+    {
+      "accountId": "kd7enx46m1kpghp50mhxp3byw985hqvz",
+      "channelName": "Agentx-quotes20",
+      "topic": "general",
+      "success": false,
+      "error": "YouTube Daily Upload Limit Reached",
+      "errorType": "QUOTA_EXCEEDED",
+      "id": "ufh8d60maefmoe7you8",
+      "timestamp": "2026-04-25T10:51:28.448Z"
+    },
+    {
+      "accountId": "kd706smsk54fqyj0tc106vwk9h85hkws",
+      "channelName": "Agentx-quotes17",
+      "topic": "general",
+      "success": false,
+      "error": "YouTube Daily Upload Limit Reached",
+      "errorType": "QUOTA_EXCEEDED",
+      "id": "dqznczbahwimoe7yoyl",
+      "timestamp": "2026-04-25T10:51:28.605Z"
+    },
+    {
+      "accountId": "kd706smsk54fqyj0tc106vwk9h85hkws",
+      "channelName": "Agentx-quotes17",
+      "topic": "general",
+      "success": false,
+      "error": "YouTube Daily Upload Limit Reached",
+      "errorType": "QUOTA_EXCEEDED",
+      "id": "booxkczcvqpmoe7ywy8",
+      "timestamp": "2026-04-25T10:51:38.960Z"
     }
   ],
-  "lastUpdated": "2026-04-14T18:46:10.290Z"
+  "lastUpdated": "2026-04-25T10:51:38.960Z"
 }
